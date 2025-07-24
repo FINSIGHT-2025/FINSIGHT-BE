@@ -7,10 +7,13 @@
         <setting name="mapUnderscoreToCamelCase" value="true"/>
     </settings>
     <typeAliases>
-<!--        <typeAlias type="com.finsight.backend.vo.Product" alias="Product"/>-->
+        <typeAlias type="com.finsight.backend.vo.Member" alias="Member" />
 <!--        <typeAlias type="com.finsight.backend.vo.OrderInfo" alias="OrderInfo"/>-->
 <!--        <typeAlias type="com.finsight.backend.vo.OrderLine" alias="OrderLine"/>-->
 <!--        <typeAlias type="com.finsight.backend.vo.Customer" alias="Customer"/>-->
 <!--        <typeAlias type="com.finsight.backend.vo.CustomerAuth" alias="CustomerAuth"/>-->
     </typeAliases>
+    <mappers>
+        <package name="com.finsight.backend.mapper"/>
+    </mappers>
 </configuration>

@@ -1,0 +1,57 @@
+package com.finsight.backend.service;
+
+import com.finsight.backend.vo.EmailVerification;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+
+import java.security.SecureRandom;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+
+/*
+이메일 인증 로직의 핵심 기능을 처리하는 서비스 클래스
+즉, 실제로 인증 코드를 생성하고, 저장하고, 이메일로 발송하고, 인증 여부를 검증하는 실무자 역할
+
+사용자의 이메일에 인증 코드를 발송하고,
+해당 코드를 검증하고,
+만료된 코드는 자동으로 제거하는 기능까지 담당
+ */
+@Service
+public class EmailService {
+
+    private final Map<String, EmailVerification> codeStorage = new ConcurrentHashMap<>();
+    private final Random random = new SecureRandom();
+
+    @Autowired
+    private JavaMailSender mailSender;
+
+    public void sendVerificationCode(String email) {
+        String code = String.format("%06d", random.nextInt(1000000));
+        long expireAt = System.currentTimeMillis() + (5 * 60 * 1000);
+
+        codeStorage.put(email, new EmailVerification(code, expireAt));
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("[Fin-Sight] 이메일 인증 코드입니다.");
+        message.setText("인증 코드: " + code + "\n5분 내로 입력해주세요.");
+        mailSender.send(message);
+    }
+
+    public boolean verifyCode(String email, String code) {
+        EmailVerification v = codeStorage.get(email);
+        if (v == null || v.isExpired()) {
+            codeStorage.remove(email);
+            return false;
+        }
+        return v.getCode().equals(code);
+    }
+
+    public void removeCode(String email) {
+        codeStorage.remove(email);
+    }
+}
+

@@ -41,18 +41,7 @@ public class SecurityConfig {
 //        return new BCryptPasswordEncoder();
         return NoOpPasswordEncoder.getInstance(); //비밀번호 암호와 안하기
     }
-    @Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("*");
-//        config.addAllowedOrigin("http://localhost:5173");// → 정확히 일치해야 함
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
-    }
+
 
 //    @Bean
 //    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

@@ -125,6 +125,10 @@ dependencies {
 
   testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+
+  // 이메일 인증
+  implementation 'org.springframework:spring-context-support:5.3.37'
+  implementation 'com.sun.mail:javax.mail:1.6.2' // 최신 안정 버전
 }
 
 test {
