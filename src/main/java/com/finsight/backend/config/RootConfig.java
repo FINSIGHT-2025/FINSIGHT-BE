@@ -22,7 +22,11 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 @Configuration
-@ComponentScan(basePackages = {"com.finsight.backend.service"})
+@ComponentScan(basePackages = {
+        "com.finsight.backend.service",
+        "com.finsight.backend.security",
+        "com.finsight.backend.util"
+})
 @PropertySource({"classpath:/application.properties"})
 
 //지정된 패키지 내의 모든 매퍼 인터페이스를 자동으로 스캔하고, MyBatis의 매퍼로 등록

@@ -1,8 +1,10 @@
 package com.finsight.backend.control;
 
 import com.finsight.backend.dto.request.LoginForm;
-import com.finsight.backend.dto.response.LoginResponse;
+import com.finsight.backend.dto.response.LoginResponseWithToken;
+import com.finsight.backend.dto.response.TokenInfoDto;
 import com.finsight.backend.service.MemberService;
+import com.finsight.backend.util.JwtUtil;
 import com.finsight.backend.vo.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +26,8 @@ import java.util.Optional;
 @RequestMapping("/users")
 public class MemberController {
     private final MemberService memberService;
-
+    private final JwtUtil jwtUtil;
+// user123 / securepassword123!
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginForm loginForm, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
@@ -38,15 +41,23 @@ public class MemberController {
         if (optionalMember.isPresent()) {
             log.info("member = {}", optionalMember.get().getUsername());
             Member member = optionalMember.get();
-            LoginResponse response = new LoginResponse(
+            TokenInfoDto tokenInfo = new TokenInfoDto(
+                    member.getUserId(),
+                    member.getUsername(),
+                    member.getNickname()
+            );
+            String accessToken = jwtUtil.generateAccessToken(tokenInfo);
+            log.info("accessToekn : {}", accessToken);
+            result.put("success", Boolean.TRUE);
+            result.put("data", new LoginResponseWithToken(
                     member.getUserId(),
                     member.getUsername(),
                     member.getNickname(),
                     member.getEmail(),
-                    member.getRole()
-            );
-            result.put("success", true);
-            result.put("data", response);
+                    member.getRole(),
+                    accessToken
+            ));
+            result.put("error", null);
             return ResponseEntity.ok(result);
         } else {
             log.warn("로그인 실패 - 회원 정보 없음");
