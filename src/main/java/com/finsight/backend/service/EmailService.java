@@ -9,6 +9,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /*
@@ -23,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class EmailService {
 
     private final Map<String, EmailVerification> codeStorage = new ConcurrentHashMap<>();
+    private final Set<String> verifiedEmails = ConcurrentHashMap.newKeySet();  // ✅ 인증 완료 이메일 저장소
     private final Random random = new SecureRandom();
 
     @Autowired
@@ -32,7 +34,8 @@ public class EmailService {
         String code = String.format("%06d", random.nextInt(1000000));
         long expireAt = System.currentTimeMillis() + (5 * 60 * 1000);
 
-        codeStorage.put(email, new EmailVerification(code, expireAt));
+        codeStorage.remove(email); // 기존 인증코드 제거
+        codeStorage.put(email, new EmailVerification(code, expireAt)); // 새 코드 저장
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
@@ -47,11 +50,67 @@ public class EmailService {
             codeStorage.remove(email);
             return false;
         }
-        return v.getCode().equals(code);
+
+        if (v.getCode().equals(code)) {
+            codeStorage.remove(email);               // 인증 코드 제거
+            verifiedEmails.add(email);               // ✅ 인증된 이메일 저장
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEmailVerified(String email) {
+        return verifiedEmails.contains(email);        // ✅ 회원가입 시 인증 여부 확인용
+    }
+
+    public void removeVerifiedEmail(String email) {
+        verifiedEmails.remove(email);                 // ✅ 회원가입 완료 후 삭제
     }
 
     public void removeCode(String email) {
         codeStorage.remove(email);
     }
 }
+
+//@Service
+//public class EmailService {
+//
+//    private final Map<String, EmailVerification> codeStorage = new ConcurrentHashMap<>();
+//    private final Random random = new SecureRandom();
+//
+//    @Autowired
+//    private JavaMailSender mailSender;
+//
+//    public void sendVerificationCode(String email) {
+//        String code = String.format("%06d", random.nextInt(1000000));
+//        long expireAt = System.currentTimeMillis() + (5 * 60 * 1000);
+//
+//        codeStorage.remove(email); // 기존 인증코드 제거 (명시적)
+//        codeStorage.put(email, new EmailVerification(code, expireAt)); // 새 코드 저장
+//
+//        SimpleMailMessage message = new SimpleMailMessage();
+//        message.setTo(email);
+//        message.setSubject("[Fin-Sight] 이메일 인증 코드입니다.");
+//        message.setText("인증 코드: " + code + "\n5분 내로 입력해주세요.");
+//        mailSender.send(message);
+//    }
+//
+//    public boolean verifyCode(String email, String code) {
+//        EmailVerification v = codeStorage.get(email);
+//        if (v == null || v.isExpired()) {
+//            codeStorage.remove(email);
+//            return false;
+//        }
+//
+//        if (v.getCode().equals(code)) {
+//            codeStorage.remove(email);  // 인증 성공 시 자동 삭제
+//            return true;
+//        }
+//        return false;
+//    }
+//
+//    public void removeCode(String email) {
+//        codeStorage.remove(email);
+//    }
+//}
 

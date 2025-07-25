@@ -7,6 +7,17 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Role {
-    INVEST_O("invets_o"), INVEST_X("invest_x");
-    private final String name;
+    INCOMPLETE("incomplete"),
+    COMPLETE("complete");
+
+    private final String dbValue;
+
+    Role(String dbValue) {
+        this.dbValue = dbValue;
+    }
+
+    @Override
+    public String toString() {
+        return dbValue;
+    }
 }

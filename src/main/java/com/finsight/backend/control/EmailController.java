@@ -3,6 +3,7 @@ package com.finsight.backend.control;
 import com.finsight.backend.dto.request.EmailRequest;
 import com.finsight.backend.dto.request.VerifyCodeRequest;
 import com.finsight.backend.service.EmailService;
+import com.finsight.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,21 +29,38 @@ public class EmailController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private UserService userService;
+
+    // ✅ 이메일 인증 코드 요청 (중복 확인 포함)
     @PostMapping("/email")
     public ResponseEntity<?> sendEmail(@RequestBody EmailRequest req) {
-        emailService.sendVerificationCode(req.getEmail());
+        String email = req.getEmail();
+
+        // 1. 중복된 이메일이면 차단
+        if (userService.isEmailTaken(email)) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)  // 409 Conflict
+                    .body(Collections.singletonMap("message", "이미 가입된 이메일입니다."));
+        }
+
+        // 2. 인증 코드 전송
+        emailService.sendVerificationCode(email);
         return ResponseEntity.ok(Collections.singletonMap("message", "인증 코드가 전송되었습니다."));
     }
 
+    // ✅ 인증 코드 확인
     @PostMapping("/authcode")
     public ResponseEntity<?> verify(@RequestBody VerifyCodeRequest req) {
         boolean verified = emailService.verifyCode(req.getEmail(), req.getCode());
+
         if (verified) {
-            emailService.removeCode(req.getEmail());
+            emailService.removeCode(req.getEmail()); // 인증 성공 시 코드 삭제
             return ResponseEntity.ok(Collections.singletonMap("verified", true));
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("verified", false));
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Collections.singletonMap("verified", false));
         }
     }
 }
-
