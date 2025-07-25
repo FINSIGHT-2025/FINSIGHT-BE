@@ -27,10 +27,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
 
-    private final String[] whiteList = {"/users", "/users/email", "/users/login"};
+    private final String[] whiteList = {"/users", "/users/email", "/users/login", "/"};
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String uri = request.getRequestURI();
+        log.info("JwtFilter 호출됨 : {}", request.getRequestURI());
         for (String white : whiteList) {
             if (uri.equals(white)) {
                 filterChain.doFilter(request, response);

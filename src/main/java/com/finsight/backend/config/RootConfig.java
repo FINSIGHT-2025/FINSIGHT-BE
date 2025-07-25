@@ -88,31 +88,8 @@ public class RootConfig {
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(getHikariDataSource());
 
-        // 4. Configuration
-        //mybatis설정정보를  XML파일사용할 경우
         sessionFactory.setConfigLocation(applicationContext.getResource("classpath:/mybatis-config.xml"));
 
-        /*
-        //mybatis설정정보를  JavaConfig로 할 경우
-        org.apache.ibatis.session.Configuration configuration =
-                new org.apache.ibatis.session.Configuration();
-
-//        mybatis-spring에서는  @MapperScan이 아래 작업을 합니다
-//        BoardMapper인터페이스의 프록시를 만들어를 맵퍼
-//        configuration.addMapper(BoardMapper.class);
-
-        //mapUnderscoreToCamelCase 설정 (Java 코드에서 설정)
-        configuration.setMapUnderscoreToCamelCase(true);
-        //Alias 등록(Java 코드에서 설정)
-        TypeAliasRegistry registry = configuration.getTypeAliasRegistry();
-        registry.registerAlias("Product", com.kb.starbucks.vo.Product.class);
-
-        // 6. 매퍼 클래스 추가
-//        configuration.addMapper(ProductMapper.class);
-
-        sessionFactory.setConfiguration(configuration);
-
-         */
         return sessionFactory.getObject();
     }
 

@@ -47,7 +47,7 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
 
         DelegatingFilterProxy  securityFilterChain = new DelegatingFilterProxy("springSecurityFilterChain");
 
-        return new Filter[] { characterEncodingFilter };
+        return new Filter[] { characterEncodingFilter, securityFilterChain };
     }
    final String LOCATION = "c:/upload";
     final long MAX_FILE_SIZE =1024 * 10;//1024 * 1024 * 10L; //

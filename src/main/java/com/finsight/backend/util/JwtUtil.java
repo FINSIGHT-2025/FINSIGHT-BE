@@ -43,7 +43,6 @@ public class JwtUtil implements InitializingBean {
     }
 
     public String generateToken(Claims claims,  final Integer expirationPeriod){
-        log.info("generateToken");
         try {
             return Jwts.builder()
                     .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
@@ -59,7 +58,6 @@ public class JwtUtil implements InitializingBean {
     }
 
     public String generateAccessToken(final TokenInfoDto tokenInfoDto){
-        log.info("generateAccessToken");
         final Claims claims = Jwts.claims();
         claims.put(USER_ID_CLAIM_NAME, tokenInfoDto.getUserId());
         claims.put(USER_USERNAME_CLAIM_NAME, tokenInfoDto.getUsername());
