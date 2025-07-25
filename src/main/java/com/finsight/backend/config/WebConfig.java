@@ -1,7 +1,9 @@
 package com.finsight.backend.config;
 
 import com.finsight.backend.listener.MySQLCleanupListener;
+import com.finsight.backend.security.config.SecurityConfig;
 import org.springframework.web.filter.CharacterEncodingFilter;
+import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 import javax.servlet.*;
@@ -20,10 +22,10 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
     @Override
     protected Class<?>[] getRootConfigClasses() {
         return new Class[] {
-//                CorsConfig.class,
+                CorsConfig.class,
                 RootConfig.class,
-                WebSocketConfig.class
-//                SecurityConfig.class,
+                WebSocketConfig.class,
+                SecurityConfig.class,
         };
     }
 
@@ -42,7 +44,10 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
         CharacterEncodingFilter characterEncodingFilter = new CharacterEncodingFilter();
         characterEncodingFilter.setEncoding("UTF-8");
         characterEncodingFilter.setForceEncoding(true);
-        return new Filter[] { characterEncodingFilter };
+
+        DelegatingFilterProxy  securityFilterChain = new DelegatingFilterProxy("springSecurityFilterChain");
+
+        return new Filter[] { characterEncodingFilter, securityFilterChain };
     }
    final String LOCATION = "c:/upload";
     final long MAX_FILE_SIZE =1024 * 10;//1024 * 1024 * 10L; //

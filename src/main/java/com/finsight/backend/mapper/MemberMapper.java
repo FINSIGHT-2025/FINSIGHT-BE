@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 public interface MemberMapper {
     boolean insert(SignupForm signupForm);
     Member findMemberByUserIdAndPassword(LoginForm loginForm);
+    Member findMemberByUserId(String userId);
     boolean update(@Param("beforeNickname") String beforeNickname, @Param("afterNickname") String afterNickname);
     boolean delete(LoginForm loginForm);
 }

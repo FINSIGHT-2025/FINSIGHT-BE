@@ -1,5 +1,11 @@
 package com.finsight.backend.enumerate;
 
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum Role {
     INCOMPLETE("incomplete"),
     COMPLETE("complete");
@@ -15,4 +21,3 @@ public enum Role {
         return dbValue;
     }
 }
-
