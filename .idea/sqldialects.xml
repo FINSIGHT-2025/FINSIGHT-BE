@@ -3,6 +3,5 @@
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/src/main/database.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/com/finsight/backend/mapper/MemberMapper.xml" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/src/main/resources/com/finsight/backend/mapper/UserMapper.xml" dialect="MySQL" />
   </component>
 </project>

@@ -1,14 +1,14 @@
 package com.finsight.backend.mapper;
 
 import com.finsight.backend.dto.request.LoginForm;
-import com.finsight.backend.dto.request.SignupForm;
 import com.finsight.backend.vo.Member;
-import org.apache.ibatis.annotations.Param;
 
 public interface MemberMapper {
-    boolean insert(SignupForm signupForm);
+    boolean insert(Member member);
     Member findMemberByUserIdAndPassword(LoginForm loginForm);
     Member findMemberByUserId(String userId);
-    boolean update(@Param("beforeNickname") String beforeNickname, @Param("afterNickname") String afterNickname);
-    boolean delete(LoginForm loginForm);
+
+    boolean existsByUserId(String userId);
+    boolean existsByNickname(String nickname);
+    boolean existsByEmail(String email);
 }

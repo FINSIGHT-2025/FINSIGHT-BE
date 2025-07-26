@@ -12,10 +12,6 @@ public enum Role {
 
     private final String dbValue;
 
-    Role(String dbValue) {
-        this.dbValue = dbValue;
-    }
-
     @Override
     public String toString() {
         return dbValue;

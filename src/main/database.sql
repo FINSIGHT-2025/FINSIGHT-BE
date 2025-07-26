@@ -166,4 +166,4 @@ CREATE TABLE `Watch` (
 );
 
 
-SELECT * FROM User;
+SELECT * FROM member;

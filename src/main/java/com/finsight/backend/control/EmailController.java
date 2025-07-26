@@ -3,8 +3,9 @@ package com.finsight.backend.control;
 import com.finsight.backend.dto.request.EmailRequest;
 import com.finsight.backend.dto.request.VerifyCodeRequest;
 import com.finsight.backend.service.EmailService;
-import com.finsight.backend.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.finsight.backend.service.MemberService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,15 +23,14 @@ import java.util.Collections;
 장점: 서비스 로직과 분리되어 있어 테스트와 유지보수가 편리함
 비유: 사용자가 전화를 걸면 컨트롤러가 받고, 실무자(서비스)에게 연결해주는 구조
  */
+@Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/users")
 public class EmailController {
+    private final EmailService emailService;
 
-    @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    private UserService userService;
+    private final MemberService memberService;
 
     // ✅ 이메일 인증 코드 요청 (중복 확인 포함)
     @PostMapping("/email")
@@ -38,7 +38,7 @@ public class EmailController {
         String email = req.getEmail();
 
         // 1. 중복된 이메일이면 차단
-        if (userService.isEmailTaken(email)) {
+        if (memberService.checkEmail(email)) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)  // 409 Conflict
                     .body(Collections.singletonMap("message", "이미 가입된 이메일입니다."));
@@ -52,6 +52,7 @@ public class EmailController {
     // ✅ 인증 코드 확인
     @PostMapping("/authcode")
     public ResponseEntity<?> verify(@RequestBody VerifyCodeRequest req) {
+        log.info("/authcode 호출");
         boolean verified = emailService.verifyCode(req.getEmail(), req.getCode());
 
         if (verified) {
