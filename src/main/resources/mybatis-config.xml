@@ -3,6 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
+
     <settings>
         <setting name="mapUnderscoreToCamelCase" value="true"/>
     </settings>
@@ -13,7 +14,11 @@
 <!--        <typeAlias type="com.finsight.backend.vo.Customer" alias="Customer"/>-->
 <!--        <typeAlias type="com.finsight.backend.vo.CustomerAuth" alias="CustomerAuth"/>-->
     </typeAliases>
+    <typeHandlers>
+        <package name="com.finsight.backend.handler"/>
+    </typeHandlers>
     <mappers>
         <package name="com.finsight.backend.mapper"/>
     </mappers>
+
 </configuration>

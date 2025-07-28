@@ -15,27 +15,20 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class Member {
-    @NotBlank @Size(min = 4, max = 20)
+
     private String userId;
 
-    @NotBlank @Size(max = 20)
     private String username;
 
-    @NotBlank @Size(min = 2, max = 20)
     private String nickname;
 
-    @NotBlank
     private String password;
 
-    @NotNull @Past
     private LocalDate birthday;
 
-    @NotBlank @Email
     private String email;
 
-    @NotNull @Past
     private LocalDateTime createdAt;
 
-    @NotNull
     private Role role;
 }

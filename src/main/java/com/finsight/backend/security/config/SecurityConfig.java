@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -37,8 +38,8 @@ public class SecurityConfig {
     }
     @Bean
     public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-        return NoOpPasswordEncoder.getInstance(); //비밀번호 암호와 안하기
+        return new BCryptPasswordEncoder();
+//        return NoOpPasswordEncoder.getInstance(); //비밀번호 암호와 안하기
     }
 
     @Bean
@@ -52,7 +53,7 @@ public class SecurityConfig {
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // 세션 비활성화
                 .authorizeHttpRequests(requestMatcherRegistry ->
                         requestMatcherRegistry
-                                .requestMatchers("/users", "/users/email", "/users/login").permitAll()
+                                .requestMatchers("/users", "/users/email", "/users/login", "/users/authcode").permitAll()
                                 .anyRequest().authenticated())
                 .logout(configurer ->
                         configurer
