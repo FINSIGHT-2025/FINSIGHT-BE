@@ -30,9 +30,9 @@ public class UserService {
         return userMapper.countByUserId(userId) > 0;
     }
 
-    public boolean isNicknameTaken(String nickname) {
-        return userMapper.countByNickname(nickname) > 0;
-    }
+//    public boolean isNicknameTaken(String nickname) {
+//        return userMapper.countByNickname(nickname) > 0;
+//    }
 
     public boolean isEmailTaken(String email) {
         return userMapper.countByEmail(email) > 0;
@@ -45,7 +45,7 @@ public class UserService {
         }
 
         if (isUserIdTaken(member.getUserId()) ||
-                isNicknameTaken(member.getNickname()) ||
+//                isNicknameTaken(member.getNickname()) ||
                 isEmailTaken(member.getEmail())) {
             return false;
         }

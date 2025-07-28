@@ -14,7 +14,7 @@ DROP TABLE IF EXISTS `User`;
 CREATE TABLE `User` (
                         `user_id` VARCHAR(255) NOT NULL COMMENT '아이디',
                         `user_name` VARCHAR(255) NOT NULL COMMENT '사용자 이름',
-                        `user_nickname` VARCHAR(255) NOT NULL COMMENT '닉네임',
+#                         `user_nickname` VARCHAR(255) NOT NULL COMMENT '닉네임',
                         `user_password` VARCHAR(255) NOT NULL COMMENT '비밀번호',
                         `user_birthday` DATE NOT NULL COMMENT '생년월일',
                         `user_email` VARCHAR(255) NOT NULL COMMENT '이메일',
@@ -167,3 +167,5 @@ CREATE TABLE `Watch` (
 
 
 SELECT * FROM User;
+
+DELETE FROM User WHERE user_id = 'ssang';

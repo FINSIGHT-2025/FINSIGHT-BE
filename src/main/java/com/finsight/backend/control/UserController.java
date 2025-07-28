@@ -34,7 +34,7 @@ public class UserController {
         Member member = Member.builder()
                 .userId(request.getUserId())
                 .username(request.getUsername())
-                .nickname(request.getNickname())
+//                .nickname(request.getNickname())
                 .password(request.getPassword())
                 .birthday(request.getBirthday())
                 .email(request.getEmail())
@@ -55,16 +55,19 @@ public class UserController {
     @GetMapping("")
     public ResponseEntity<Boolean> checkDuplicates(
             @RequestParam(required = false) String userid,
-            @RequestParam(required = false) String nickname,
+//            @RequestParam(required = false) String nickname,
             @RequestParam(required = false) String email
     ) {
         if (userid != null) {
             return ResponseEntity.ok(userService.isUserIdTaken(userid));
-        } else if (nickname != null) {
-            return ResponseEntity.ok(userService.isNicknameTaken(nickname));
-        } else if (email != null) {
+        }
+//        else if (nickname != null) {
+//            return ResponseEntity.ok(userService.isNicknameTaken(nickname));
+//        }
+        else if (email != null) {
             return ResponseEntity.ok(userService.isEmailTaken(email));
-        } else {
+        }
+        else {
             return ResponseEntity.badRequest().body(false); // 파라미터 없음
         }
     }

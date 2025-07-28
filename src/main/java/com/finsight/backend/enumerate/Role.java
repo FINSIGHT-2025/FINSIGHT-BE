@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
+//@AllArgsConstructor
 public enum Role {
     INCOMPLETE("incomplete"),
     COMPLETE("complete");

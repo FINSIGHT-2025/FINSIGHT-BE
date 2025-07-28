@@ -7,9 +7,9 @@
         SELECT COUNT(*) FROM `User` WHERE user_id = #{userId}
     </select>
 
-    <select id="countByNickname" resultType="int">
-        SELECT COUNT(*) FROM `User` WHERE user_nickname = #{nickname}
-    </select>
+<!--    <select id="countByNickname" resultType="int">-->
+<!--        SELECT COUNT(*) FROM `User` WHERE user_nickname = #{nickname}-->
+<!--    </select>-->
 
     <select id="countByEmail" resultType="int">
         SELECT COUNT(*) FROM `User` WHERE user_email = #{email}
@@ -17,10 +17,10 @@
 
     <insert id="insertMember" parameterType="com.finsight.backend.vo.Member">
         INSERT INTO `User` (
-        user_id, user_name, user_nickname, user_password,
+        user_id, user_name, user_password,
         user_birthday, user_email, user_created_at, user_role
         ) VALUES (
-        #{userId}, #{username}, #{nickname}, #{password},
+        #{userId}, #{username}, #{password},
         #{birthday}, #{email}, #{createdAt}, #{role}
         )
     </insert>
