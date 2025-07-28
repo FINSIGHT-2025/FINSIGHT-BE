@@ -165,5 +165,9 @@ CREATE TABLE `Watch` (
     -- `product_code` 역시 다형 참조라 FK 생략
 );
 
+alter table member
+modify column role enum('incomplete', 'complete') default 'incomplete';
 
 SELECT * FROM member;
+
+delete from member;

@@ -5,7 +5,6 @@ import com.finsight.backend.vo.Member;
 
 public interface MemberMapper {
     boolean insert(Member member);
-    Member findMemberByUserIdAndPassword(LoginForm loginForm);
     Member findMemberByUserId(String userId);
 
     boolean existsByUserId(String userId);

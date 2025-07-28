@@ -23,8 +23,11 @@ public class MemberServiceImpl implements MemberService{
 
     @Override
     public Optional<Member> findMember(LoginForm loginForm) {
-        Member member = memberMapper.findMemberByUserIdAndPassword(loginForm);
-        return Optional.ofNullable(member);
+        Member member = memberMapper.findMemberByUserId(loginForm.getUserId());
+        if(member != null && passwordEncoder.matches(loginForm.getPassword(), member.getPassword())){
+            return Optional.of(member);
+        }
+        return Optional.empty();
     }
 
     @Override
