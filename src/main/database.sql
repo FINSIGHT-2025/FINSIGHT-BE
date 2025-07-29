@@ -109,7 +109,7 @@ CREATE TABLE `DEPOSIT` (
 );
 
 CREATE TABLE `History` (
-                           `history_id` BIGINT NOT NULL COMMENT '기본키',
+                           `history_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '기본키',
                            `holdings_id` BIGINT NOT NULL COMMENT '외래키',
                            `history_trade_type` ENUM('buy', 'sell', 'deposit') NOT NULL COMMENT '거래 유형',
                            `history_trade_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '거래일',
@@ -163,3 +163,18 @@ CREATE TABLE `Watch` (
                          FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`)
     -- `product_code` 역시 다형 참조라 FK 생략
 );
+
+-- 유저
+INSERT INTO User (user_id, user_name, user_password, user_birthday, user_email, user_role)
+VALUES ('user123', '홍길동', 'testpw', '1990-01-01', 'hong@test.com', 'complete');
+
+-- 상품
+INSERT INTO Fund (product_code, product_name, product_company_name, product_risk_grade,
+                  fund_country, fund_type, fund_delisting_status)
+VALUES ('KR5301A74911', '테스트펀드', 'KB자산운용', 3, 'domestic', 'equity', false);
+
+SELECT * FROM Holdings;
+SELECT * FROM History;
+
+DELETE FROM History;
+DELETE FROM Holdings;
