@@ -7,13 +7,11 @@ import java.util.Collection;
 
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
     private String userId;
-    private String username;
-    private String nickname;
-    public JwtAuthenticationToken(Collection<? extends GrantedAuthority> authorities, String userId, String username, String nickname) {
+    private String userName;
+    public JwtAuthenticationToken(Collection<? extends GrantedAuthority> authorities, String userId, String username) {
         super(authorities);
         this.userId = userId;
-        this.username = username;
-        this.nickname = nickname;
+        this.userName = username;
         setAuthenticated(true);
     }
 

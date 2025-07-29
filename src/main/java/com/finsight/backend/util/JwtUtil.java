@@ -1,7 +1,6 @@
 package com.finsight.backend.util;
 
 import com.finsight.backend.dto.response.TokenInfoDto;
-import com.finsight.backend.enumerate.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -10,12 +9,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 @Slf4j
@@ -23,7 +18,6 @@ public class JwtUtil implements InitializingBean {
     private static final Integer ACCESS_TOKEN_MS = 60 * 60 * 1000;
     private static final String USER_ID_CLAIM_NAME = "userId";
     private static final String USER_USERNAME_CLAIM_NAME = "username";
-    private static final String USER_NICKNAME_CLAIM_NAME = "nickname";
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -61,7 +55,6 @@ public class JwtUtil implements InitializingBean {
         final Claims claims = Jwts.claims();
         claims.put(USER_ID_CLAIM_NAME, tokenInfoDto.getUserId());
         claims.put(USER_USERNAME_CLAIM_NAME, tokenInfoDto.getUsername());
-        claims.put(USER_NICKNAME_CLAIM_NAME, tokenInfoDto.getNickname());
 
         return generateToken(claims, ACCESS_TOKEN_MS);
     }

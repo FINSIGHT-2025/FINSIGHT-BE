@@ -10,5 +10,4 @@ import lombok.NoArgsConstructor;
 public class TokenInfoDto {
     private String userId;
     private String username;
-    private String nickname;
 }

@@ -14,7 +14,6 @@ DROP TABLE IF EXISTS `User`;
 CREATE TABLE `User` (
                         `user_id` VARCHAR(255) NOT NULL COMMENT '아이디',
                         `user_name` VARCHAR(255) NOT NULL COMMENT '사용자 이름',
-                        `user_nickname` VARCHAR(255) NOT NULL COMMENT '닉네임',
                         `user_password` VARCHAR(255) NOT NULL COMMENT '비밀번호',
                         `user_birthday` DATE NOT NULL COMMENT '생년월일',
                         `user_email` VARCHAR(255) NOT NULL COMMENT '이메일',
@@ -164,10 +163,3 @@ CREATE TABLE `Watch` (
                          FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`)
     -- `product_code` 역시 다형 참조라 FK 생략
 );
-
-alter table member
-modify column role enum('incomplete', 'complete') default 'incomplete';
-
-SELECT * FROM member;
-
-delete from member;

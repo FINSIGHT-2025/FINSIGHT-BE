@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum Role implements BaseEnum{
+public enum UserRole implements BaseEnum{
     INCOMPLETE("incomplete"),
     COMPLETE("complete");
 
@@ -16,8 +16,8 @@ public enum Role implements BaseEnum{
     public String toString() {
         return dbValue;
     }
-    public static Role fromDbValue(String dbValue) {
-        for (Role role : values()) {
+    public static UserRole fromDbValue(String dbValue) {
+        for (UserRole role : values()) {
             if (role.dbValue.equalsIgnoreCase(dbValue)) {
                 return role;
             }

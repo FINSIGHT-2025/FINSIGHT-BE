@@ -22,9 +22,6 @@ public class SignupForm {
     @NotBlank @Size(min = 2, max = 20)
     private String username;
 
-    @NotBlank @Size(min = 2, max = 10)
-    private String nickname;
-
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @NotNull @Past
     private LocalDate birthday;

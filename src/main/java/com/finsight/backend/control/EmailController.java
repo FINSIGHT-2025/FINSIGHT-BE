@@ -3,7 +3,7 @@ package com.finsight.backend.control;
 import com.finsight.backend.dto.request.EmailRequest;
 import com.finsight.backend.dto.request.VerifyCodeRequest;
 import com.finsight.backend.service.EmailService;
-import com.finsight.backend.service.MemberService;
+import com.finsight.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -30,7 +30,7 @@ import java.util.Collections;
 public class EmailController {
     private final EmailService emailService;
 
-    private final MemberService memberService;
+    private final UserService UserService;
 
     // ✅ 이메일 인증 코드 요청 (중복 확인 포함)
     @PostMapping("/email")
@@ -38,7 +38,7 @@ public class EmailController {
         String email = req.getEmail();
 
         // 1. 중복된 이메일이면 차단
-        if (memberService.checkEmail(email)) {
+        if (UserService.checkEmail(email)) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)  // 409 Conflict
                     .body(Collections.singletonMap("message", "이미 가입된 이메일입니다."));

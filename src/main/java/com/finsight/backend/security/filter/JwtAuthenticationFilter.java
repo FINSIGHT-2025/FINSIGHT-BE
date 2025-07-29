@@ -45,15 +45,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final Claims claims = jwtUtil.validateToken(token);
         JwtUserInfo jwtUserInfo = new JwtUserInfo(
                 String.valueOf(claims.get("userId", String.class)),
-                String.valueOf(claims.get("username", String.class)),
-                String.valueOf(claims.get("nickname", String.class))
+                String.valueOf(claims.get("username", String.class))
         );
 
         JwtAuthenticationToken jwtAuthenticationToken = new JwtAuthenticationToken(
                 null,
                 jwtUserInfo.id(),
-                jwtUserInfo.username(),
-                jwtUserInfo.nickname()
+                jwtUserInfo.username()
         );
         UsernamePasswordAuthenticationToken afterAuthentication = (UsernamePasswordAuthenticationToken) jwtAuthenticationProvider.authenticate(jwtAuthenticationToken);
         afterAuthentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

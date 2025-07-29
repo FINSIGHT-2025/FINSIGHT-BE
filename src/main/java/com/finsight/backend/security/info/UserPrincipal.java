@@ -1,6 +1,6 @@
 package com.finsight.backend.security.info;
 
-import com.finsight.backend.vo.Member;
+import com.finsight.backend.vo.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,13 +14,11 @@ import java.util.Collections;
 public class UserPrincipal implements UserDetails {
     private final String userId;
     private final String username;
-    private final String nickname;
 
-    public static UserPrincipal create(Member member){
+    public static UserPrincipal create(User user){
         return new UserPrincipal(
-                member.getUserId(),
-                member.getUsername(),
-                member.getNickname()
+                user.getUserId(),
+                user.getUserName()
         );
     }
     @Override
