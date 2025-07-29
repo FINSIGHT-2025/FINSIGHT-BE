@@ -6,16 +6,26 @@ import com.finsight.backend.dto.response.ApiResponse;
 import com.finsight.backend.dto.response.LoginResponseWithToken;
 import com.finsight.backend.dto.response.TokenInfoDto;
 import com.finsight.backend.enumerate.ErrorCode;
+import com.finsight.backend.security.JwtAuthenticationProvider;
 import com.finsight.backend.service.EmailService;
 import com.finsight.backend.service.UserService;
+import com.finsight.backend.util.HeaderUtil;
 import com.finsight.backend.util.JwtUtil;
 import com.finsight.backend.vo.User;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -81,6 +91,46 @@ public class UserController {
         } else {
             return ResponseEntity.badRequest().body(
                     new ApiResponse<>(Boolean.FALSE, "/", "잘못된 URL 접근입니다.")
+            );
+        }
+    }
+
+    @PostMapping("/token")
+    public ResponseEntity<?> generateToken(HttpServletRequest request) throws ServletException, IOException {
+        Enumeration<String> headerNames = request.getHeaderNames();
+
+        headerNames.asIterator()
+                .forEachRemaining(headerName -> {
+                    String headerValue = request.getHeader(headerName);
+                    System.out.println(headerValue + " : " + headerName);
+                });
+
+        Optional<String> token = HeaderUtil.refineHeader(request, "Authorization", "Bearer ");
+
+        if(token.isEmpty()){
+            log.warn("[User.generateToken] NOT_FOUND_TOKEN");
+            return ResponseEntity.status(ErrorCode.NOT_FOUND_TOKEN.getHttpStatus()).body(
+                    new ApiResponse<>(Boolean.FALSE, null, ErrorCode.NOT_FOUND_TOKEN.getMessage()));
+        }
+
+        try{
+            log.info("[User.generateToken] Success Generate Token");
+            Claims claims = jwtUtil.validateToken(token.get());
+            TokenInfoDto dto = new TokenInfoDto(
+                    claims.get("userId", String.class),
+                    claims.get("username", String.class)
+            );
+            String newAccessToken = jwtUtil.generateAccessToken(dto);
+            return ResponseEntity.ok(new ApiResponse<>(Boolean.TRUE, newAccessToken, null));
+        } catch (ExpiredJwtException e){
+            log.warn("[User.generateToken] EXPIRED_TOKEN_ERROR");
+            return ResponseEntity.status(ErrorCode.EXPIRED_TOKEN_ERROR.getHttpStatus()).body(
+                    new ApiResponse<>(Boolean.FALSE, null, ErrorCode.EXPIRED_TOKEN_ERROR.getMessage())
+            );
+        } catch (JwtException e){
+            log.warn("[User.generateToken] NOT_TOKEN_INVALID");
+            return ResponseEntity.status(ErrorCode.NOT_TOKEN_INVALID.getHttpStatus()).body(
+                    new ApiResponse<>(Boolean.FALSE, null, ErrorCode.NOT_TOKEN_INVALID.getMessage())
             );
         }
     }
