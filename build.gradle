@@ -37,6 +37,9 @@ ext {
 
   springSecurityVersion='5.8.13'
   jjwtVersion='0.11.5'
+
+  mongoDriverVersion = '4.11.1'         // MongoDB Java Driver
+  springDataMongoVersion = '3.4.11'     // Spring Data MongoDB (Spring 5.3.x 호환)
 }
 
 sourceCompatibility = '1.17'
@@ -47,6 +50,13 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
+
+  // MongoDB Java Driver
+  implementation "org.mongodb:mongodb-driver-sync:$mongoDriverVersion"
+
+  // Spring Data MongoDB
+  implementation "org.springframework.data:spring-data-mongodb:$springDataMongoVersion"
+
   compileOnly "javax.servlet:javax.servlet-api:$servletApiVersion"
 
   // Lombok
