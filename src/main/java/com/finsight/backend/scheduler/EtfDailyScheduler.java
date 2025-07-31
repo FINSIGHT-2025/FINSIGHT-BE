@@ -1,5 +1,6 @@
 package com.finsight.backend.scheduler;
 
+import com.finsight.backend.common.AppState;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
@@ -14,14 +15,21 @@ public class EtfDailyScheduler {
 
     private final JobLauncher jobLauncher;
     private final Job etfDailyJob;
+    private final AppState appState;
 
-    public EtfDailyScheduler(JobLauncher jobLauncher, Job etfDailyJob) {
+    public EtfDailyScheduler(JobLauncher jobLauncher, Job etfDailyJob, AppState appState) {
         this.jobLauncher = jobLauncher;
         this.etfDailyJob = etfDailyJob;
+        this.appState = appState;
     }
 
-    @Scheduled(cron = "0 15 16 * * *")
-    public void launchFundDailyJob() {
+    @Scheduled(cron = "30 50 17 * * *")
+    public void launchEtfDailyJob() {
+        if (!appState.isEtfInitCompleted()) {
+            log.warn("[EtfDailyJob] 초기화가 완료되지 않아 실행되지 않음");
+            return;
+        }
+
         try {
             JobParameters params = new JobParametersBuilder()
                     .addLong("time", System.currentTimeMillis())

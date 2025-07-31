@@ -30,6 +30,53 @@ public class BatchConfig {
     }
 
     @Bean
+    public Job fundInitJob() {
+        return jobBuilderFactory.get("fundInitJob")
+                .start(fundInitStep())
+                .build();
+    }
+
+    @Bean
+    public Step fundInitStep() {
+        return stepBuilderFactory.get("fundInitStep")
+                .tasklet((contribution, chunkContext) -> {
+                    for (int i = 10; i >= 1; i--) {
+                        double fund_nav = 42000 + Math.random() * 200;
+                        double fund_aum = 2000 + Math.random() * 2000;
+
+                        Instant timestamp = Instant.now().minusSeconds(60L * 60 * 24 * i);
+                        influxWriteService.writeFundDaily(fund_nav, fund_aum, timestamp);
+                    }
+
+                    System.out.println("Fund Init 저장 완료");
+                    return RepeatStatus.FINISHED;
+                }).build();
+    }
+
+    @Bean
+    public Job etfInitJob() {
+        return jobBuilderFactory.get("etfInitJob")
+                .start(etfInitStep())
+                .build();
+    }
+
+    @Bean
+    public Step etfInitStep() {
+        return stepBuilderFactory.get("etfInitStep")
+                .tasklet((contribution, chunkContext) -> {
+                    for (int i = 10; i >= 1; i--) {
+                        double etf_nav = 42000 + Math.random() * 200;
+
+                        Instant timestamp = Instant.now().minusSeconds(60L * 60 * 24 * i);
+                        influxWriteService.writeEtfDaily(etf_nav, timestamp);
+                    }
+
+                    System.out.println("Etf Init 저장 완료");
+                    return RepeatStatus.FINISHED;
+                }).build();
+    }
+
+    @Bean
     public Job fundDailyJob() {
         return jobBuilderFactory.get("fundDailyJob")
                 .start(fundDailyStep())

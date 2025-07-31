@@ -1,5 +1,6 @@
 package com.finsight.backend.scheduler;
 
+import com.finsight.backend.common.AppState;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
@@ -14,14 +15,21 @@ public class FundDailyScheduler {
 
     private final JobLauncher jobLauncher;
     private final Job fundDailyJob;
+    private final AppState appState;
 
-    public FundDailyScheduler(JobLauncher jobLauncher, Job fundDailyJob) {
+    public FundDailyScheduler(JobLauncher jobLauncher, Job fundDailyJob, AppState appState) {
         this.jobLauncher = jobLauncher;
         this.fundDailyJob = fundDailyJob;
+        this.appState = appState;
     }
 
-    @Scheduled(cron = "0 14 16 * * *")
+    @Scheduled(cron = "0 22 17 * * *")
     public void launchFundDailyJob() {
+        if (!appState.isFundInitCompleted()) {
+            log.warn("[FundDailyJob] 초기화가 완료되지 않아 실행되지 않음");
+            return;
+        }
+
         try {
             JobParameters params = new JobParametersBuilder()
                     .addLong("time", System.currentTimeMillis())
