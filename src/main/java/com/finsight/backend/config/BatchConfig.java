@@ -30,15 +30,15 @@ public class BatchConfig {
     }
 
     @Bean
-    public Job fundInitJob() {
-        return jobBuilderFactory.get("fundInitJob")
-                .start(fundInitStep())
+    public Job fundDailyInitJob() {
+        return jobBuilderFactory.get("fundDailyInitJob")
+                .start(fundDailyInitStep())
                 .build();
     }
 
     @Bean
-    public Step fundInitStep() {
-        return stepBuilderFactory.get("fundInitStep")
+    public Step fundDailyInitStep() {
+        return stepBuilderFactory.get("fundDailyInitStep")
                 .tasklet((contribution, chunkContext) -> {
                     for (int i = 10; i >= 1; i--) {
                         double fund_nav = 42000 + Math.random() * 200;
@@ -54,15 +54,15 @@ public class BatchConfig {
     }
 
     @Bean
-    public Job etfInitJob() {
-        return jobBuilderFactory.get("etfInitJob")
-                .start(etfInitStep())
+    public Job etfDailyInitJob() {
+        return jobBuilderFactory.get("etfDailyInitJob")
+                .start(etfDailyInitStep())
                 .build();
     }
 
     @Bean
-    public Step etfInitStep() {
-        return stepBuilderFactory.get("etfInitStep")
+    public Step etfDailyInitStep() {
+        return stepBuilderFactory.get("etfDailyInitStep")
                 .tasklet((contribution, chunkContext) -> {
                     for (int i = 10; i >= 1; i--) {
                         double etf_nav = 42000 + Math.random() * 200;

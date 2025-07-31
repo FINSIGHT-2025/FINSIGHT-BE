@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 public class StartupJobRunner implements ApplicationListener<ContextRefreshedEvent> {
 
     private final JobLauncher jobLauncher;
-    private final Job fundInitJob;
-    private final Job etfInitJob;
+    private final Job fundDailyInitJob;
+    private final Job etfDailyInitJob;
     private final AppState appState;
 
     private boolean alreadyExecuted = false;
@@ -29,18 +29,18 @@ public class StartupJobRunner implements ApplicationListener<ContextRefreshedEve
         alreadyExecuted = true;
 
         try {
-            jobLauncher.run(fundInitJob,
+            jobLauncher.run(fundDailyInitJob,
                     new JobParametersBuilder()
                             .addLong("time", System.currentTimeMillis())
                             .toJobParameters());
-            log.info("fundInitJob 실행 완료");
+            log.info("fundDailyInitJob 실행 완료");
             appState.markFundDailyInitCompleted();
 
-            jobLauncher.run(etfInitJob,
+            jobLauncher.run(etfDailyInitJob,
                     new JobParametersBuilder()
                             .addLong("time", System.currentTimeMillis() + 1) // JobInstance 충돌 방지
                             .toJobParameters());
-            log.info("etfInitJob 실행 완료");
+            log.info("etfDailyInitJob 실행 완료");
             appState.markEtfDailyInitCompleted();
 
 
