@@ -9,6 +9,7 @@
     </settings>
     <typeAliases>
         <typeAlias type="com.finsight.backend.vo.User" alias="User" />
+        <typeAlias type="com.finsight.backend.vo.InvTestVO" alias="InvTestVO"/>
 <!--        <typeAlias type="com.finsight.backend.vo.OrderInfo" alias="OrderInfo"/>-->
 <!--        <typeAlias type="com.finsight.backend.vo.OrderLine" alias="OrderLine"/>-->
 <!--        <typeAlias type="com.finsight.backend.vo.Customer" alias="Customer"/>-->

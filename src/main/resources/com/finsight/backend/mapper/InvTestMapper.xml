@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finsight.backend.mapper.InvTestMapper">
+    <insert id="insert" parameterType="InvTestVO">
+        INSERT INTO Investment_Profile (user_id, investment_profile_type, investment_profile_updated_at )
+            VALUES (#{userId}, #{investmentProfileType}, #{investmentProfileUpdatedAt})
+    </insert>
+</mapper>
