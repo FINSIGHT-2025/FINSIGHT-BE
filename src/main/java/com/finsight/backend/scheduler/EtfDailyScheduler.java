@@ -25,7 +25,7 @@ public class EtfDailyScheduler {
 
     @Scheduled(cron = "30 50 17 * * *")
     public void launchEtfDailyJob() {
-        if (!appState.isEtfInitCompleted()) {
+        if (!appState.isEtfDailyInitCompleted()) {
             log.warn("[EtfDailyJob] 초기화가 완료되지 않아 실행되지 않음");
             return;
         }
