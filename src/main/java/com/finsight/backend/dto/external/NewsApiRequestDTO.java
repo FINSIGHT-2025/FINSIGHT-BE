@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class NewsRequestDTO {
+public class NewsApiRequestDTO {
     private List<String> symbols;
 
     private LocalDate dateFrom;
