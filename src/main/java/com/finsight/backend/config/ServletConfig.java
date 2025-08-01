@@ -22,7 +22,7 @@ RequestMappingHandlerMapping, RequestMappingHandlerAdapter 자동 등록
  */
 @EnableWebMvc
 @ComponentScan(
-        basePackages = {"com.finsight.backend"}
+        basePackages = {"com.finsight.backend.control"}
         , excludeFilters = @ComponentScan.Filter(
             type = FilterType.ANNOTATION,
             classes = Configuration.class

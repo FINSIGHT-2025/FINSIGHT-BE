@@ -6,14 +6,15 @@ DROP TABLE IF EXISTS `News`;
 DROP TABLE IF EXISTS `History`;
 DROP TABLE IF EXISTS `Holdings`;
 DROP TABLE IF EXISTS `Investment_Profile`;
-DROP TABLE IF EXISTS `ETF`;
-DROP TABLE IF EXISTS `DEPOSIT`;
+DROP TABLE IF EXISTS `Etf`;
+DROP TABLE IF EXISTS `Deposit`;
 DROP TABLE IF EXISTS `Fund`;
 DROP TABLE IF EXISTS `User`;
 
 CREATE TABLE `User` (
                         `user_id` VARCHAR(255) NOT NULL COMMENT '아이디',
                         `user_name` VARCHAR(255) NOT NULL COMMENT '사용자 이름',
+    -- `user_nickname` VARCHAR(255) NOT NULL COMMENT '닉네임',
                         `user_password` VARCHAR(255) NOT NULL COMMENT '비밀번호',
                         `user_birthday` DATE NOT NULL COMMENT '생년월일',
                         `user_email` VARCHAR(255) NOT NULL COMMENT '이메일',
@@ -22,25 +23,27 @@ CREATE TABLE `User` (
                         PRIMARY KEY (`user_id`)
 );
 
-CREATE TABLE `Holdings` (
-                            `holdings_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '기본키(AUTO INCREMENT)',
-                            `user_id` VARCHAR(255) NOT NULL COMMENT '아이디',
-                            `product_code` VARCHAR(100) NOT NULL COMMENT '상품 코드',
-                            `product_category` ENUM('deposit', 'fund', 'etf') NOT NULL COMMENT '카테고리',
-                            `holdings_total_price` DECIMAL(15, 2) NOT NULL COMMENT '총 투자금액',
-                            `holdings_total_quantity` INT NOT NULL COMMENT '총 투자수량',
-                            `holdings_status` ENUM('holding', 'zero', 'terminated', 'expired') NOT NULL COMMENT '상태',
-                            PRIMARY KEY (`holdings_id`),
-                            FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`)
+CREATE TABLE `Holdings`
+(
+    `holdings_id`             BIGINT                                            NOT NULL AUTO_INCREMENT COMMENT '기본키(AUTO INCREMENT)',
+    `user_id`                 VARCHAR(255)                                      NOT NULL COMMENT '아이디',
+    `product_code`            VARCHAR(100)                                      NOT NULL COMMENT '상품 코드',
+    `product_category`        ENUM ('deposit', 'fund', 'etf')                   NOT NULL COMMENT '카테고리',
+    `holdings_total_price`    DECIMAL(15, 2)                                    NOT NULL COMMENT '총 투자금액',
+    `holdings_total_quantity` INT                                               NOT NULL COMMENT '총 투자수량',
+    `holdings_status`         ENUM ('holding', 'zero', 'terminated', 'expired') NOT NULL COMMENT '상태',
+    PRIMARY KEY (`holdings_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `User` (`user_id`) ON DELETE CASCADE
     -- `product_code`는 다형 참조라 FK 불가 (예금/펀드/ETF 모두를 참조하므로)
 );
+
 
 CREATE TABLE `Investment_Profile` (
                                       `user_id` VARCHAR(255) NOT NULL COMMENT '아이디',
                                       `insvestment_profile_type` ENUM('stable', 'stableplus', 'neutral', 'aggressive', 'veryaggressive') NOT NULL COMMENT '위험 성향',
                                       `investment_profile_updated_at` DATETIME NOT NULL COMMENT '갱신일자',
                                       PRIMARY KEY (`user_id`),
-                                      FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`)
+                                      FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `Fund` (
@@ -67,7 +70,7 @@ CREATE TABLE `Fund` (
                         PRIMARY KEY (`product_code`)
 );
 
-CREATE TABLE `ETF` (
+CREATE TABLE `Etf` (
                        `product_code` VARCHAR(100) NOT NULL COMMENT '상품 코드',
                        `product_name` VARCHAR(255) NOT NULL COMMENT '상품명',
                        `product_company_name` VARCHAR(255) NOT NULL COMMENT '금융회사명',
@@ -92,7 +95,7 @@ CREATE TABLE `ETF` (
                        PRIMARY KEY (`product_code`)
 );
 
-CREATE TABLE `DEPOSIT` (
+CREATE TABLE `Deposit` (
                            `product_code` VARCHAR(100) NOT NULL COMMENT '상품 코드',
                            `product_name` VARCHAR(255) NOT NULL COMMENT '상품명',
                            `product_company_name` VARCHAR(255) NOT NULL COMMENT '금융회사명',
@@ -116,7 +119,7 @@ CREATE TABLE `History` (
                            `history_quantity` INT NOT NULL DEFAULT 1 COMMENT '투자수량',
                            `history_amount` BIGINT NOT NULL COMMENT '투자금액',
                            PRIMARY KEY (`history_id`, `holdings_id`),
-                           FOREIGN KEY (`holdings_id`) REFERENCES `Holdings`(`holdings_id`)
+                           FOREIGN KEY (`holdings_id`) REFERENCES `Holdings`(`holdings_id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `News` (
@@ -141,8 +144,8 @@ CREATE TABLE `News_Keyword` (
                                 `news_id` VARCHAR(255) NOT NULL COMMENT '뉴스 ID',
                                 `keyword_id` BIGINT NOT NULL COMMENT '키워드 ID',
                                 PRIMARY KEY (`news_keyword_id`),
-                                FOREIGN KEY (`news_id`) REFERENCES `News`(`news_id`),
-                                FOREIGN KEY (`keyword_id`) REFERENCES `Keyword`(`keyword_id`)
+                                FOREIGN KEY (`news_id`) REFERENCES `News`(`news_id`) ON DELETE CASCADE,
+                                FOREIGN KEY (`keyword_id`) REFERENCES `Keyword`(`keyword_id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `News_Product` (
@@ -150,7 +153,7 @@ CREATE TABLE `News_Product` (
                                 `product_code` VARCHAR(100) NOT NULL COMMENT '상품 코드',
                                 `news_id` VARCHAR(255) NOT NULL COMMENT '뉴스 ID',
                                 PRIMARY KEY (`news_product_id`),
-                                FOREIGN KEY (`news_id`) REFERENCES `News`(`news_id`)
+                                FOREIGN KEY (`news_id`) REFERENCES `News`(`news_id`) ON DELETE CASCADE
     -- `product_code`는 다형 참조이므로 FK 생략
 );
 
@@ -160,21 +163,6 @@ CREATE TABLE `Watch` (
                          `user_id` VARCHAR(255) NOT NULL COMMENT '아이디',
                          `product_category` ENUM('deposit', 'fund', 'etf') NOT NULL COMMENT '카테고리',
                          PRIMARY KEY (`watchlist_id`),
-                         FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`)
+                         FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`) ON DELETE CASCADE
     -- `product_code` 역시 다형 참조라 FK 생략
 );
-
--- 유저
-INSERT INTO User (user_id, user_name, user_password, user_birthday, user_email, user_role)
-VALUES ('user123', '홍길동', 'testpw', '1990-01-01', 'hong@test.com', 'complete');
-
--- 상품
-INSERT INTO Fund (product_code, product_name, product_company_name, product_risk_grade,
-                  fund_country, fund_type, fund_delisting_status)
-VALUES ('KR5301A74911', '테스트펀드', 'KB자산운용', 3, 'domestic', 'equity', false);
-
-SELECT * FROM Holdings;
-SELECT * FROM History;
-
-DELETE FROM History;
-DELETE FROM Holdings;

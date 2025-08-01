@@ -39,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        final String token = HeaderUtil.refineHeader(request, "accessToken", "Bearer ")
+        final String token = HeaderUtil.refineHeader(request, "Authorization", "Bearer ")
                 .orElseThrow(() -> new RuntimeException(ErrorCode.NOT_TOKEN_INVALID.getMessage()));
 
         final Claims claims = jwtUtil.validateToken(token);

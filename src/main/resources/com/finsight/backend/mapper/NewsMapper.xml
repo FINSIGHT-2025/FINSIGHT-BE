@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finsight.backend.mapper.NewsMapper">
+
+    <insert id="insertNews" parameterType="NewsVO">
+        INSERT INTO news (news_id, news_title, news_summary, news_content_url, news_published_at, news_score, news_sentiment)
+        VALUES (#{newsId}, #{newsTitle}, #{newsSummary}, #{newsContentUrl}, #{newsPublishedAt}, #{newsScore}, #{newsSentiment})
+    </insert>
+
+    <insert id="insertNewsProduct" parameterType="NewsProductVO">
+        INSERT INTO news_product (product_code, news_id)
+        VALUES (#{productCode}, #{newsId})
+    </insert>
+
+    <insert id="insertKeyword" parameterType="KeywordVO">
+        INSERT IGNORE INTO keyword (keyword)
+        VALUES (#{keyword})
+    </insert>
+
+    <insert id="insertNewsKeyword" parameterType="NewsKeywordVO">
+        INSERT INTO news_keyword (news_id, keyword_id)
+        VALUES (#{newsId}, #{keywordId})
+    </insert>
+    <select id="selectKeywordId" resultType="java.lang.Long">
+        SELECT keyword_id FROM keyword WHERE keyword = #{keyword}
+    </select>
+
+    <select id="existsNewsId" resultType="java.lang.Boolean">
+        SELECT EXISTS(
+            SELECT 1 FROM news WHERE news_id = #{newsId}
+        )
+    </select>
+    <select id="findTopKeywords" resultType="KeywordVO">
+        SELECT
+            nk.keyword_id,
+            k.keyword
+        FROM
+            news_keyword nk
+                JOIN
+            keyword k ON nk.keyword_id = k.keyword_id
+        GROUP BY
+            nk.keyword_id, k.keyword
+        ORDER BY
+            COUNT(nk.keyword_id) DESC
+            LIMIT 10
+    </select>
+    <resultMap id="NewsResultMap" type="NewsVO">
+        <id property="newsId" column="news_id"/>
+        <result property="newsTitle" column="news_title"/>
+        <result property="newsSummary" column="news_summary"/>
+        <result property="newsContentUrl" column="news_content_url"/>
+        <result property="newsPublishedAt" column="news_published_at" />
+        <result property="newsScore" column="news_score"/>
+        <result property="newsSentiment" column="news_sentiment"/>
+    </resultMap>
+
+    <select id="findNewsByKeywordId" parameterType="long" resultMap="NewsResultMap">
+        SELECT
+            DISTINCT n.*
+        FROM
+            news n
+                JOIN
+            news_keyword nk ON n.news_id = nk.news_id
+        WHERE
+            nk.keyword_id = #{keywordId}
+        ORDER BY
+            n.news_published_at DESC
+    </select>
+    <select id="findNewsByProductCode" resultType="NewsVO">
+        SELECT
+            *
+        FROM
+            news n
+                JOIN
+            news_product np ON n.news_id = np.news_id
+        WHERE
+            np.product_code = #{productCode}
+        ORDER BY
+            n.news_published_at DESC
+    </select>
+</mapper>
