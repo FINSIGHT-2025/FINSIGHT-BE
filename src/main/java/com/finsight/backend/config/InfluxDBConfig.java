@@ -31,4 +31,11 @@ public class InfluxDBConfig {
         );
     }
 
+    public String getInfluxOrg() {
+        return influxOrg;
+    }
+
+    public String getInfluxBucket() {
+        return influxBucket;
+    }
 }

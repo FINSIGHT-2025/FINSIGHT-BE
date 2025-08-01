@@ -40,6 +40,8 @@ public class BatchConfig {
     public Step fundDailyInitStep() {
         return stepBuilderFactory.get("fundDailyInitStep")
                 .tasklet((contribution, chunkContext) -> {
+                    influxWriteService.deleteAllFromMeasurement("fund_daily");
+
                     for (int i = 10; i >= 1; i--) {
                         double fund_nav = 42000 + Math.random() * 20000000;
                         double fund_aum = 2000 + Math.random() * 200000000;
@@ -48,7 +50,7 @@ public class BatchConfig {
                         influxWriteService.writeFundDaily(fund_nav, fund_aum, timestamp);
                     }
 
-                    System.out.println("Fund Init 저장 완료");
+                    System.out.println("Fund Daily Init 저장 완료");
                     return RepeatStatus.FINISHED;
                 }).build();
     }
@@ -64,6 +66,8 @@ public class BatchConfig {
     public Step etfDailyInitStep() {
         return stepBuilderFactory.get("etfDailyInitStep")
                 .tasklet((contribution, chunkContext) -> {
+                    influxWriteService.deleteAllFromMeasurement("etf_daily");
+
                     for (int i = 10; i >= 1; i--) {
                         double etf_nav = 42000 + Math.random() * 20000000;
 
@@ -71,7 +75,7 @@ public class BatchConfig {
                         influxWriteService.writeEtfDaily(etf_nav, timestamp);
                     }
 
-                    System.out.println("Etf Init 저장 완료");
+                    System.out.println("Etf Daily Init 저장 완료");
                     return RepeatStatus.FINISHED;
                 }).build();
     }
@@ -87,6 +91,8 @@ public class BatchConfig {
     public Step etfRealtimeInitStep() {
         return stepBuilderFactory.get("etfRealtimeInitStep")
                 .tasklet((contribution, chunkContext) -> {
+                    influxWriteService.deleteAllFromMeasurement("etf_realtime");
+
                     for (int i = 10; i >= 1; i--) {
                         double etf_price = 2300 + Math.random() * 100000000;
                         double etf_volume = 100 + Math.random() * 50000000;
