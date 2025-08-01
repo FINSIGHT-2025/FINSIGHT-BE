@@ -62,7 +62,7 @@ public class BatchConfig {
                 .tasklet((contribution, chunkContext) -> {
                     influxWriteService.deleteAllFromMeasurement("fund_aum");
 
-                    String date = LocalDate.now().minusDays(1).toString();
+                    String date = LocalDate.now().toString();
                     String uri = tradeDataUrl + "/fund/fund_aum/prev?date=" + date;
 
                     String raw = webClient.get()
@@ -96,7 +96,7 @@ public class BatchConfig {
                 .tasklet((contribution, chunkContext) -> {
                     influxWriteService.deleteAllFromMeasurement("fund_nav");
 
-                    String date = LocalDate.now().minusDays(1).toString();
+                    String date = LocalDate.now().toString();
                     String uri = tradeDataUrl + "/fund/fund_nav/prev?date=" + date;
 
                     String raw = webClient.get()
