@@ -71,5 +71,8 @@ public class UserServiceImpl implements UserService {
         return UserMapper.existsByEmail(email);
     }
 
-
+    @Override
+    public Optional<User> findByUserId(String userId) {
+        return Optional.ofNullable(UserMapper.findUserByUserId(userId));
+    }
 }
