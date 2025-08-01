@@ -66,9 +66,9 @@ public class NewsController {
   
     private final UserViewLogger logger;
 
-    public NewsController(UserViewLogger logger) {
-        this.logger = logger;
-    }
+    // public NewsController(UserViewLogger logger) {
+    //     this.logger = logger;
+    // }
 
     @PostMapping("/click")
     public ResponseEntity<Void> logClick(
