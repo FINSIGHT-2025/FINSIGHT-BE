@@ -1,18 +1,21 @@
 package com.finsight.backend.dto.external;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.finsight.backend.vo.KeywordVO;
+import com.finsight.backend.vo.NewsVO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class NewsResponseDTO {
+public class NewsApiResponseDTO {
     private Detail detail;
 
     @JsonProperty("total_items")
@@ -67,6 +70,44 @@ public class NewsResponseDTO {
 //        private String body;
 
         private List<String> keywords;
+
+        public NewsVO toVO(String productCode){
+            LocalDateTime publishedAtDateTime = null;
+            if(this.publishedAt != null){
+                publishedAtDateTime = LocalDateTime.parse(this.publishedAt);
+            }
+
+            NewsVO.NewsSentiment sentiment = NewsVO.NewsSentiment.neutral;
+            if(this.esg != null && this.esg.getPolarity() != null){
+                String polarityName = this.esg.getPolarity().getName();
+                if("긍정".equalsIgnoreCase(polarityName)){
+                    sentiment = NewsVO.NewsSentiment.positive;
+                }else if("부정".equalsIgnoreCase(polarityName)){
+                    sentiment = NewsVO.NewsSentiment.negative;
+                }
+            }
+
+            List<KeywordVO> keywordVOList = null;
+            if(this.keywords != null){
+                keywordVOList = this.keywords.stream()
+                        .map(k -> KeywordVO.builder().keyword(k).build())
+                        .toList();
+            }
+
+            List<String> productCodes = List.of(productCode);
+
+            return NewsVO.builder()
+                    .newsId(this.id)
+                    .newsTitle(this.title)
+                    .newsSummary(this.summary)
+                    .newsContentUrl(this.contentUrl)
+                    .newsPublishedAt(publishedAtDateTime)
+                    .newsScore(this.score != null ? this.score : 0.0)
+                    .newsSentiment(sentiment)
+                    .keywords(keywordVOList)
+                    .productCodes(productCodes)
+                    .build();
+        }
     }
 
     @Getter
