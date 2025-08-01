@@ -79,11 +79,10 @@ public class BatchConfig {
 
                     for (Map<String, Object> fund : fundList) {
                         String fundCode = (String) fund.get("fund_code");
-                        String fundName = (String) fund.get("fund_name");
                         double fundAum = ((Number) fund.get("aum")).doubleValue();
                         Instant timestamp = Instant.parse((String) fund.get("timestamp"));
 
-                        influxWriteService.writeFundAum(fundCode, fundName, fundAum, timestamp);
+                        influxWriteService.writeFundAum(fundCode, fundAum, timestamp);
                     }
 
                     log.info("✅ fund_aum 저장 완료: {}건", fundList.size());
@@ -114,11 +113,10 @@ public class BatchConfig {
 
                     for (Map<String, Object> fund : fundList) {
                         String fundCode = (String) fund.get("fund_code");
-                        String fundName = (String) fund.get("fund_name");
                         double fundNav = ((Number) fund.get("nav")).doubleValue();
                         Instant timestamp = Instant.parse((String) fund.get("timestamp"));
 
-                        influxWriteService.writeFundNav(fundCode, fundName, fundNav, timestamp);
+                        influxWriteService.writeFundNav(fundCode, fundNav, timestamp);
                     }
 
                     log.info("✅ fund_nav 저장 완료: {}건", fundList.size());
@@ -154,7 +152,7 @@ public class BatchConfig {
     }
 
 
-    // 3. Fund Daily
+    // 3. Fund Daily - 2개 step
     @Bean
     public Job fundDailyJob() {
         return jobBuilderFactory.get("fundDailyJob")
@@ -184,11 +182,10 @@ public class BatchConfig {
 
                     for (Map<String, Object> fund : fundList) {
                         String fundCode = (String) fund.get("fund_code");
-                        String fundName = (String) fund.get("fund_name");
                         double fundAum = ((Number) fund.get("aum")).doubleValue();
                         Instant timestamp = Instant.parse((String) fund.get("timestamp"));
 
-                        influxWriteService.writeFundAum(fundCode, fundName, fundAum, timestamp);
+                        influxWriteService.writeFundAum(fundCode, fundAum, timestamp);
                     }
 
                     log.info("✅ 오늘 fund_aum 저장 완료: {}건", fundList.size());
@@ -217,11 +214,10 @@ public class BatchConfig {
 
                     for (Map<String, Object> fund : fundList) {
                         String fundCode = (String) fund.get("fund_code");
-                        String fundName = (String) fund.get("fund_name");
                         double fundNav = ((Number) fund.get("nav")).doubleValue();
                         Instant timestamp = Instant.parse((String) fund.get("timestamp"));
 
-                        influxWriteService.writeFundNav(fundCode, fundName, fundNav, timestamp);
+                        influxWriteService.writeFundNav(fundCode, fundNav, timestamp);
                     }
 
                     log.info("✅ 오늘 fund_nav 저장 완료: {}건", fundList.size());
@@ -230,7 +226,7 @@ public class BatchConfig {
     }
 
 
-    // 4. Etf Daily
+    // 4. Etf Daily - 1개 step
     @Bean
     public Job etfDailyJob() {
         return jobBuilderFactory.get("etfDailyJob")
@@ -240,7 +236,7 @@ public class BatchConfig {
 
     @Bean
     public Step etfNavStep() {
-        return stepBuilderFactory.get("etfDailyStep")
+        return stepBuilderFactory.get("etfNavStep")
                 .tasklet((contribution, chunkContext) -> {
                     double etf_nav = 2300 + Math.random() * 1000;
                     influxWriteService.writeEtfNav(etf_nav, Instant.now());

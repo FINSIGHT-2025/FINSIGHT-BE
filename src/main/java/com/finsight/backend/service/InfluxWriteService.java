@@ -39,10 +39,9 @@ public class InfluxWriteService {
         );
     }
 
-    public void writeFundAum(String fundCode, String fundName, double fundAum, Instant time) {
+    public void writeFundAum(String fundCode, double fundAum, Instant time) {
         Point point = Point.measurement("fund_aum")
                 .addTag("fund_code", fundCode)
-                .addTag("fund_name", fundName)
                 .addField("fund_aum", fundAum)
                 .time(time, WritePrecision.S);
 
@@ -51,10 +50,9 @@ public class InfluxWriteService {
         }
     }
 
-    public void writeFundNav(String fundCode, String fundName, double fundNav, Instant time) {
+    public void writeFundNav(String fundCode, double fundNav, Instant time) {
         Point point = Point.measurement("fund_nav")
                 .addTag("fund_code", fundCode)
-                .addTag("fund_name", fundName)
                 .addField("fund_nav", fundNav)
                 .time(time, WritePrecision.S);
 
