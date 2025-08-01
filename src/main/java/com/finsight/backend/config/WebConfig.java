@@ -11,6 +11,7 @@ import javax.servlet.*;
 /**
  * web.xml문서대신
  */
+
 public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
