@@ -8,4 +8,6 @@ public interface UserMapper {
 
     boolean existsByUserId(String userId);
     boolean existsByEmail(String email);
+
+    boolean updateUserRoleToComplete(String userId);
 }
