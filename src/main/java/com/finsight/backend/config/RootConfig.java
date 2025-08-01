@@ -36,7 +36,8 @@ import java.util.Properties;
         "com.finsight.backend.util",
         "com.finsight.backend.recommend",
         "com.finsight.backend.mongo",
-        "com.finsight.backend.batch"
+        "com.finsight.backend.batch",
+        "com.finsight.backend.config"
 })
 @PropertySource({"classpath:/application.properties"})
 @EnableScheduling
