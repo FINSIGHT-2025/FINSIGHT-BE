@@ -39,10 +39,11 @@ public class InfluxWriteService {
         );
     }
 
-    public void writeFundDaily(double fund_nav, double fund_aum, Instant time) {
+    public void writeFundDaily(String fundCode, String fundName, double fundAum, Instant time) {
         Point point = Point.measurement("fund_daily")
-                .addField("fund_nav", fund_nav)
-                .addField("fund_aum", fund_aum)
+                .addTag("fund_code", fundCode)
+                .addTag("fund_name", fundName)
+                .addField("fund_aum", fundAum)
                 .time(time, WritePrecision.S);
 
         try (WriteApi writeApi = influxDBClient.getWriteApi()) {

@@ -9,8 +9,12 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 
 @Configuration
 @EnableBatchProcessing
@@ -29,6 +33,9 @@ public class BatchConfig {
         this.influxWriteService = influxWriteService;
     }
 
+    @Value("${tradedata.url}")
+    private String tradeDataUrl;
+
     @Bean
     public Job fundDailyInitJob() {
         return jobBuilderFactory.get("fundDailyInitJob")
@@ -42,13 +49,37 @@ public class BatchConfig {
                 .tasklet((contribution, chunkContext) -> {
                     influxWriteService.deleteAllFromMeasurement("fund_daily");
 
-                    for (int i = 10; i >= 1; i--) {
-                        double fund_nav = 42000 + Math.random() * 20000000;
-                        double fund_aum = 2000 + Math.random() * 200000000;
+//                    // 어제 날짜 기준
+//                    String date = java.time.LocalDate.now().minusDays(1).toString();
+//                    String uri = tradeDataUrl + "/fund/fund_aum/prev?date=" + date;
+//
+//                    WebClient webClient = WebClient.create();
+//
+//                    Map<String, List<Map<String, Object>>> response = webClient.get()
+//                            .uri(uri)
+//                            .retrieve()
+//                            .bodyToMono(Map.class)
+//                            .block();
+//
+//                    List<Map<String, Object>> fundList = response.get("data");
+//
+//                    for (Map<String, Object> fund : fundList) {
+//                        String fundCode = (String) fund.get("fund_code");
+//                        String fundName = (String) fund.get("fund_name");
+//                        double fundAum = ((Number) fund.get("aum")).doubleValue();
+//                        Instant timestamp = Instant.parse((String) fund.get("timestamp")); // 외부 데이터 기준
+//
+//                        influxWriteService.writeFundDaily(fundCode, fundName, fundAum, timestamp);
+//                    }
 
-                        Instant timestamp = Instant.now().minusSeconds(60L * 60 * 24 * i);
-                        influxWriteService.writeFundDaily(fund_nav, fund_aum, timestamp);
-                    }
+
+//                    for (int i = 10; i >= 1; i--) {
+//                        double fund_nav = 42000 + Math.random() * 20000000;
+//                        double fund_aum = 2000 + Math.random() * 200000000;
+//
+//                        Instant timestamp = Instant.now().minusSeconds(60L * 60 * 24 * i);
+//                        influxWriteService.writeFundDaily(fund_nav, fund_aum, timestamp);
+//                    }
 
                     System.out.println("Fund Daily Init 저장 완료");
                     return RepeatStatus.FINISHED;
