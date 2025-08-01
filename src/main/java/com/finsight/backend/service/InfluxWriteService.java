@@ -39,8 +39,8 @@ public class InfluxWriteService {
         );
     }
 
-    public void writeFundDaily(String fundCode, String fundName, double fundAum, Instant time) {
-        Point point = Point.measurement("fund_daily")
+    public void writeFundAum(String fundCode, String fundName, double fundAum, Instant time) {
+        Point point = Point.measurement("fund_aum")
                 .addTag("fund_code", fundCode)
                 .addTag("fund_name", fundName)
                 .addField("fund_aum", fundAum)
@@ -51,9 +51,11 @@ public class InfluxWriteService {
         }
     }
 
-    public void writeEtfDaily(double etf_nav, Instant time) {
-        Point point = Point.measurement("etf_daily")
-                .addField("etf_nav", etf_nav)
+    public void writeFundNav(String fundCode, String fundName, double fundNav, Instant time) {
+        Point point = Point.measurement("fund_nav")
+                .addTag("fund_code", fundCode)
+                .addTag("fund_name", fundName)
+                .addField("fund_nav", fundNav)
                 .time(time, WritePrecision.S);
 
         try (WriteApi writeApi = influxDBClient.getWriteApi()) {
@@ -61,10 +63,9 @@ public class InfluxWriteService {
         }
     }
 
-    public void writeEtfRealtime(double etf_price, double etf_volume, Instant time) {
-        Point point = Point.measurement("etf_realtime")
-                .addField("etf_price", etf_price)
-                .addField("etf_volume", etf_volume)
+    public void writeEtfNav(double etfNav, Instant time) {
+        Point point = Point.measurement("etf_nav")
+                .addField("etf_nav", etfNav)
                 .time(time, WritePrecision.S);
 
         try (WriteApi writeApi = influxDBClient.getWriteApi()) {

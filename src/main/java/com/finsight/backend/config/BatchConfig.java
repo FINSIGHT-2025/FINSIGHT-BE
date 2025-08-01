@@ -46,20 +46,22 @@ public class BatchConfig {
     @Value("${tradedata.url}")
     private String tradeDataUrl;
 
+
+    // 1. Fund Daily Init - 2개 step
     @Bean
     public Job fundDailyInitJob() {
         return jobBuilderFactory.get("fundDailyInitJob")
-                .start(fundDailyInitStep())
+                .start(fundAumInitStep())
+                .next(fundNavInitStep())
                 .build();
     }
 
     @Bean
-    public Step fundDailyInitStep() {
-        return stepBuilderFactory.get("fundDailyInitStep")
+    public Step fundAumInitStep() {
+        return stepBuilderFactory.get("fundAumInitStep")
                 .tasklet((contribution, chunkContext) -> {
-                    influxWriteService.deleteAllFromMeasurement("fund_daily");
+                    influxWriteService.deleteAllFromMeasurement("fund_aum");
 
-                    // 어제 날짜 기준
                     String date = LocalDate.now().minusDays(1).toString();
                     String uri = tradeDataUrl + "/fund/fund_aum/prev?date=" + date;
 
@@ -68,10 +70,9 @@ public class BatchConfig {
                             .accept(MediaType.APPLICATION_JSON)
                             .retrieve()
                             .bodyToMono(String.class)
-                            .doOnError(error -> log.error("❌ API call failed", error))
+                            .doOnError(error -> log.error("❌ fund_aum API 실패", error))
                             .block();
 
-                    // JSON 파싱
                     ObjectMapper mapper = new ObjectMapper();
                     Map<String, Object> response = mapper.readValue(raw, new TypeReference<>() {});
                     List<Map<String, Object>> fundList = (List<Map<String, Object>>) response.get("data");
@@ -82,33 +83,69 @@ public class BatchConfig {
                         double fundAum = ((Number) fund.get("aum")).doubleValue();
                         Instant timestamp = Instant.parse((String) fund.get("timestamp"));
 
-                        log.info("✅ 과거 저장할 펀드: {} - {} - {} - {}", fundCode, fundName, fundAum, timestamp);
-                        influxWriteService.writeFundDaily(fundCode, fundName, fundAum, timestamp);
+                        influxWriteService.writeFundAum(fundCode, fundName, fundAum, timestamp);
                     }
 
-                    System.out.println("Fund Daily Init 저장 완료");
+                    log.info("✅ fund_aum 저장 완료: {}건", fundList.size());
                     return RepeatStatus.FINISHED;
                 }).build();
     }
 
     @Bean
+    public Step fundNavInitStep() {
+        return stepBuilderFactory.get("fundNavInitStep")
+                .tasklet((contribution, chunkContext) -> {
+                    influxWriteService.deleteAllFromMeasurement("fund_nav");
+
+                    String date = LocalDate.now().minusDays(1).toString();
+                    String uri = tradeDataUrl + "/fund/fund_nav/prev?date=" + date;
+
+                    String raw = webClient.get()
+                            .uri(uri)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .retrieve()
+                            .bodyToMono(String.class)
+                            .doOnError(error -> log.error("❌ fund_nav API 실패", error))
+                            .block();
+
+                    ObjectMapper mapper = new ObjectMapper();
+                    Map<String, Object> response = mapper.readValue(raw, new TypeReference<>() {});
+                    List<Map<String, Object>> fundList = (List<Map<String, Object>>) response.get("data");
+
+                    for (Map<String, Object> fund : fundList) {
+                        String fundCode = (String) fund.get("fund_code");
+                        String fundName = (String) fund.get("fund_name");
+                        double fundNav = ((Number) fund.get("nav")).doubleValue();
+                        Instant timestamp = Instant.parse((String) fund.get("timestamp"));
+
+                        influxWriteService.writeFundNav(fundCode, fundName, fundNav, timestamp);
+                    }
+
+                    log.info("✅ fund_nav 저장 완료: {}건", fundList.size());
+                    return RepeatStatus.FINISHED;
+                }).build();
+    }
+
+
+    // 2. Etf Daily Init - 1개 step
+    @Bean
     public Job etfDailyInitJob() {
         return jobBuilderFactory.get("etfDailyInitJob")
-                .start(etfDailyInitStep())
+                .start(etfNavInitStep())
                 .build();
     }
 
     @Bean
-    public Step etfDailyInitStep() {
-        return stepBuilderFactory.get("etfDailyInitStep")
+    public Step etfNavInitStep() {
+        return stepBuilderFactory.get("etfNavInitStep")
                 .tasklet((contribution, chunkContext) -> {
-                    influxWriteService.deleteAllFromMeasurement("etf_daily");
+                    influxWriteService.deleteAllFromMeasurement("etf_nav");
 
                     for (int i = 10; i >= 1; i--) {
                         double etf_nav = 42000 + Math.random() * 20000000;
 
                         Instant timestamp = Instant.now().minusSeconds(60L * 60 * 24 * i);
-                        influxWriteService.writeEtfDaily(etf_nav, timestamp);
+                        influxWriteService.writeEtfNav(etf_nav, timestamp);
                     }
 
                     System.out.println("Etf Daily Init 저장 완료");
@@ -116,45 +153,21 @@ public class BatchConfig {
                 }).build();
     }
 
-    @Bean
-    public Job etfRealtimeInitJob() {
-        return jobBuilderFactory.get("etfRealtimeInitJob")
-                .start(etfRealtimeInitStep())
-                .build();
-    }
 
-    @Bean
-    public Step etfRealtimeInitStep() {
-        return stepBuilderFactory.get("etfRealtimeInitStep")
-                .tasklet((contribution, chunkContext) -> {
-                    influxWriteService.deleteAllFromMeasurement("etf_realtime");
-
-                    for (int i = 10; i >= 1; i--) {
-                        double etf_price = 2300 + Math.random() * 100000000;
-                        double etf_volume = 100 + Math.random() * 50000000;
-
-                        Instant timestamp = Instant.now().minusSeconds(60L * i); // 1분 간격 과거 데이터
-//                        influxWriteService.writeEtfRealtime(etf_price, etf_volume, timestamp);
-                    }
-
-                    System.out.println("ETF Realtime Init 저장 완료");
-                    return RepeatStatus.FINISHED;
-                }).build();
-    }
-
+    // 3. Fund Daily
     @Bean
     public Job fundDailyJob() {
         return jobBuilderFactory.get("fundDailyJob")
-                .start(fundDailyStep())
+                .start(fundAumStep())
+                .next(fundNavStep())
                 .build();
     }
 
     @Bean
-    public Step fundDailyStep() {
-        return stepBuilderFactory.get("fundDailyStep")
+    public Step fundAumStep() {
+        return stepBuilderFactory.get("fundAumStep")
                 .tasklet((contribution, chunkContext) -> {
-                    // 오늘 날짜 기준
-                    String date = java.time.LocalDate.now().toString();
+                    String date = LocalDate.now().toString();
                     String uri = tradeDataUrl + "/fund/fund_aum?date=" + date;
 
                     String raw = webClient.get()
@@ -162,10 +175,9 @@ public class BatchConfig {
                             .accept(MediaType.APPLICATION_JSON)
                             .retrieve()
                             .bodyToMono(String.class)
-                            .doOnError(error -> log.error("❌ API call failed", error))
+                            .doOnError(error -> log.error("❌ fund_aum API 실패", error))
                             .block();
 
-                    // JSON 파싱
                     ObjectMapper mapper = new ObjectMapper();
                     Map<String, Object> response = mapper.readValue(raw, new TypeReference<>() {});
                     List<Map<String, Object>> fundList = (List<Map<String, Object>>) response.get("data");
@@ -176,28 +188,62 @@ public class BatchConfig {
                         double fundAum = ((Number) fund.get("aum")).doubleValue();
                         Instant timestamp = Instant.parse((String) fund.get("timestamp"));
 
-                        log.info("✅ 오늘 저장할 펀드: {} - {} - {} - {}", fundCode, fundName, fundAum, timestamp);
-                        influxWriteService.writeFundDaily(fundCode, fundName, fundAum, timestamp);
+                        influxWriteService.writeFundAum(fundCode, fundName, fundAum, timestamp);
                     }
 
-                    System.out.println("Fund Daily 저장 완료");
+                    log.info("✅ 오늘 fund_aum 저장 완료: {}건", fundList.size());
                     return RepeatStatus.FINISHED;
                 }).build();
     }
 
     @Bean
+    public Step fundNavStep() {
+        return stepBuilderFactory.get("fundNavStep")
+                .tasklet((contribution, chunkContext) -> {
+                    String date = LocalDate.now().toString();
+                    String uri = tradeDataUrl + "/fund/fund_nav?date=" + date;
+
+                    String raw = webClient.get()
+                            .uri(uri)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .retrieve()
+                            .bodyToMono(String.class)
+                            .doOnError(error -> log.error("❌ fund_nav API 실패", error))
+                            .block();
+
+                    ObjectMapper mapper = new ObjectMapper();
+                    Map<String, Object> response = mapper.readValue(raw, new TypeReference<>() {});
+                    List<Map<String, Object>> fundList = (List<Map<String, Object>>) response.get("data");
+
+                    for (Map<String, Object> fund : fundList) {
+                        String fundCode = (String) fund.get("fund_code");
+                        String fundName = (String) fund.get("fund_name");
+                        double fundNav = ((Number) fund.get("nav")).doubleValue();
+                        Instant timestamp = Instant.parse((String) fund.get("timestamp"));
+
+                        influxWriteService.writeFundNav(fundCode, fundName, fundNav, timestamp);
+                    }
+
+                    log.info("✅ 오늘 fund_nav 저장 완료: {}건", fundList.size());
+                    return RepeatStatus.FINISHED;
+                }).build();
+    }
+
+
+    // 4. Etf Daily
+    @Bean
     public Job etfDailyJob() {
         return jobBuilderFactory.get("etfDailyJob")
-                .start(etfDailyStep())
+                .start(etfNavStep())
                 .build();
     }
 
     @Bean
-    public Step etfDailyStep() {
+    public Step etfNavStep() {
         return stepBuilderFactory.get("etfDailyStep")
                 .tasklet((contribution, chunkContext) -> {
                     double etf_nav = 2300 + Math.random() * 1000;
-                    influxWriteService.writeEtfDaily(etf_nav, Instant.now());
+                    influxWriteService.writeEtfNav(etf_nav, Instant.now());
 
                     System.out.println("ETF Daily 저장 완료");
                     return RepeatStatus.FINISHED;

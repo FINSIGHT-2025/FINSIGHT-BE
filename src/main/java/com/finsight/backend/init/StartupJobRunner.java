@@ -19,7 +19,6 @@ public class StartupJobRunner implements ApplicationListener<ContextRefreshedEve
     private final Job fundDailyInitJob;
     private final Job etfDailyInitJob;
     private final AppState appState;
-    private final Job etfRealtimeInitJob;
 
     private boolean alreadyExecuted = false;
 
@@ -45,15 +44,6 @@ public class StartupJobRunner implements ApplicationListener<ContextRefreshedEve
                             .toJobParameters());
             log.info("etfDailyInitJob 실행 완료");
             appState.markEtfDailyInitCompleted();
-
-            // ETF 실시간
-            jobLauncher.run(etfRealtimeInitJob,
-                    new JobParametersBuilder()
-                            .addLong("time", System.currentTimeMillis() + 1) // JobInstance 충돌 방지
-                            .toJobParameters());
-            log.info("etfRealtimeInitJob 실행 완료");
-            appState.markEtfRealtimeInitCompleted();
-
 
         } catch (Exception e) {
             log.error("초기화 작업 실행 중 에러", e);
