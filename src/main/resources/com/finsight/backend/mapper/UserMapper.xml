@@ -29,4 +29,9 @@
             where user_email = #{userEmail}
         )
     </select>
+    <update id="updateUserRoleToComplete" parameterType="string">
+        UPDATE User
+        SET user_role = 'complete'
+        WHERE user_id = #{userId}
+    </update>
 </mapper>
