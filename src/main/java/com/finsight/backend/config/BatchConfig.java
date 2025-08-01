@@ -82,7 +82,7 @@ public class BatchConfig {
                         double fundAum = ((Number) fund.get("aum")).doubleValue();
                         Instant timestamp = Instant.parse((String) fund.get("timestamp"));
 
-                        log.info("✅ 저장할 펀드: {} - {} - {} - {}", fundCode, fundName, fundAum, timestamp);
+                        log.info("✅ 과거 저장할 펀드: {} - {} - {} - {}", fundCode, fundName, fundAum, timestamp);
                         influxWriteService.writeFundDaily(fundCode, fundName, fundAum, timestamp);
                     }
 
@@ -157,13 +157,18 @@ public class BatchConfig {
                     String date = java.time.LocalDate.now().toString();
                     String uri = tradeDataUrl + "/fund/fund_aum?date=" + date;
 
-                    Map<String, List<Map<String, Object>>> response = webClient.get()
+                    String raw = webClient.get()
                             .uri(uri)
+                            .accept(MediaType.APPLICATION_JSON)
                             .retrieve()
-                            .bodyToMono(Map.class)
+                            .bodyToMono(String.class)
+                            .doOnError(error -> log.error("❌ API call failed", error))
                             .block();
 
-                    List<Map<String, Object>> fundList = response.get("data");
+                    // JSON 파싱
+                    ObjectMapper mapper = new ObjectMapper();
+                    Map<String, Object> response = mapper.readValue(raw, new TypeReference<>() {});
+                    List<Map<String, Object>> fundList = (List<Map<String, Object>>) response.get("data");
 
                     for (Map<String, Object> fund : fundList) {
                         String fundCode = (String) fund.get("fund_code");
@@ -171,6 +176,7 @@ public class BatchConfig {
                         double fundAum = ((Number) fund.get("aum")).doubleValue();
                         Instant timestamp = Instant.parse((String) fund.get("timestamp"));
 
+                        log.info("✅ 오늘 저장할 펀드: {} - {} - {} - {}", fundCode, fundName, fundAum, timestamp);
                         influxWriteService.writeFundDaily(fundCode, fundName, fundAum, timestamp);
                     }
 
