@@ -61,8 +61,9 @@ public class InfluxWriteService {
         }
     }
 
-    public void writeEtfNav(double etfNav, Instant time) {
+    public void writeEtfNav(String etfCode, double etfNav, Instant time) {
         Point point = Point.measurement("etf_nav")
+                .addTag("etf_code", etfCode)
                 .addField("etf_nav", etfNav)
                 .time(time, WritePrecision.S);
 

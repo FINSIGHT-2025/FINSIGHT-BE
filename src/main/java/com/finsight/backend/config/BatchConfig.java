@@ -139,14 +139,30 @@ public class BatchConfig {
                 .tasklet((contribution, chunkContext) -> {
                     influxWriteService.deleteAllFromMeasurement("etf_nav");
 
-                    for (int i = 10; i >= 1; i--) {
-                        double etf_nav = 42000 + Math.random() * 20000000;
+                    String date = LocalDate.now().toString();
+                    String uri = tradeDataUrl + "/etf/etf_nav/prev?date=" + date;
 
-                        Instant timestamp = Instant.now().minusSeconds(60L * 60 * 24 * i);
-                        influxWriteService.writeEtfNav(etf_nav, timestamp);
+                    String raw = webClient.get()
+                            .uri(uri)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .retrieve()
+                            .bodyToMono(String.class)
+                            .doOnError(error -> log.error("❌ etf_nav (prev) API 실패", error))
+                            .block();
+
+                    ObjectMapper mapper = new ObjectMapper();
+                    Map<String, Object> response = mapper.readValue(raw, new TypeReference<>() {});
+                    List<Map<String, Object>> etfList = (List<Map<String, Object>>) response.get("data");
+
+                    for (Map<String, Object> etf : etfList) {
+                        String etfCode = (String) etf.get("product_code");
+                        double etfNav = ((Number) etf.get("etf_nav")).doubleValue();
+                        Instant timestamp = Instant.parse((String) etf.get("timestamp"));
+
+                        influxWriteService.writeEtfNav(etfCode, etfNav, timestamp);
                     }
 
-                    System.out.println("Etf Daily Init 저장 완료");
+                    log.info("✅ 과거 etf_nav 저장 완료: {}건", etfList.size());
                     return RepeatStatus.FINISHED;
                 }).build();
     }
@@ -238,10 +254,30 @@ public class BatchConfig {
     public Step etfNavStep() {
         return stepBuilderFactory.get("etfNavStep")
                 .tasklet((contribution, chunkContext) -> {
-                    double etf_nav = 2300 + Math.random() * 1000;
-                    influxWriteService.writeEtfNav(etf_nav, Instant.now());
+                    String date = LocalDate.now().toString();
+                    String uri = tradeDataUrl + "/etf/etf_nav?date=" + date;
 
-                    System.out.println("ETF Daily 저장 완료");
+                    String raw = webClient.get()
+                            .uri(uri)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .retrieve()
+                            .bodyToMono(String.class)
+                            .doOnError(error -> log.error("❌ etf_nav API 실패", error))
+                            .block();
+
+                    ObjectMapper mapper = new ObjectMapper();
+                    Map<String, Object> response = mapper.readValue(raw, new TypeReference<>() {});
+                    List<Map<String, Object>> etfList = (List<Map<String, Object>>) response.get("data");
+
+                    for (Map<String, Object> etf : etfList) {
+                        String etfCode = (String) etf.get("product_code");
+                        double etfNav = ((Number) etf.get("etf_nav")).doubleValue();
+                        Instant timestamp = Instant.parse((String) etf.get("timestamp"));
+
+                        influxWriteService.writeEtfNav(etfCode, etfNav, timestamp);
+                    }
+
+                    log.info("✅ 오늘 etf_nav 저장 완료: {}건", etfList.size());
                     return RepeatStatus.FINISHED;
                 }).build();
     }
