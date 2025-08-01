@@ -12,4 +12,6 @@ public interface UserService {
 
     boolean checkUserId(String userId);
     boolean checkEmail(String email);
+
+    Optional<User> findByUserId(String userId);
 }

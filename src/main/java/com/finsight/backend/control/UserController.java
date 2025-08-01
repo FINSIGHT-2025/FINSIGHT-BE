@@ -134,4 +134,39 @@ public class UserController {
             );
         }
     }
+    @GetMapping("/me")
+    public ResponseEntity<?> getMyInfo(HttpServletRequest request) {
+        Optional<String> token = HeaderUtil.refineHeader(request, "Authorization", "Bearer ");
+        if (token.isEmpty()) {
+            return ResponseEntity.status(ErrorCode.NOT_FOUND_TOKEN.getHttpStatus())
+                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_FOUND_TOKEN.getMessage()));
+        }
+
+        try {
+            Claims claims = jwtUtil.validateToken(token.get());
+            String userId = claims.get("userId", String.class);
+
+            Optional<User> userOptional = UserService.findByUserId(userId);
+            if (userOptional.isEmpty()) {
+                return ResponseEntity.status(ErrorCode.NOT_FOUND_USER.getHttpStatus())
+                        .body(new ApiResponse<>(false, null, ErrorCode.NOT_FOUND_USER.getMessage()));
+            }
+
+            User user = userOptional.get();
+            Map<String, Object> responseData = Map.of(
+                    "userId", user.getUserId(),
+                    "userName", user.getUserName(),
+                    "userRole", user.getUserRole()
+            );
+
+            return ResponseEntity.ok(new ApiResponse<>(true, responseData, null));
+
+        } catch (ExpiredJwtException e) {
+            return ResponseEntity.status(ErrorCode.EXPIRED_TOKEN_ERROR.getHttpStatus())
+                    .body(new ApiResponse<>(false, null, ErrorCode.EXPIRED_TOKEN_ERROR.getMessage()));
+        } catch (JwtException e) {
+            return ResponseEntity.status(ErrorCode.NOT_TOKEN_INVALID.getHttpStatus())
+                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_TOKEN_INVALID.getMessage()));
+        }
+    }
 }
