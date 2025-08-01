@@ -1,5 +1,15 @@
 package com.finsight.backend.control;
 
+import com.finsight.backend.config.MongoConfig;
+import com.finsight.backend.mongo.UserView;
+import com.finsight.backend.service.UserViewLogger;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.data.mongodb.core.MongoTemplate;
+
+import java.util.Date;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.finsight.backend.config.RootConfig;
 import com.finsight.backend.config.WebClientConfig;
 import com.finsight.backend.dto.response.KeywordResponseDTO;
@@ -19,7 +29,9 @@ import java.util.List;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
         RootConfig.class,
-        WebClientConfig.class
+        WebClientConfig.class,
+        MongoConfig.class,       // MongoTemplate 설정
+        UserViewLogger.class     // 테스트 대상 Bean 등록
 })
 @Transactional
 class NewsServiceTest {
@@ -73,5 +85,22 @@ class NewsServiceTest {
 
         System.out.printf("--- News for Product Code: %s ---%n", productCode);
         result.forEach(news -> System.out.println("Title: " + news.getNewsTitle()));
+    }
+  
+    @Autowired
+    private UserViewLogger logger;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @Test
+    void 뉴스_클릭_로그_정상_저장됨() {
+        // given
+        String userId = "testuser";
+        String newsId = "NEWS_TEST1";
+
+        // when
+        logger.logNewsClick(userId, newsId);
+
     }
 }

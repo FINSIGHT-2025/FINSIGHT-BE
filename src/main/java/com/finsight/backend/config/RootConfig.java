@@ -1,5 +1,9 @@
 package com.finsight.backend.config;
 
+import com.finsight.backend.mapper.KeywordProductMapper;
+import com.finsight.backend.mapper.NewsKeywordMapper;
+import com.finsight.backend.recommend.NewsClickRecommender;
+import com.finsight.backend.service.UserViewLogger;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -13,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -29,6 +34,8 @@ import java.util.Properties;
         "com.finsight.backend.service",
         "com.finsight.backend.security",
         "com.finsight.backend.util",
+        "com.finsight.backend.recommend",
+        "com.finsight.backend.mongo",
         "com.finsight.backend.batch"
 })
 @PropertySource({"classpath:/application.properties"})
@@ -135,5 +142,19 @@ public class RootConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public NewsClickRecommender newsClickRecommender(
+            MongoTemplate mongoTemplate,
+            NewsKeywordMapper newsKeywordMapper,
+            KeywordProductMapper keywordProductMapper
+    ) {
+        return new NewsClickRecommender(mongoTemplate, newsKeywordMapper, keywordProductMapper);
+    }
+
+    @Bean
+    public UserViewLogger userViewLogger(MongoTemplate mongoTemplate) {
+        return new UserViewLogger(mongoTemplate);
     }
 }
