@@ -30,7 +30,8 @@ public class NewsController {
      * 1. 뉴스 키워드 목록 조회
      */
     @GetMapping("")
-    public ResponseEntity<List<KeywordResponseDTO>> getAllKeywords() {
+    public ResponseEntity<List<KeywordResponseDTO>> getTopKeywords() {
+
         List<KeywordResponseDTO> keywords = newsService.getTopKeywords();
         return ResponseEntity.ok(keywords);
     }
@@ -38,7 +39,7 @@ public class NewsController {
     /**
      * 2. 뉴스 키워드별 뉴스 및 상품 조회
      */
-    @GetMapping("/keyword/{keyword}")
+    @GetMapping("/keyword/{keywordId}")
     public ResponseEntity<NewsByKeywordResponseDTO> getNewsAndProductsByKeyword(
             @PathVariable Long keywordId
     ) {

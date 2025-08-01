@@ -31,19 +31,18 @@
             SELECT 1 FROM news WHERE news_id = #{newsId}
         )
     </select>
-    <select id="findTopKeywords" resultType="KeywordResponseDTO">
+    <select id="findTopKeywords" resultType="KeywordVO">
         SELECT
             nk.keyword_id,
-            k.keyword,
-            COUNT(nk.keyword_id) AS count
+            k.keyword
         FROM
             news_keyword nk
-            JOIN
+                JOIN
             keyword k ON nk.keyword_id = k.keyword_id
         GROUP BY
             nk.keyword_id, k.keyword
         ORDER BY
-            count DESC
+            COUNT(nk.keyword_id) DESC
             LIMIT 10
     </select>
     <resultMap id="NewsResultMap" type="NewsVO">
@@ -58,7 +57,7 @@
 
     <select id="findNewsByKeywordId" parameterType="long" resultMap="NewsResultMap">
         SELECT
-            *
+            DISTINCT n.*
         FROM
             news n
                 JOIN

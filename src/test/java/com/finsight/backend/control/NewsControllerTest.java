@@ -28,13 +28,21 @@ class NewsServiceTest {
     private NewsService newsService;
 
     @Test
-    @DisplayName("상위 10개 키워드 조회")
+    @DisplayName("상위 10개 키워드 및 감성 분석 집계 조회")
     void getTop10KeywordsFromDb() {
+        // when
         List<KeywordResponseDTO> result = newsService.getTopKeywords();
 
-        System.out.println("--- Top 10 Keywords from DB ---");
+        System.out.println("--- Top 10 Keywords with Sentiment Analysis ---");
+
+        // [수정] 변경된 DTO의 필드(totalCount, positiveCount 등)를 출력하도록 변경
         result.forEach(dto ->
-                System.out.printf("Keyword: %s, Count: %d%n", dto.getKeyword(), dto.getCount())
+                System.out.printf("Keyword: %-15s | Total: %-5d (Pos: %d, Neg: %d, Neu: %d)%n",
+                        dto.getKeyword(),
+                        dto.getTotalCount(),
+                        dto.getPositiveCount(),
+                        dto.getNegativeCount(),
+                        dto.getNeutralCount())
         );
     }
 

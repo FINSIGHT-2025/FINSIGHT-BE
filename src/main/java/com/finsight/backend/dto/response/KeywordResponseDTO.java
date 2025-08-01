@@ -11,12 +11,8 @@ import lombok.Setter;
 public class KeywordResponseDTO {
     private Long keywordId;
     private String keyword;
-    private int count;
-
-    public static KeywordResponseDTO from(KeywordVO vo) {
-        return KeywordResponseDTO.builder()
-                .keywordId(vo.getKeywordId())
-                .keyword(vo.getKeyword())
-                .build();
-    }
+    private long positiveCount;
+    private long negativeCount;
+    private long neutralCount;
+    private long totalCount;
 }
