@@ -41,8 +41,8 @@ public class BatchConfig {
         return stepBuilderFactory.get("fundDailyInitStep")
                 .tasklet((contribution, chunkContext) -> {
                     for (int i = 10; i >= 1; i--) {
-                        double fund_nav = 42000 + Math.random() * 200;
-                        double fund_aum = 2000 + Math.random() * 2000;
+                        double fund_nav = 42000 + Math.random() * 20000000;
+                        double fund_aum = 2000 + Math.random() * 200000000;
 
                         Instant timestamp = Instant.now().minusSeconds(60L * 60 * 24 * i);
                         influxWriteService.writeFundDaily(fund_nav, fund_aum, timestamp);
@@ -65,13 +65,37 @@ public class BatchConfig {
         return stepBuilderFactory.get("etfDailyInitStep")
                 .tasklet((contribution, chunkContext) -> {
                     for (int i = 10; i >= 1; i--) {
-                        double etf_nav = 42000 + Math.random() * 200;
+                        double etf_nav = 42000 + Math.random() * 20000000;
 
                         Instant timestamp = Instant.now().minusSeconds(60L * 60 * 24 * i);
                         influxWriteService.writeEtfDaily(etf_nav, timestamp);
                     }
 
                     System.out.println("Etf Init 저장 완료");
+                    return RepeatStatus.FINISHED;
+                }).build();
+    }
+
+    @Bean
+    public Job etfRealtimeInitJob() {
+        return jobBuilderFactory.get("etfRealtimeInitJob")
+                .start(etfRealtimeInitStep())
+                .build();
+    }
+
+    @Bean
+    public Step etfRealtimeInitStep() {
+        return stepBuilderFactory.get("etfRealtimeInitStep")
+                .tasklet((contribution, chunkContext) -> {
+                    for (int i = 10; i >= 1; i--) {
+                        double etf_price = 2300 + Math.random() * 100000000;
+                        double etf_volume = 100 + Math.random() * 50000000;
+
+                        Instant timestamp = Instant.now().minusSeconds(60L * i); // 1분 간격 과거 데이터
+                        influxWriteService.writeEtfRealtime(etf_price, etf_volume, timestamp);
+                    }
+
+                    System.out.println("ETF Realtime Init 저장 완료");
                     return RepeatStatus.FINISHED;
                 }).build();
     }

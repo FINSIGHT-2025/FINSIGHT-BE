@@ -23,7 +23,7 @@ public class FundDailyScheduler {
         this.appState = appState;
     }
 
-    @Scheduled(cron = "0 22 17 * * *")
+    @Scheduled(cron = "30 34 18 * * *")
     public void launchFundDailyJob() {
         if (!appState.isFundDailyInitCompleted()) {
             log.warn("[FundDailyJob] 초기화가 완료되지 않아 실행되지 않음");

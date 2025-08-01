@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 public class AppState {
     private boolean fundDailyInitCompleted;
     private boolean etfDailyInitCompleted;
+    private boolean etfRealtimeInitCompleted;
 
     public boolean isFundDailyInitCompleted() {
         return fundDailyInitCompleted;
@@ -21,5 +22,13 @@ public class AppState {
 
     public void markEtfDailyInitCompleted() {
         this.etfDailyInitCompleted = true;
+    }
+
+    public boolean isEtfRealtimeInitCompleted() {
+        return etfRealtimeInitCompleted;
+    }
+
+    public void markEtfRealtimeInitCompleted() {
+        this.etfRealtimeInitCompleted = true;
     }
 }

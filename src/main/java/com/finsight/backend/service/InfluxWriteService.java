@@ -36,7 +36,7 @@ public class InfluxWriteService {
         }
     }
 
-    public void writeEtfRealtime(double etf_price, int etf_volume, Instant time) {
+    public void writeEtfRealtime(double etf_price, double etf_volume, Instant time) {
         Point point = Point.measurement("etf_realtime")
                 .addField("etf_price", etf_price)
                 .addField("etf_volume", etf_volume)
