@@ -23,7 +23,7 @@ public class FundVoHandler implements ProductVoHandler<Fund> {
     }
 
     @Override
-    public List<Fund> findProductListByFilter(String sort, String country, String type, String riskGrade) {
+    public List<Fund> findProductListByFilter(String sort, String country, String type, Integer riskGrade) {
         return null;
     }
 }

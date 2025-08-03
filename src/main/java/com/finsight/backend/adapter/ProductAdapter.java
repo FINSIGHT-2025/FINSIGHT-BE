@@ -20,16 +20,7 @@ public class ProductAdapter {
             "etf", Etf.class
     );
 
-    private static final Map<String, Class<? extends ProductDetailDto>> productDetailTypeMap = Map.of(
-            "deposit", DepositDetailDto.class,
-            "fund", FundDetailDetailDto.class,
-            "etf", EtfDetailDetailDto.class
-    );
-
     public static Class<? extends Product> productType(String category){
         return productTypeMap.get(category.toLowerCase());
-    }
-    public static Class<? extends ProductDetailDto> productDetailDtoType(String category){
-        return productDetailTypeMap.get(category);
     }
 }

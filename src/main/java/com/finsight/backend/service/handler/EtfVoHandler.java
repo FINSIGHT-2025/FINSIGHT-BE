@@ -24,7 +24,7 @@ public class EtfVoHandler implements ProductVoHandler<Etf> {
     }
 
     @Override
-    public List<Etf> findProductListByFilter(String sort, String country, String type, String riskGrade) {
+    public List<Etf> findProductListByFilter(String sort, String country, String type, Integer riskGrade) {
         return null;
     }
 }

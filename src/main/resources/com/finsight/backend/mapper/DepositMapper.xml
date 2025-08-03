@@ -7,4 +7,29 @@
         select * from deposit
         where product_code = #{productCode}
     </select>
+    <select id="findDepositByFilter" resultType="Deposit">
+        SELECT *
+        FROM deposit
+        WHERE 1=1
+        <if test="country != null and country != ''">
+            AND country = #{country}
+        </if>
+        <if test="type != null and type != ''">
+            AND deposit_type = #{type}
+        </if>
+        <if test="riskGrade != null">
+            AND product_risk_grade = #{riskGrade}
+        </if>
+        <choose>
+            <when test="sort == 'basic'">
+                ORDER BY intr_rate DESC
+            </when>
+            <when test="sort == 'max'">
+                ORDER BY intr_rate2 DESC
+            </when>
+            <otherwise>
+                ORDER BY product_code ASC
+            </otherwise>
+        </choose>
+    </select>
 </mapper>

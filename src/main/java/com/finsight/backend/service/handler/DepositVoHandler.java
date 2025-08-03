@@ -24,7 +24,7 @@ public class DepositVoHandler implements ProductVoHandler<Deposit> {
     }
 
     @Override
-    public List<Deposit> findProductListByFilter(String sort, String country, String type, String riskGrade) {
+    public List<Deposit> findProductListByFilter(String sort, String country, String type, Integer riskGrade) {
 
         return null;
     }
