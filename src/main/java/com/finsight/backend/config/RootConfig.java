@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -25,12 +26,9 @@ import java.util.Properties;
 
 @Configuration
 @ComponentScan(basePackages = {
-        "com.finsight.backend.service",
-        "com.finsight.backend.security",
-        "com.finsight.backend.util"
+        "com.finsight.backend"
 })
 @PropertySource({"classpath:/application.properties"})
-
 //지정된 패키지 내의 모든 매퍼 인터페이스를 자동으로 스캔하고, MyBatis의 매퍼로 등록
 @MapperScan(basePackages = {"com.finsight.backend.mapper"} )
 @EnableTransactionManagement //<tx:annotation-driven transaction-manager="transactionManager"/>

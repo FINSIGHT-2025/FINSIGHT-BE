@@ -1,6 +1,7 @@
 package com.finsight.backend.control;
 
 import com.finsight.backend.dto.request.LoginForm;
+import com.finsight.backend.dto.request.MonitoringRequest;
 import com.finsight.backend.dto.request.SignupForm;
 import com.finsight.backend.dto.response.ApiResponse;
 import com.finsight.backend.dto.response.LoginResponseWithToken;
@@ -97,13 +98,6 @@ public class UserController {
 
     @PostMapping("/token")
     public ResponseEntity<?> generateToken(HttpServletRequest request) throws ServletException, IOException {
-        Enumeration<String> headerNames = request.getHeaderNames();
-
-        headerNames.asIterator()
-                .forEachRemaining(headerName -> {
-                    String headerValue = request.getHeader(headerName);
-                    System.out.println(headerValue + " : " + headerName);
-                });
 
         Optional<String> token = HeaderUtil.refineHeader(request, "Authorization", "Bearer ");
 

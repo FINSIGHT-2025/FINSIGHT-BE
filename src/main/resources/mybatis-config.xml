@@ -9,6 +9,9 @@
     </settings>
     <typeAliases>
         <typeAlias type="com.finsight.backend.vo.User" alias="User" />
+        <typeAlias type="com.finsight.backend.vo.Deposit" alias="Deposit"/>
+        <typeAlias type="com.finsight.backend.vo.Etf" alias="Etf"/>
+        <typeAlias type="com.finsight.backend.vo.Fund" alias="Fund"/>
 <!--        <typeAlias type="com.finsight.backend.vo.OrderInfo" alias="OrderInfo"/>-->
 <!--        <typeAlias type="com.finsight.backend.vo.OrderLine" alias="OrderLine"/>-->
 <!--        <typeAlias type="com.finsight.backend.vo.Customer" alias="Customer"/>-->

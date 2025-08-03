@@ -146,21 +146,25 @@ CREATE TABLE `News_Keyword` (
                                 FOREIGN KEY (`keyword_id`) REFERENCES `Keyword`(`keyword_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `News_Product` (
-                                `news_product_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'KEY(AUTO INCREMENT)',
-                                `product_code` VARCHAR(100) NOT NULL COMMENT '상품 코드',
-                                `news_id` VARCHAR(255) NOT NULL COMMENT '뉴스 ID',
-                                PRIMARY KEY (`news_product_id`),
-                                FOREIGN KEY (`news_id`) REFERENCES `News`(`news_id`) ON DELETE CASCADE
-    -- `product_code`는 다형 참조이므로 FK 생략
+CREATE TABLE 'News_Product' (
+                                'news_product_id' BIGINT NOT NULL AUTO_INCREMENT COMMENT 'KEY(AUTO INCREMENT)',
+                                'product_code' VARCHAR(100) NOT NULL COMMENT '상품 코드',
+                                'news_id' VARCHAR(255) NOT NULL COMMENT '뉴스 ID',
+                                PRIMARY KEY ('news_product_id'),
+                                FOREIGN KEY ('news_id') REFERENCES 'News'('news_id') ON DELETE CASCADE
+    -- 'product_code'는 다형 참조이므로 FK 생략
 );
 
-CREATE TABLE `Watch` (
-                         `watchlist_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '위시 아이디',
-                         `product_code` VARCHAR(100) NOT NULL COMMENT '상품 코드',
-                         `user_id` VARCHAR(255) NOT NULL COMMENT '아이디',
-                         `product_category` ENUM('deposit', 'fund', 'etf') NOT NULL COMMENT '카테고리',
-                         PRIMARY KEY (`watchlist_id`),
-                         FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`) ON DELETE CASCADE
+CREATE TABLE 'Watch' (
+                         'watchlist_id' BIGINT NOT NULL AUTO_INCREMENT COMMENT '위시 아이디',
+                         'product_code' VARCHAR(100) NOT NULL COMMENT '상품 코드',
+                         'user_id' VARCHAR(255) NOT NULL COMMENT '아이디',
+                         'product_category' ENUM('deposit', 'fund', 'etf') NOT NULL COMMENT '카테고리',
+                         PRIMARY KEY ('watchlist_id'),
+                         FOREIGN KEY ('user_id') REFERENCES 'User'('user_id') ON DELETE CASCADE
     -- `product_code` 역시 다형 참조라 FK 생략
 );
+
+select * from DEPOSIT;
+select * from ETF;
+select * from FUND;

@@ -14,6 +14,7 @@ public enum ErrorCode {
     NOT_FORM_INVALID(1101, HttpStatus.BAD_REQUEST, "올바른 형식의 아이디 혹은 비밀번호가 아닙니다."),
     NOT_AUTH_EMAIL(1102, HttpStatus.BAD_REQUEST,"이메일 인증이 완료되지 않았습니다."),
     DUPLICATE_USER(1103, HttpStatus.BAD_REQUEST, "이미 존재하는 회원입니다."),
+    NOT_PATH_INVALID(1200, HttpStatus.BAD_REQUEST, "잘못된 경로입니다."),
 
 
     NOT_TOKEN_INVALID(2000, HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
