@@ -4,8 +4,9 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.finsight.backend.mapper.NewsKeywordMapper">
     <select id="findKeywordsByNewsId" resultType="java.lang.String">
-        SELECT keyword
-        FROM news_keyword
-        WHERE news_id = #{newsId}
+        SELECT k.keyword
+        FROM news_keyword nk
+        JOIN keyword k ON nk.keyword_id = k.keyword_id
+        WHERE nk.news_id = #{newsId}
     </select>
 </mapper>

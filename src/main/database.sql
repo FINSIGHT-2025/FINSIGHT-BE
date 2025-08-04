@@ -168,3 +168,8 @@ CREATE TABLE `Watch` (
 );
 
 SELECT * FROM User;
+
+DELETE FROM News_Product;
+DELETE FROM News_Keyword;
+DELETE FROM Keyword;
+DELETE FROM News;
