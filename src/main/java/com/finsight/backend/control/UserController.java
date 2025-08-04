@@ -28,6 +28,7 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.Optional;
 
+@CrossOrigin(origins = "*") // 또는 특정 포트 명시
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -36,8 +37,9 @@ public class UserController {
     private final UserService UserService;
     private final JwtUtil jwtUtil;
     private final EmailService emailService;
+    private final UserService userService;
 
-// user123 / securepassword123!
+    // user123 / securepassword123!
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginForm loginForm){
         Optional<User> optionalUser = UserService.findUser(loginForm);
@@ -157,6 +159,44 @@ public class UserController {
                     "userId", user.getUserId(),
                     "userName", user.getUserName(),
                     "userRole", user.getUserRole()
+            );
+
+            return ResponseEntity.ok(new ApiResponse<>(true, responseData, null));
+
+        } catch (ExpiredJwtException e) {
+            return ResponseEntity.status(ErrorCode.EXPIRED_TOKEN_ERROR.getHttpStatus())
+                    .body(new ApiResponse<>(false, null, ErrorCode.EXPIRED_TOKEN_ERROR.getMessage()));
+        } catch (JwtException e) {
+            return ResponseEntity.status(ErrorCode.NOT_TOKEN_INVALID.getHttpStatus())
+                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_TOKEN_INVALID.getMessage()));
+        }
+    }
+    // ✅ 마이페이지에 개인정보 GET 호출하기
+    @GetMapping("/info")
+    @ResponseBody
+    public ResponseEntity<?> getUsersInfo(HttpServletRequest request) {
+        Optional<String> token = HeaderUtil.refineHeader(request, "Authorization", "Bearer ");
+        if (token.isEmpty()) {
+            return ResponseEntity.status(ErrorCode.NOT_FOUND_TOKEN.getHttpStatus())
+                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_FOUND_TOKEN.getMessage()));
+        }
+        try {
+            Claims claims = jwtUtil.validateToken(token.get());
+            String userId = claims.get("userId", String.class);
+
+            Optional<User> userOptional = UserService.findByUserId(userId);
+            if (userOptional.isEmpty()) {
+                return ResponseEntity.status(ErrorCode.NOT_FOUND_USER.getHttpStatus())
+                        .body(new ApiResponse<>(false, null, ErrorCode.NOT_FOUND_USER.getMessage()));
+            }
+
+            User user = userOptional.get();
+            Map<String, Object> responseData = Map.of(
+                    "userId", user.getUserId(),
+                    "userName", user.getUserName(),
+                    "userEmail", user.getUserEmail(),
+                    "userBirthday", user.getUserBirthday(),
+                    "userCreatedAt", user.getUserCreatedAt()
             );
 
             return ResponseEntity.ok(new ApiResponse<>(true, responseData, null));
