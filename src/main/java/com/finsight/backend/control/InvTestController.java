@@ -56,33 +56,36 @@ public class InvTestController {
             // 2. JwtUtil을 주입받아 JWT 토큰 검증 및 사용자 ID 추출
             String userId;
             try {
-                // JwtUtil 인스턴스를 통해 validateToken 호출 (수정)
                 Claims claims = jwtUtil.validateToken(accessToken);
-                userId = claims.get("userId", String.class); // JWT 생성 시 사용했던 클레임 이름으로 userId 추출
+                userId = claims.get("userId", String.class);
                 if (userId == null) {
                     throw new JwtException("토큰에 사용자 ID 정보가 없습니다.");
                 }
             } catch (JwtException e) {
-                // 토큰 만료, 서명 오류 등 JWT 관련 예외 처리
                 System.err.println("[에러] JWT 검증 실패 (GET): " + e.getMessage());
-                // InvTestException을 사용하여 HttpStatus를 함께 반환
                 throw new InvTestException("유효하지 않거나 만료된 토큰입니다.", HttpStatus.FORBIDDEN); // 403 FORBIDDEN
             }
 
             // 3. Service 계층을 호출하여 투자 성향 정보 조회
             String investmentProfileType = invTestService.getInvestmentProfileTypeByUserId(userId);
+            String investmentProfileUpdatedAt = invTestService.getInvestmentProfileUpdatedAt(userId);
 
             // 4. 조회 결과에 따라 응답 구성
             if (investmentProfileType == null) {
-                // 데이터베이스에 해당 사용자의 투자 성향 정보가 없는 경우
                 Map<String, String> errorResponse = new HashMap<>();
                 errorResponse.put("message", "사용자의 투자 성향 정보를 찾을 수 없습니다.");
                 return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND); // 404 NOT FOUND
             }
+            if (investmentProfileUpdatedAt == null) {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("message", "사용자의 갱신일자 정보를 찾을 수 없습니다.");
+                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND); // 404 NOT FOUND
+            }
 
-            // 5. 성공 응답 (200 OK)
+            // 5. 성공 응답 (200 OK) ==> 프론트엔드가 기대하는 키
             Map<String, String> successResponse = new HashMap<>();
-            successResponse.put("investmentProfileType", investmentProfileType); // 프론트엔드가 기대하는 키
+            successResponse.put("investmentProfileType", investmentProfileType);
+            successResponse.put("investmentProfileUpdatedAt", investmentProfileUpdatedAt);
             return new ResponseEntity<>(successResponse, HttpStatus.OK);
 
         } catch (InvTestException e) {

@@ -9,4 +9,5 @@ import org.apache.ibatis.annotations.Mapper;
 public interface InvTestMapper {
     void insert(InvTestVO invTestVO);
     String selectInvestmentProfileTypeByUserId(String userId);
+    String selectInvestmentProfileUpdatedAtByUserId(String userId);
 }
