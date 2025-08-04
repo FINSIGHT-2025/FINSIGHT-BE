@@ -1,6 +1,7 @@
 package com.finsight.backend.batch;
 
 import com.finsight.backend.config.BatchConfig;
+import com.finsight.backend.config.MongoConfig;
 import com.finsight.backend.config.RootConfig;
 import com.finsight.backend.config.WebClientConfig;
 import com.finsight.backend.service.NewsSaveService;
@@ -15,7 +16,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(classes = {
         BatchConfig.class,
         WebClientConfig.class,
-        RootConfig.class
+        RootConfig.class,
+        MongoConfig.class
 })
 public class NewsSchedulerTest {
     @Autowired

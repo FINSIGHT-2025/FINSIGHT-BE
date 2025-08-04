@@ -166,3 +166,5 @@ CREATE TABLE `Watch` (
                          FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`) ON DELETE CASCADE
     -- `product_code` 역시 다형 참조라 FK 생략
 );
+
+SELECT * FROM User;
