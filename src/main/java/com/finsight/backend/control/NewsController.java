@@ -11,6 +11,13 @@ import com.finsight.backend.vo.NewsVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.finsight.backend.service.UserViewLogger;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -55,6 +62,23 @@ public class NewsController {
     public ResponseEntity<List<NewsResponseDTO>> getNewsByProductCode(@PathVariable("code") String productCode) {
         List<NewsResponseDTO> newsDtoList = newsService.getNewsByProductCode(productCode);
         return ResponseEntity.ok(newsDtoList);
+    }
+  
+    private final UserViewLogger logger;
+
+    // public NewsController(UserViewLogger logger) {
+    //     this.logger = logger;
+    // }
+
+    @PostMapping("/click")
+    public ResponseEntity<Void> logClick(
+            @RequestParam String newsId
+    ) {
+        // 🔥 로그인된 사용자 ID 추출
+        String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        logger.logNewsClick(userId, newsId);
+        return ResponseEntity.ok().build();
     }
 
 }

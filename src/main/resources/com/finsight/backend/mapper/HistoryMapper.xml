@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finsight.backend.mapper.HistoryMapper">
+
+    <insert id="insert" parameterType="com.finsight.backend.vo.History">
+        INSERT INTO History (holdings_id, history_trade_type, history_quantity, history_amount)
+        VALUES (#{holdingsId}, #{historyTradeType}, #{historyQuantity}, #{historyAmount})
+    </insert>
+
+</mapper>
