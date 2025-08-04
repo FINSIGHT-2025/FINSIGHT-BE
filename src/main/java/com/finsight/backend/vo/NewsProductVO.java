@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class NewsProductVO {
-    private Long newsProductId; // news_product_id
     private String productCode; // product_code
     private String newsId;      // news_id
 }

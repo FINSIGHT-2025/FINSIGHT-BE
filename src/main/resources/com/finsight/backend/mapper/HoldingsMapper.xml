@@ -1,43 +1,61 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finsight.backend.mapper.HoldingsMapper">
 
-<mapper namespace="com.finsight.backend.holdings.mapper.HoldingsMapper">
+    <select id="findByUserAndProduct" resultType="com.finsight.backend.vo.Holdings">
+        SELECT * FROM Holdings
+        WHERE user_id = #{userId} AND product_code = #{productCode}
+    </select>
+
+    <insert id="insert" parameterType="com.finsight.backend.vo.Holdings"
+            useGeneratedKeys="true" keyProperty="holdingsId">
+        INSERT INTO Holdings (user_id, product_code, product_category,
+        holdings_total_price, holdings_total_quantity, holdings_status)
+        VALUES (#{userId}, #{productCode}, #{productCategory},
+        #{holdingsTotalPrice}, #{holdingsTotalQuantity}, #{holdingsStatus})
+    </insert>
+
+    <update id="update" parameterType="com.finsight.backend.vo.Holdings">
+        UPDATE Holdings
+        SET holdings_total_price = #{holdingsTotalPrice},
+        holdings_total_quantity = #{holdingsTotalQuantity},
+        holdings_status = #{holdingsStatus}
+        WHERE holdings_id = #{holdingsId}
+    </update>
 
     <select id="selectHoldingsByUserIdAndProductCode" resultType="com.finsight.backend.holdings.dto.HoldingsResponseDto">
         SELECT
-            holdings_id,
-            product_category,
-            holdings_total_price,
-            holdings_total_quantity,
-            holdings_status
+        holdings_id,
+        product_category,
+        holdings_total_price,
+        holdings_total_quantity,
+        holdings_status
         FROM holdings
         WHERE user_id = #{userId}
-          AND product_code = #{productCode}
+        AND product_code = #{productCode}
     </select>
 
     <select id="selectHistoriesByHoldingsId" resultType="com.finsight.backend.holdings.vo.HistoryVO">
         SELECT
-            history_id,
-            holdings_id,
-            history_trade_type,
-            history_trade_date,
-            history_quantity,
-            history_amount
+        history_id,
+        holdings_id,
+        history_trade_type,
+        history_trade_date,
+        history_quantity,
+        history_amount
         FROM history
         WHERE holdings_id = #{holdingsId}
         ORDER BY history_trade_date DESC
     </select>
 
-    <select id="isProductWatched" resultType="int">
+    <select id="isProductWatched" resultType="Boolean">
         SELECT EXISTS (
-                       SELECT 1
+        SELECT 1
         FROM Watch
         WHERE user_id = #{userId}
-                       AND product_code = #{productCode}
-               )
+        AND product_code = #{productCode}
+        )
     </select>
-
-
 </mapper>

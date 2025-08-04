@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class KeywordVO {
-    private Long keywordId;    // keyword_id
-    private String keyword;    // keyword
+    private Long keywordId;     // keyword_id
+    private String keyword;     // keyword
 }
