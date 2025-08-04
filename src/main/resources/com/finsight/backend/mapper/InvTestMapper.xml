@@ -10,5 +10,8 @@
         SELECT investment_profile_type
         FROM Investment_Profile  WHERE user_id = #{userId}
     </select>
-
+    <select id="selectInvestmentProfileUpdatedAtByUserId" parameterType="string" resultType="string">
+        SELECT investment_profile_updated_at
+        FROM Investment_Profile  WHERE user_id = #{userId}
+    </select>
 </mapper>

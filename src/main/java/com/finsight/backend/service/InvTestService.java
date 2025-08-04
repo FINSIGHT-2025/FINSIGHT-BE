@@ -65,16 +65,25 @@ public class InvTestService {
 
     public String getInvestmentProfileTypeByUserId(String userId) {
         System.out.println("Service: 사용자 ID [" + userId + "]의 투자성향을 조회합니다.");
-        // InvTestMapper를 통해 DB에서 투자 성향 유형을 조회합니다.
-        // 이 메서드는 Mapper에 새롭게 추가될 select 쿼리를 호출합니다.
         String investmentProfileType = invTestMapper
                 .selectInvestmentProfileTypeByUserId(userId);
-
         if (investmentProfileType != null) {
             System.out.println("Service: 투자성향 조회 성공 - " + investmentProfileType);
         } else {
             System.out.println("Service: 사용자 [" + userId + "]의 투자성향 정보를 찾을 수 없습니다.");
         }
         return investmentProfileType;
+    }
+
+    public String getInvestmentProfileUpdatedAt(String userId) {
+        System.out.println("Service: 사용자 ID [" + userId + "]의 갱신일자를 조회합니다.");
+        String investmentProfileUpdatedAt = invTestMapper
+                .selectInvestmentProfileUpdatedAtByUserId(userId);
+        if (investmentProfileUpdatedAt != null) {
+            System.out.println("Service: 갱신일자 조회 성공 - " + investmentProfileUpdatedAt);
+        } else {
+            System.out.println("Service: 사용자[" + userId + "]의 갱신일자 정보를 찾을 수 없습니다.");
+        }
+        return investmentProfileUpdatedAt;
     }
 }
