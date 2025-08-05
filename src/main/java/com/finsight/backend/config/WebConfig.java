@@ -27,6 +27,7 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
                 RootConfig.class,
                 WebSocketConfig.class,
                 SecurityConfig.class,
+                BatchConfig.class,
                 WebClientConfig.class
         };
     }
