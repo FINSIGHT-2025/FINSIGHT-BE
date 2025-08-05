@@ -17,6 +17,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -209,4 +210,15 @@ public class UserController {
                     .body(new ApiResponse<>(false, null, ErrorCode.NOT_TOKEN_INVALID.getMessage()));
         }
     }
+    @DeleteMapping("/users")
+    public ResponseEntity<?> deleteUser(HttpServletRequest request) {
+        try {
+            String userId = JwtUtil.extractUserIdFromRequest(request);
+            userService.deleteUserById(userId);
+            return ResponseEntity.ok().body("탈퇴 성공");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("탈퇴 실패");
+        }
+    }
+
 }

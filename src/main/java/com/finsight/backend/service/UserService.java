@@ -14,4 +14,9 @@ public interface UserService {
     boolean checkEmail(String email);
 
     Optional<User> findByUserId(String userId);
+
+    public void deleteUserById(String userId) {
+        String sql = "DELETE FROM Users WHERE user_id = ?";
+        jdbcTemplate.update(sql, userId);
+    }
 }

@@ -9,8 +9,11 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Date;
+
+import static javax.crypto.Cipher.SECRET_KEY;
 
 @Component
 @Slf4j
@@ -22,6 +25,16 @@ public class JwtUtil implements InitializingBean {
     @Value("${jwt.secret}")
     private String secretKey;
     private Key key;
+
+    public static String extractUserIdFromRequest(HttpServletRequest request) {
+        String token = request.getHeader("Authorization").replace("Bearer ", "");
+        Claims claims = Jwts.parser()
+                .setSigningKey(String.valueOf(SECRET_KEY))
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("userId", String.class);
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
