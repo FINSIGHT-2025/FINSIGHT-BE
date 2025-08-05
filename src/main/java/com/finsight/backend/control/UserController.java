@@ -17,6 +17,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +29,7 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.Optional;
 
+@CrossOrigin(origins = "*") // 또는 특정 포트 명시
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -36,8 +38,9 @@ public class UserController {
     private final UserService UserService;
     private final JwtUtil jwtUtil;
     private final EmailService emailService;
+    private final UserService userService;
 
-// user123 / securepassword123!
+    // user123 / securepassword123!
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginForm loginForm){
         Optional<User> optionalUser = UserService.findUser(loginForm);
@@ -169,4 +172,110 @@ public class UserController {
                     .body(new ApiResponse<>(false, null, ErrorCode.NOT_TOKEN_INVALID.getMessage()));
         }
     }
+    // ✅ 마이페이지에 개인정보 GET 호출하기
+    @GetMapping("/info")
+    @ResponseBody
+    public ResponseEntity<?> getUsersInfo(HttpServletRequest request) {
+        Optional<String> token = HeaderUtil.refineHeader(request, "Authorization", "Bearer ");
+        if (token.isEmpty()) {
+            return ResponseEntity.status(ErrorCode.NOT_FOUND_TOKEN.getHttpStatus())
+                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_FOUND_TOKEN.getMessage()));
+        }
+        try {
+            Claims claims = jwtUtil.validateToken(token.get());
+            String userId = claims.get("userId", String.class);
+
+            Optional<User> userOptional = UserService.findByUserId(userId);
+            if (userOptional.isEmpty()) {
+                return ResponseEntity.status(ErrorCode.NOT_FOUND_USER.getHttpStatus())
+                        .body(new ApiResponse<>(false, null, ErrorCode.NOT_FOUND_USER.getMessage()));
+            }
+
+            User user = userOptional.get();
+            Map<String, Object> responseData = Map.of(
+                    "userId", user.getUserId(),
+                    "userName", user.getUserName(),
+                    "userEmail", user.getUserEmail(),
+                    "userBirthday", user.getUserBirthday(),
+                    "userCreatedAt", user.getUserCreatedAt()
+            );
+
+            return ResponseEntity.ok(new ApiResponse<>(true, responseData, null));
+
+        } catch (ExpiredJwtException e) {
+            return ResponseEntity.status(ErrorCode.EXPIRED_TOKEN_ERROR.getHttpStatus())
+                    .body(new ApiResponse<>(false, null, ErrorCode.EXPIRED_TOKEN_ERROR.getMessage()));
+        } catch (JwtException e) {
+            return ResponseEntity.status(ErrorCode.NOT_TOKEN_INVALID.getHttpStatus())
+                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_TOKEN_INVALID.getMessage()));
+        }
+    }
+
+    @DeleteMapping("")
+    public ResponseEntity<?> deleteUser(HttpServletRequest request) {
+        Optional<String> token = HeaderUtil.refineHeader(request, "Authorization", "Bearer ");
+
+        if (token.isEmpty()) {
+            log.warn("[User.deleteUser] NOT_FOUND_TOKEN");
+            return ResponseEntity.status(ErrorCode.NOT_FOUND_TOKEN.getHttpStatus())
+                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_FOUND_TOKEN.getMessage()));
+        }
+
+        try {
+            Claims claims = jwtUtil.validateToken(token.get());
+            String userId = claims.get("userId", String.class);
+
+            Optional<User> userOptional = userService.findByUserId(userId);
+            if (userOptional.isEmpty()) {
+                log.warn("[User.deleteUser] NOT_FOUND_USER : {}", userId);
+                return ResponseEntity.status(ErrorCode.NOT_FOUND_USER.getHttpStatus())
+                        .body(new ApiResponse<>(false, null, ErrorCode.NOT_FOUND_USER.getMessage()));
+            }
+
+            userService.deleteUser(userId);
+            log.info("[User.deleteUser] SUCCESS : {}", userId);
+            return ResponseEntity.ok(new ApiResponse<>(true, null, "회원 탈퇴가 완료되었습니다."));
+
+        } catch (ExpiredJwtException e) {
+            log.warn("[User.deleteUser] EXPIRED_TOKEN");
+            return ResponseEntity.status(ErrorCode.EXPIRED_TOKEN_ERROR.getHttpStatus())
+                    .body(new ApiResponse<>(false, null, ErrorCode.EXPIRED_TOKEN_ERROR.getMessage()));
+
+        } catch (JwtException e) {
+            log.warn("[User.deleteUser] INVALID_TOKEN");
+            return ResponseEntity.status(ErrorCode.NOT_TOKEN_INVALID.getHttpStatus())
+                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_TOKEN_INVALID.getMessage()));
+
+        } catch (Exception e) {
+            log.error("[User.deleteUser] 탈퇴 중 서버 오류", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, null, "회원 탈퇴 중 오류가 발생했습니다."));
+        }
+    }
+
+//    @DeleteMapping("")
+//    public ResponseEntity<?> deleteUser(HttpServletRequest request) {
+//        Optional<String> token = HeaderUtil.refineHeader(request, "Authorization", "Bearer ");
+//        if (token.isEmpty()) {
+//            log.warn("[User.deleteUser] NOT_FOUND_TOKEN");
+//            return ResponseEntity.status(ErrorCode.NOT_FOUND_TOKEN.getHttpStatus())
+//                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_FOUND_TOKEN.getMessage()));
+//        }
+//        try {
+//            Claims claims = jwtUtil.validateToken(token.get());
+//            String userId = claims.get("userId", String.class);
+//            userService.deleteUser(userId);
+//            return ResponseEntity.ok(new ApiResponse<>(true, null, "탈퇴 성공"));
+//        } catch (ExpiredJwtException e) {
+//            return ResponseEntity.status(ErrorCode.EXPIRED_TOKEN_ERROR.getHttpStatus())
+//                    .body(new ApiResponse<>(false, null, ErrorCode.EXPIRED_TOKEN_ERROR.getMessage()));
+//        } catch (JwtException e) {
+//            return ResponseEntity.status(ErrorCode.NOT_TOKEN_INVALID.getHttpStatus())
+//                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_TOKEN_INVALID.getMessage()));
+//        } catch (Exception e) {
+//            log.error("[User.deleteUser] 탈퇴 중 서버 오류", e);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(new ApiResponse<>(false, null, "회원 탈퇴 중 오류가 발생했습니다."));
+//        }
+//    }
 }

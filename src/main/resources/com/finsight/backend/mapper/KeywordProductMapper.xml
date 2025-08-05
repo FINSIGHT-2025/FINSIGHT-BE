@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finsight.backend.mapper.KeywordProductMapper">
+    <select id="findProductIdsByKeyword" resultType="java.lang.String">
+        SELECT np.product_code
+        FROM news_keyword nk
+        JOIN keyword k ON nk.keyword_id = k.keyword_id
+        JOIN news_product np ON nk.news_id = np.news_id
+        WHERE k.keyword = #{keyword}
+    </select>
+</mapper>
+
+<!--<mapper namespace="com.finsight.backend.mapper.KeywordProductMapper">-->
+<!--    <select id="findProductIdsByKeyword" resultType="java.lang.String">-->
+<!--        SELECT keyword_id-->
+<!--        FROM keyword-->
+<!--        WHERE keyword = #{keyword}-->
+<!--    </select>-->
+<!--</mapper>-->

@@ -40,8 +40,8 @@ CREATE TABLE `Holdings`
 
 CREATE TABLE `Investment_Profile` (
                                       `user_id` VARCHAR(255) NOT NULL COMMENT '아이디',
-                                      `insvestment_profile_type` ENUM('stable', 'stableplus', 'neutral', 'aggressive', 'veryaggressive') NOT NULL COMMENT '위험 성향',
-                                      `investment_profile_updated_at` DATETIME NOT NULL COMMENT '갱신일자',
+                                      `investment_profile_type` ENUM('stable', 'stableplus', 'neutral', 'aggressive', 'veryaggressive') NULL COMMENT '위험 성향',
+                                      `investment_profile_updated_at` DATETIME NULL COMMENT '갱신일자',
                                       PRIMARY KEY (`user_id`),
                                       FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`) ON DELETE CASCADE
 );
@@ -112,7 +112,7 @@ CREATE TABLE `Deposit` (
 );
 
 CREATE TABLE `History` (
-                           `history_id` BIGINT NOT NULL COMMENT '기본키',
+                           `history_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '기본키',
                            `holdings_id` BIGINT NOT NULL COMMENT '외래키',
                            `history_trade_type` ENUM('buy', 'sell', 'deposit') NOT NULL COMMENT '거래 유형',
                            `history_trade_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '거래일',

@@ -28,7 +28,9 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
                 WebSocketConfig.class,
                 SecurityConfig.class,
                 WebClientConfig.class,
-                GcpConfig.class
+                GcpConfig.class,
+                BatchConfig.class
+
         };
     }
 
@@ -57,6 +59,7 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
     final long MAX_FILE_SIZE = 1024 * 10;//1024 * 1024 * 10L; //
     final long MAX_REQUEST_SIZE = 1024 * 1024 * 20L;
     final int FILE_SIZE_THRESHOLD = 1024 * 1024 * 5;
+    ;
 
     @Override
     protected void customizeRegistration(ServletRegistration.Dynamic registration) {

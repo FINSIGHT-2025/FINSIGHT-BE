@@ -6,4 +6,12 @@
         INSERT INTO Investment_Profile (user_id, investment_profile_type, investment_profile_updated_at )
             VALUES (#{userId}, #{investmentProfileType}, #{investmentProfileUpdatedAt})
     </insert>
+    <select id="selectInvestmentProfileTypeByUserId" parameterType="string" resultType="string">
+        SELECT investment_profile_type
+        FROM Investment_Profile  WHERE user_id = #{userId}
+    </select>
+    <select id="selectInvestmentProfileUpdatedAtByUserId" parameterType="string" resultType="string">
+        SELECT investment_profile_updated_at
+        FROM Investment_Profile  WHERE user_id = #{userId}
+    </select>
 </mapper>
