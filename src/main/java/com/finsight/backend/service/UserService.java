@@ -15,8 +15,5 @@ public interface UserService {
 
     Optional<User> findByUserId(String userId);
 
-    public void deleteUserById(String userId) {
-        String sql = "DELETE FROM Users WHERE user_id = ?";
-        jdbcTemplate.update(sql, userId);
-    }
+    void deleteUser(String userId);
 }

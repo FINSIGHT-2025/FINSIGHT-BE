@@ -10,4 +10,6 @@ public interface UserMapper {
     boolean existsByEmail(String email);
 
     boolean updateUserRoleToComplete(String userId);
+
+    void deleteUser(String userId);
 }
