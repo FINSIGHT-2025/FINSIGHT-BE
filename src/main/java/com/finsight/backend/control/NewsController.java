@@ -5,6 +5,7 @@ import com.finsight.backend.dto.external.NewsApiResponseDTO;
 import com.finsight.backend.dto.response.KeywordResponseDTO;
 import com.finsight.backend.dto.response.NewsByKeywordResponseDTO;
 import com.finsight.backend.dto.response.NewsResponseDTO;
+import com.finsight.backend.security.info.UserPrincipal;
 import com.finsight.backend.service.NewsApiService;
 import com.finsight.backend.service.NewsService;
 import com.finsight.backend.vo.NewsVO;
@@ -75,7 +76,8 @@ public class NewsController {
             @RequestParam String newsId
     ) {
         // 🔥 로그인된 사용자 ID 추출
-        String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userId = principal.getUserId(); // 여기서 안전하게 추출
 
         logger.logNewsClick(userId, newsId);
         return ResponseEntity.ok().build();
