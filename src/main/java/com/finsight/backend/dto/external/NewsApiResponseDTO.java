@@ -3,15 +3,13 @@ package com.finsight.backend.dto.external;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.finsight.backend.vo.KeywordVO;
 import com.finsight.backend.vo.NewsVO;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
+@Setter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -61,7 +59,6 @@ public class NewsApiResponseDTO {
 
         @JsonProperty("content_url")
         private String contentUrl;
-        private Esg esg;
         private List<Company> companies;
         private List<Entity> entities;
 
@@ -70,6 +67,7 @@ public class NewsApiResponseDTO {
 //        private String body;
 
         private List<String> keywords;
+        private float sentimentScore;
 
         public NewsVO toVO(String productCode){
             LocalDateTime publishedAtDateTime = null;
@@ -77,14 +75,13 @@ public class NewsApiResponseDTO {
                 publishedAtDateTime = LocalDateTime.parse(this.publishedAt);
             }
 
-            NewsVO.NewsSentiment sentiment = NewsVO.NewsSentiment.neutral;
-            if(this.esg != null && this.esg.getPolarity() != null){
-                String polarityName = this.esg.getPolarity().getName();
-                if("긍정".equalsIgnoreCase(polarityName)){
-                    sentiment = NewsVO.NewsSentiment.positive;
-                }else if("부정".equalsIgnoreCase(polarityName)){
-                    sentiment = NewsVO.NewsSentiment.negative;
-                }
+            NewsVO.NewsSentiment sentiment;
+            if (this.sentimentScore > 0.25) {
+                sentiment = NewsVO.NewsSentiment.positive;
+            } else if (this.sentimentScore < -0.25) {
+                sentiment = NewsVO.NewsSentiment.negative;
+            } else {
+                sentiment = NewsVO.NewsSentiment.neutral;
             }
 
             List<KeywordVO> keywordVOList = null;
@@ -110,34 +107,7 @@ public class NewsApiResponseDTO {
         }
     }
 
-    @Getter
-    @Builder(toBuilder = true)
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Esg {
-        private EsgCategory category;
-        private EsgPolarity polarity;
-    }
-
-    @Getter
-    @Builder(toBuilder = true)
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class EsgCategory {
-        private String label;
-        private String name;
-        private Double score;
-    }
-
-    @Getter
-    @Builder(toBuilder = true)
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class EsgPolarity {
-        private String label;
-        private String name;
-        private Double score;
-    }
+    
 
     @Getter
     @Builder(toBuilder = true)
