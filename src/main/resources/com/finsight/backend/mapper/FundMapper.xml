@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finsight.backend.mapper.FundMapper">
+    <select id="findFundNameByWord" parameterType="string" resultType="com.finsight.backend.dto.response.SearchSuggestionResponseDTO">
+        SELECT product_code AS productCode,
+                product_name AS productName,
+                'fund' AS type
+        FROM fund
+        WHERE product_name LIKE CONCAT('%', #{word}, '%')
+    </select>
+</mapper>
