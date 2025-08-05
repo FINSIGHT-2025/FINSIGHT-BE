@@ -34,4 +34,8 @@
         SET user_role = 'complete'
         WHERE user_id = #{userId}
     </update>
+    <delete id="deleteUser" parameterType="string">
+        DELETE FROM User
+               WHERE user_id = #{userId}
+    </delete>
 </mapper>

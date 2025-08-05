@@ -75,4 +75,8 @@ public class UserServiceImpl implements UserService {
     public Optional<User> findByUserId(String userId) {
         return Optional.ofNullable(UserMapper.findUserByUserId(userId));
     }
+    @Override
+    public void deleteUser(String userId) {
+        UserMapper.deleteUser(userId);
+    }
 }
