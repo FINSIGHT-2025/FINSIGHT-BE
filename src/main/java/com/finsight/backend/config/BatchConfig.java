@@ -47,10 +47,10 @@ public class BatchConfig {
     private String tradeDataUrl;
 
 
-    // 1. Fund Daily Init - 2개 step
+    // 1. Fund Init - 2개 step
     @Bean
-    public Job fundDailyInitJob() {
-        return jobBuilderFactory.get("fundDailyInitJob")
+    public Job fundInitJob() {
+        return jobBuilderFactory.get("fundInitJob")
                 .start(fundAumInitStep())
                 .next(fundNavInitStep())
                 .build();
@@ -125,10 +125,10 @@ public class BatchConfig {
     }
 
 
-    // 2. Etf Daily Init - 1개 step
+    // 2. Etf Init - 1개 step
     @Bean
-    public Job etfDailyInitJob() {
-        return jobBuilderFactory.get("etfDailyInitJob")
+    public Job etfInitJob() {
+        return jobBuilderFactory.get("etfInitJob")
                 .start(etfNavInitStep())
                 .build();
     }
