@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchSuggestionResponseDTO {
-    private Long productCode;
+    private String productCode;
     private String productName;
     private String type;
 }

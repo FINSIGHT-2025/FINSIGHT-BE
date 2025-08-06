@@ -5,8 +5,8 @@
 <mapper namespace="com.finsight.backend.mapper.EtfMapper">
     <select id="findEtfNameByWord" parameterType="string" resultType="com.finsight.backend.dto.response.SearchSuggestionResponseDTO">
         SELECT product_code AS productCode,
-        product_name AS productName,
-        'etf' AS type
+                product_name AS productName,
+                'etf' AS type
         FROM etf
         WHERE product_name LIKE CONCAT('%', #{word}, '%')
     </select>
