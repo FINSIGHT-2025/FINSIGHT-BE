@@ -16,14 +16,13 @@ public class HoldingsService {
     @Autowired
     private final HoldingsMapper holdingsMapper;
 
-    public String getDepositPriceByUserId(String userId) {
+    public Double getDepositPriceByUserId(String userId) {
         System.out.println("Service: 사용자 ID [" + userId + "]의 현재 예금 보유금액을 조회합니다.");
-        String depositPrice = holdingsMapper.selectDepositPriceByUserId(userId);
+        Double depositPrice = holdingsMapper.selectDepositPriceByUserId(userId);
 
-        if (depositPrice != null) {
-            System.out.println("Service: 예금 보유금액 조회 성공 - " + depositPrice);
-        } else {
-            System.out.println("Service: 사용자[" + userId + "]의 예금 보유금액 정보를 찾을 수 없습니다.");
+        if (depositPrice == null) {
+            System.out.println("사용자 예금 정보 없음");
+            return 0.0; // 기본값
         }
         return depositPrice;
     }

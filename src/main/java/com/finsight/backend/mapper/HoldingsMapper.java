@@ -10,6 +10,6 @@ public interface HoldingsMapper {
     void insert(Holdings holdings);
     void update(Holdings holdings);
 
-    String selectDepositPriceByUserId(String userId);
+    Double selectDepositPriceByUserId(String userId);
 }
 

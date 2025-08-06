@@ -26,8 +26,13 @@
     </update>
 
     <select id="selectDepositPriceByUserId" parameterType="string">
-        SELECT holdings_total_price
-        FROM Holdings
-        WHERE (user_id = #{userId}) AND (product_category = 'deposit')
+        SELECT
+            CASE
+                WHEN his.history_amount = 0 THEN 0
+                ELSE (h.holdings_total_price / his.history_amount) * 100
+            END AS depositPrice
+        FROM Holdings AS h
+            INNER JOIN History as his ON h.holdings_id = his.holdings_id
+        WHERE (user_id = #{userId}) AND (h.product_category = 'deposit')
     </select>
 </mapper>
