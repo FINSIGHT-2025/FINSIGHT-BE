@@ -41,7 +41,8 @@ import java.util.Properties;
                         WebConfig.class,
                         WebSocketConfig.class,
                         ServletConfig.class,
-                        CorsConfig.class
+                        CorsConfig.class,
+                        WebClientConfig.class
                 })
         }
 )
