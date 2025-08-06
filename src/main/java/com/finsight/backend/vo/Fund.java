@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,8 +24,11 @@ public class Fund extends Product{
     private String fundReportCollectiveInvestmentTermsUrl;
     private String fundReportInvestmentProspectusUrl;
     private String fundReportSimplidfiedProspectusUrl;
-    private String fundAssetAllocation;
-    private String fundStockHoldings;
     private String fundFeeFrontEndLoad;
     private String fundEstablishedDate;
+
+    private List<FAssetAllocation> fAssetAllocation;
+    private List<FStockHoldings> fStockHoldings;
+
+    // private List<NewsProduct> newsProduct;
 }

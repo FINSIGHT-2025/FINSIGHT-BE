@@ -3,8 +3,65 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.finsight.backend.mapper.FundMapper">
-    <select id="findFundByCode" resultType="Fund">
-        select * from fund
-        where product_code = #{productCode}
+    <resultMap id="fundResultMap" type="Fund">
+
+        <id property="productCode" column="product_code"/>
+        <result property="productName" column="product_name" />
+        <result property="productCompanyName" column="product_company_name" />
+        <result property="productRiskGrade" column="product_risk_grade" />
+
+        <result property="fundCountry" column="fund_country" />
+        <result property="fundType" column="fund_type" />
+        <result property="fundDelistingStatus" column="fund_delisting_status" />
+        <result property="fundFeature" column="fund_feature" />
+        <result property="fundManagementStrategy" column="fund_management_strategy" />
+        <result property="fundFeeTotalExpenseRatio" column="fund_fee_total_expense_ratio" />
+        <result property="fundFeeBackEndLoad" column="fund_fee_back_end_load" />
+        <result property="fundFeeRedemption" column="fund_fee_redemption" />
+        <result property="fundReportInvestment" column="fund_report_investment" />
+        <result property="fundReportCollectiveInvestmentTermsUrl" column="fund_report_collective_investment_terms_url" />
+        <result property="fundReportInvestmentProspectusUrl" column="fund_report_investment_prospectus_url" />
+        <result property="fundReportSimplidfiedProspectusUrl" column="fund_report_simplidfied_prospectus_url" />
+        <result property="fundFeeFrontEndLoad" column="fund_fee_front_end_load" />
+        <result property="fundEstablishedDate" column="fund_established_date" />
+
+        <collection property="fAssetAllocation" ofType="FAssetAllocation" column="f_asset_allocation_id" javaType="ArrayList">
+            <id property="fAssetAllocationId" column="f_asset_allocation_id" />
+            <result property="fAssetAllocationType" column="f_asset_allocation_type"/>
+            <result property="fAssetAllocationPer" column="f_asset_allocation_per"/>
+            <result property="fAssetAllocationValuation" column="f_asset_allocation_valuation"/>
+        </collection>
+        <collection property="fStockHoldings" ofType="FStockHoldings" column="f_stock_holdings_id" javaType="ArrayList">
+            <id property="fStockHoldingsId" column="f_stock_holdings_id"/>
+            <result property="fStockHoldingsName" column="f_stock_holdings_name"/>
+            <result property="fStockHoldingsCountry" column="f_stock_holdings_country"/>
+            <result property="fStockHoldingsPer" column="f_stock_holdings_per"/>
+        </collection>
+    </resultMap>
+    <select id="findFundByCode" resultMap="fundResultMap">
+        select *
+        from Fund
+            left join F_Asset_Allocation FAA on Fund.product_code = FAA.product_code
+            left join F_Stock_Holdings FSH on Fund.product_code = FSH.product_code
+        where Fund.product_code = #{productCode};
+    </select>
+    <select id="findFundListByFilter" resultMap="fundResultMap">
+        select *
+        from Fund
+            left join F_Asset_Allocation FAA on Fund.product_code = FAA.product_code
+            left join F_Stock_Holdings FSH on Fund.product_code = FSH.product_code
+        <where>
+            <trim prefixOverrides="and ">
+                <if test="productCountry != null">
+                    and Fund.fund_country = #{productCountry}
+                </if>
+                <if test="productType != null">
+                    and Fund.fund_type = #{productType}
+                </if>
+                <if test="productRiskGrade != null">
+                    and Fund.product_risk_grade = #{productRiskGrade}
+                </if>
+            </trim>
+        </where>
     </select>
 </mapper>

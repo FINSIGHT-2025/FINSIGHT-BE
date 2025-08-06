@@ -14,12 +14,21 @@ import java.util.Map;
 @AllArgsConstructor
 @SuperBuilder
 public class FundByFilterDto extends ProductByFilterDto{
-    String country;
-    String fundType;
-    Double rateOfReturn;
-    Integer scale;
-    Integer riskGrade;
-    List<Map<String, String>> newsResponse;
+    private String productCountry;
+    private String productType;
+//    private Double productRateOfReturn;
+//    private Integer fundScale;
+//    private List<Map<String, String>> newsSentiment;
+//    private Boolean userOwns;
+//    private Boolean isPopularInUserGroup;
 
-
+    public static FundByFilterDto fundVoToFundByFilterDto(Fund fund){
+        return FundByFilterDto.builder()
+                .productCode(fund.getProductCode())
+                .productCountry(fund.getFundCountry().getDbValue())
+                .productType(fund.getFundType().getDbValue())
+                .productName(fund.getProductName())
+                .productRiskGrade(fund.getProductRiskGrade())
+                .build();
+    }
 }

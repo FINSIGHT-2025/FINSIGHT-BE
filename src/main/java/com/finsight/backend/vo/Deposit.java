@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,5 +18,6 @@ public class Deposit extends Product{
     private String depositJoinWay;
     private String depositJoinDeny;
     private String depositEtcNote;
-    private String depositOption;
+
+    private List<DOption> dOption;
 }

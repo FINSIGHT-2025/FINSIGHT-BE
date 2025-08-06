@@ -1,5 +1,6 @@
 package com.finsight.backend.dto.response;
 
+import com.finsight.backend.vo.Deposit;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,22 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public class DepositByFilterDto extends ProductByFilterDto{
-    String companyName;
-    Double intrRate;
-    Double intrRate2;
+    private Double depositIntrRate;
+    private Double depositIntrRate2;
+//     private Boolean userOwns;
+//     private Boolean isPopularInUserGroup;
+
+    public static DepositByFilterDto depositVoToDepositByFilterDto(Deposit deposit,
+                                                                   Double depositIntrRate,
+                                                                   Double depositIntrRate2){
+        return DepositByFilterDto.builder()
+                .productCode(deposit.getProductCode())
+                .productName(deposit.getProductName())
+                .productCompanyName(deposit.getProductCompanyName())
+                .productRiskGrade(deposit.getProductRiskGrade())
+                .depositIntrRate(depositIntrRate)
+                .depositIntrRate2(depositIntrRate2)
+                .build();
+                // userOwns이랑 isPopularInUserGroup builder에 추가해야함
+    }
 }

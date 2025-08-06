@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -23,10 +24,13 @@ public class Etf extends Product{
     private String etfInvestmentProspectusUrl;
     private String etfSimplifiedProspectusUrl;
     private String etfBenchmarkIndex;
-    private String etfAssetAllocation;
-    private String etfEquityRatio;
-    private String etfConstituentStocks;
     private LocalDate etfListingDate;
     private Integer etfMinTradingUnit;
     private String etfTaxType;
+
+    private List<EAssetAllocation> eAssetAllocation;
+    private List<EEquityRatio> eEquityRatio;
+    private List<EConstituentStocks> eConstituentStocks;
+
+    // private List<NewsProduct> newsProduct;
 }

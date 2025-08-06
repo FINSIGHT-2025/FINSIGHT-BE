@@ -6,11 +6,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 
 @Component
 @RequiredArgsConstructor
 public class DepositVoHandler implements ProductVoHandler<Deposit> {
     private final DepositMapper depositMapper;
+
+    private Map<String, Supplier<List<Deposit>>> SORT_HANDLERS;
 
 
     @Override
@@ -25,7 +29,14 @@ public class DepositVoHandler implements ProductVoHandler<Deposit> {
 
     @Override
     public List<Deposit> findProductListByFilter(String sort, String country, String type, Integer riskGrade) {
-
-        return null;
+        SORT_HANDLERS = Map.of(
+                "intr_rate", depositMapper::findDepositListOrderByIntrRate,
+                "intr_rate2", depositMapper::findDepositListOrderByIntrRate2
+        );
+        Supplier<List<Deposit>> handler = SORT_HANDLERS.get(sort);
+        if(handler == null){
+            throw new RuntimeException("Invalid sort parameter: " + sort);
+        }
+        return handler.get();
     }
 }

@@ -2,6 +2,9 @@ package com.finsight.backend.dto.response;
 
 import com.finsight.backend.enumerate.ProductCountry;
 import com.finsight.backend.enumerate.ProductType;
+import com.finsight.backend.vo.EAssetAllocation;
+import com.finsight.backend.vo.EConstituentStocks;
+import com.finsight.backend.vo.EEquityRatio;
 import com.finsight.backend.vo.Etf;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,17 +31,14 @@ public class EtfDetailDetailDto extends ProductDetailDto {
     private String etfInvestmentProspectusUrl;
     private String etfSimplifiedProspectusUrl;
     private String etfBenchmarkIndex;
-    private List<Map<String, String>> etfAssetAllocation;
-    private List<Map<String, String>> etfEquityRatio;
-    private List<Map<String, String>> etfConstituentStocks;
+    private List<EAssetAllocation> eAssetAllocation;
+    private List<EEquityRatio> eEquityRatio;
+    private List<EConstituentStocks> eConstituentStocks;
     private LocalDate etfListingDate;
     private Integer etfMinTradingUnit;
     private String etfTaxType;
 
-    public static EtfDetailDetailDto etfVoToEtfDetailDto(Etf etf,
-                                                         List<Map<String, String>> etfAssetAllocation,
-                                                         List<Map<String, String>> etfEquityRatio,
-                                                         List<Map<String, String>> etfConstituentStocks){
+    public static EtfDetailDetailDto etfVoToEtfDetailDto(Etf etf){
         return EtfDetailDetailDto.builder()
                 .productCode(etf.getProductCode())
                 .productName(etf.getProductName())
@@ -55,9 +55,9 @@ public class EtfDetailDetailDto extends ProductDetailDto {
                 .etfInvestmentProspectusUrl(etf.getEtfInvestmentProspectusUrl())
                 .etfSimplifiedProspectusUrl(etf.getEtfSimplifiedProspectusUrl())
                 .etfBenchmarkIndex(etf.getEtfBenchmarkIndex())
-                .etfAssetAllocation(etfAssetAllocation)
-                .etfEquityRatio(etfEquityRatio)
-                .etfConstituentStocks(etfConstituentStocks)
+                .eAssetAllocation(etf.getEAssetAllocation())
+                .eEquityRatio(etf.getEEquityRatio())
+                .eConstituentStocks(etf.getEConstituentStocks())
                 .etfListingDate(etf.getEtfListingDate())
                 .etfMinTradingUnit(etf.getEtfMinTradingUnit())
                 .etfTaxType(etf.getEtfTaxType())

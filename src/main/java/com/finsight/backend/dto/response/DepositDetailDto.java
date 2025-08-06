@@ -1,5 +1,6 @@
 package com.finsight.backend.dto.response;
 
+import com.finsight.backend.vo.DOption;
 import com.finsight.backend.vo.Deposit;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,9 +22,9 @@ public class DepositDetailDto extends ProductDetailDto{
     private String depositJoinWay;
     private String depositJoinDeny;
     private String depositEtcNote;
-    private List<Map<String, String>> depositOption;
+    private List<DOption> dOption;
 
-    public static DepositDetailDto depositVoToDepositDetailDto(Deposit deposit, List<Map<String, String>> depositOption){
+    public static DepositDetailDto depositVoToDepositDetailDto(Deposit deposit){
         return DepositDetailDto.builder()
                 .productCode(deposit.getProductCode())
                 .productName(deposit.getProductName())
@@ -36,7 +37,7 @@ public class DepositDetailDto extends ProductDetailDto{
                 .depositJoinWay(deposit.getDepositJoinWay())
                 .depositJoinDeny(deposit.getDepositJoinDeny())
                 .depositEtcNote(deposit.getDepositEtcNote())
-                .depositOption(depositOption)
+                .dOption(deposit.getDOption())
                 .build();
     }
 }

@@ -2,6 +2,8 @@ package com.finsight.backend.dto.response;
 
 import com.finsight.backend.enumerate.ProductCountry;
 import com.finsight.backend.enumerate.ProductType;
+import com.finsight.backend.vo.FAssetAllocation;
+import com.finsight.backend.vo.FStockHoldings;
 import com.finsight.backend.vo.Fund;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,14 +30,12 @@ public class FundDetailDetailDto extends ProductDetailDto {
     private String fundReportCollectiveInvestmentTermsUrl;
     private String fundReportInvestmentProspectusUrl;
     private String fundReportSimplidfiedProspectusUrl;
-    private List<Map<String, String>> fundAssetAllocation;
-    private List<Map<String, String>> fundStockHoldings;
+    private List<FAssetAllocation> fAssetAllocation;
+    private List<FStockHoldings> fStockHoldings;
     private String fundFeeFrontEndLoad;
     private String fundEstablishedDate;
 
-    public static FundDetailDetailDto fundVoToFundDetailDto(Fund fund,
-                                                            List<Map<String, String>> fundAssetAllocation,
-                                                            List<Map<String, String>> fundStockHoldings){
+    public static FundDetailDetailDto fundVoToFundDetailDto(Fund fund){
         return FundDetailDetailDto.builder()
                 .productCode(fund.getProductCode())
                 .productName(fund.getProductName())
@@ -53,8 +53,8 @@ public class FundDetailDetailDto extends ProductDetailDto {
                 .fundReportCollectiveInvestmentTermsUrl(fund.getFundReportCollectiveInvestmentTermsUrl())
                 .fundReportInvestmentProspectusUrl(fund.getFundReportInvestmentProspectusUrl())
                 .fundReportSimplidfiedProspectusUrl(fund.getFundReportSimplidfiedProspectusUrl())
-                .fundAssetAllocation(fundAssetAllocation)
-                .fundStockHoldings(fundStockHoldings)
+                .fAssetAllocation(fund.getFAssetAllocation())
+                .fStockHoldings(fund.getFStockHoldings())
                 .fundFeeFrontEndLoad(fund.getFundFeeFrontEndLoad())
                 .fundEstablishedDate(fund.getFundEstablishedDate())
                 .build();

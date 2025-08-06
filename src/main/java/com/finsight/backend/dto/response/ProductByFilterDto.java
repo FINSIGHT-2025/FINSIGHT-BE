@@ -10,8 +10,10 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public abstract class ProductByFilterDto {
-    String productCode;
-    String productName;
-    Boolean userOwns;
-    Boolean isPopularInUserGroup;
+    private String productCode;
+    private String productName;
+    private String productCompanyName;
+    private Boolean userOwns;
+    private Boolean isPopularInUserGroup;
+    private Integer productRiskGrade;
 }

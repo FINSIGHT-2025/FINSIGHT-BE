@@ -30,11 +30,11 @@ public class ProductController {
 
         if (productType == null) {
             return ResponseEntity.status(ErrorCode.NOT_PATH_INVALID.getHttpStatus())
-                    .body(new ApiResponse<>(Boolean.FALSE, null, ErrorCode.NOT_PATH_INVALID.getMessage()));
+                    .body(ErrorCode.NOT_PATH_INVALID.getMessage());
         }
 
         ProductDetailDto productDetailDto = productService.findProduct(productCode, productType);
-        return ResponseEntity.ok(new ApiResponse<>(Boolean.TRUE, productDetailDto, null));
+        return ResponseEntity.ok(productDetailDto);
     }
 
     @GetMapping("/{category}")
@@ -47,10 +47,10 @@ public class ProductController {
 
         if(productType == null){
             return ResponseEntity.status(ErrorCode.NOT_PATH_INVALID.getHttpStatus())
-                    .body(new ApiResponse<>(Boolean.FALSE, null, ErrorCode.NOT_PATH_INVALID.getMessage()));
+                    .body(ErrorCode.NOT_PATH_INVALID.getMessage());
         }
 
         List<? extends ProductByFilterDto> productByFilter = productService.findProductByFilter(productType, sort, country, type, riskGrade);
-        return ResponseEntity.ok(new ApiResponse<>(Boolean.TRUE, productByFilter, null));
+        return ResponseEntity.ok(productByFilter);
     }
 }
