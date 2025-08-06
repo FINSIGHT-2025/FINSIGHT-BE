@@ -24,4 +24,10 @@
         holdings_status = #{holdingsStatus}
         WHERE holdings_id = #{holdingsId}
     </update>
+
+    <select id="selectDepositPriceByUserId" parameterType="string">
+        SELECT holdings_total_price
+        FROM Holdings
+        WHERE (user_id = #{userId}) AND (product_category = 'deposit')
+    </select>
 </mapper>

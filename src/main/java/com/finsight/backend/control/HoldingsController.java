@@ -1,13 +1,22 @@
 package com.finsight.backend.control;
 
 import com.finsight.backend.dto.request.TradeRequest;
+import com.finsight.backend.exception.InvTestException;
+import com.finsight.backend.service.HoldingsService;
 import com.finsight.backend.service.TradeService;
+import com.finsight.backend.util.HeaderUtil;
+import com.finsight.backend.util.JwtUtil;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import scala.Int;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/holdings")
@@ -15,6 +24,11 @@ public class HoldingsController {
 
     @Autowired
     private TradeService tradeService;
+    @Autowired
+    private HoldingsService holdingsService;
+    @Autowired
+    private JwtUtil jwtUtil;
+
 
     @PostMapping("/purchases")
     public ResponseEntity<String> purchase(@RequestBody TradeRequest request) {
@@ -26,6 +40,43 @@ public class HoldingsController {
     public ResponseEntity<String> sell(@RequestBody TradeRequest request) {
         tradeService.processTrade(request, "sell");
         return ResponseEntity.ok("매도 완료");
+    }
+
+    @GetMapping("/deposit") // 보유 예금상품 액수 조회 (JWT 토큰에서 사용자 ID 추출)
+    public ResponseEntity<Map<String, String>> getDeposit(HttpServletRequest request) {
+        try {
+            String accessToken = HeaderUtil.refineHeader(request, "Authorization", "Bearer ")
+                    .orElseThrow(() -> new InvTestException("인증 토큰이 필요합니다.", HttpStatus.UNAUTHORIZED)); // 401 UNAUTHORIZED
+
+            String userId;
+            try {
+                Claims claims = jwtUtil.validateToken(accessToken);
+                userId = claims.get("userId", String.class);
+                if (userId == null) {
+                    throw new JwtException("토큰에 사용자 ID 정보가 없습니다.");
+                }
+            } catch (JwtException e) {
+                System.err.println("[에러] JWT 검증 실패 (GET): " + e.getMessage());
+                throw new InvTestException("유효하지 않거나 만료된 토큰입니다.", HttpStatus.FORBIDDEN); // 403 FORBIDDEN
+            }
+
+            String depositPrice = holdingsService.getDepositPriceByUserId(userId);
+            if (depositPrice == null) {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("message", "사용자의 예금 보유 정보를 찾을 수 없습니다.");
+                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND); // 404 NOT FOUND
+            }
+
+            Map<String, String> successResponse = new HashMap<>();
+            successResponse.put("depositPrice", depositPrice);
+            return new ResponseEntity<>(successResponse, HttpStatus.OK);
+
+        } catch (Exception e) {
+            System.err.println("[에러] 조회 중 Exception 발생: " + e.getMessage());
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
 

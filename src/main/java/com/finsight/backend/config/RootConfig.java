@@ -18,31 +18,34 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 import java.util.Properties;
 
 @Configuration
-@ComponentScan(basePackages = {
-        "com.finsight.backend.service",
-        "com.finsight.backend.security",
-        "com.finsight.backend.util",
-        "com.finsight.backend.recommend",
-        "com.finsight.backend.mongo",
-        "com.finsight.backend.batch",
-        "com.finsight.backend.config",
-        "com.finsight.backend.detailhodings",
-        "com.finsight.backend.tradeserverwebsocket"
-})
-@PropertySource({"classpath:/application.properties"})
 @EnableScheduling
+@ComponentScan(
+        basePackages = {"com.finsight.backend"},
+        excludeFilters = {
+                @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = {Controller.class}),
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
+                        WebConfig.class,
+                        WebSocketConfig.class,
+                        ServletConfig.class,
+                        CorsConfig.class
+                })
+        }
+)
+@PropertySource({"classpath:/application.properties"})
 //지정된 패키지 내의 모든 매퍼 인터페이스를 자동으로 스캔하고, MyBatis의 매퍼로 등록
 @MapperScan(basePackages = {"com.finsight.backend.mapper", "com.finsight.backend.detailhodings.mapper"} )
 @EnableTransactionManagement //<tx:annotation-driven transaction-manager="transactionManager"/>

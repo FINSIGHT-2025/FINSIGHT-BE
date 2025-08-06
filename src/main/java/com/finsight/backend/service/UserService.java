@@ -14,4 +14,6 @@ public interface UserService {
     boolean checkEmail(String email);
 
     Optional<User> findByUserId(String userId);
+
+    void deleteUser(String userId);
 }

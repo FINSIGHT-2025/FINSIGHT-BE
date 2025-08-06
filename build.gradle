@@ -40,6 +40,7 @@ ext {
 
   mongoDriverVersion = '4.11.1'         // MongoDB Java Driver
   springDataMongoVersion = '3.4.11'     // Spring Data MongoDB (Spring 5.3.x 호환)
+  googleCloudVersion = '2.44.0'
 }
 
 sourceCompatibility = '1.17'
@@ -143,6 +144,11 @@ dependencies {
   // Spring Batch
   implementation 'org.springframework.batch:spring-batch-core:4.3.8'
 
+  // InfluxDB
+  implementation 'com.influxdb:influxdb-client-java:6.11.0'
+  // InfluxDB Java 클라이언트의 핵심 기능 (core 모듈)
+  implementation "com.influxdb:influxdb-client-core:6.11.0"
+
   // WebClient
   implementation "org.springframework:spring-webflux:${springVersion}"
   implementation 'io.projectreactor.netty:reactor-netty-http:1.0.41'
@@ -154,18 +160,13 @@ dependencies {
   // LevenshteinDistance
   implementation 'org.apache.commons:commons-text:1.10.0'
 
+  // Google Cloud Natural Language API
+  implementation "com.google.cloud:google-cloud-language:${googleCloudVersion}"
+
   // Java WebSocket API (인터페이스 정의용)
   implementation 'javax.websocket:javax.websocket-api:1.1'
   // Tyrus: WebSocket 클라이언트 구현체 (GlassFish 제공)
   implementation 'org.glassfish.tyrus.bundles:tyrus-standalone-client:1.13'
-
-  // InfluxDB Java 클라이언트 - 데이터 쓰기/읽기 기능 포함
-  implementation "com.influxdb:influxdb-client-java:6.8.0"
-  // InfluxDB Java 클라이언트의 핵심 기능 (core 모듈)
-  implementation "com.influxdb:influxdb-client-core:6.8.0"
-
-  // JUnit 4: 테스트용 프레임워크
-  testImplementation("junit:junit:4.12")
 
   // Spring Web 모듈 - REST API 및 HTTP 클라이언트 등 포함
   implementation 'org.springframework:spring-web:5.3.30'

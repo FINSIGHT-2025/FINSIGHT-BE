@@ -4,12 +4,16 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @Data
 @Builder
 public class NewsApiRequestDTO {
-    private List<String> symbols;
+    private String symbols;
+
+    @Builder.Default
+    private List<String> keywords = Collections.emptyList();
 
     private LocalDate dateFrom;
     private LocalDate dateTo;
@@ -18,7 +22,7 @@ public class NewsApiRequestDTO {
     private String order = "score";  // 기본값 고정
 
     @Builder.Default
-    private Integer pageSize = 100;   // 기본값 20
+    private Integer pageSize = 10;   // 기본값 100
 
 
 }

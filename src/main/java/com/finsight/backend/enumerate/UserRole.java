@@ -13,15 +13,16 @@ public enum UserRole implements BaseEnum{
     private final String dbValue;
 
     @Override
-    public String toString() {
+    public String getDbValue() {
         return dbValue;
     }
-    public static UserRole fromDbValue(String dbValue) {
-        for (UserRole role : values()) {
-            if (role.dbValue.equalsIgnoreCase(dbValue)) {
-                return role;
+
+    public static UserRole fromDbValue(String dbValue){
+        for (UserRole userRole : values()) {
+            if(userRole.getDbValue().equals(dbValue)){
+                return userRole;
             }
         }
-        throw new IllegalArgumentException("Unknown role: " + dbValue);
+        throw new IllegalArgumentException("Unknown dbValue: " + dbValue);
     }
 }
