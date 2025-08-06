@@ -1,6 +1,7 @@
-package com.finsight.backend.config.mybatis;
+package com.finsight.backend.handler;
 
 import com.finsight.backend.enumerate.BaseEnum;
+import lombok.NoArgsConstructor;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
@@ -9,9 +10,11 @@ import java.sql.*;
 
 public class GenericEnumTypeHandler<E extends Enum<E> & BaseEnum> extends BaseTypeHandler<E> {
 
-    private final Class<E> type;
-    private final Method fromDbValueMethod;
+    private Class<E> type;
+    private Method fromDbValueMethod;
+    public GenericEnumTypeHandler(){
 
+    }
     public GenericEnumTypeHandler(Class<E> type) {
         this.type = type;
         try {
