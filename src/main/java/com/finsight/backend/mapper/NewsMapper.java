@@ -42,4 +42,6 @@ public interface NewsMapper {
 
     List<TempEtfVO> selectAllEtfs();
 
+    List<String> findNewsSentimentByProductCode(String productCode);
+
 }

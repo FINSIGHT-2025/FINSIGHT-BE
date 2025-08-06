@@ -20,6 +20,7 @@ public class NewsVO {
     private LocalDateTime newsPublishedAt; // news_published_at
     private double newsScore;              // news_score
     private NewsSentiment newsSentiment;  // news_sentiment
+    private String newsPublisher;          // news_publisher
 
     // 연관 키워드 리스트
     private List<KeywordVO> keywords;
