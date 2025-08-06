@@ -24,38 +24,4 @@
         holdings_status = #{holdingsStatus}
         WHERE holdings_id = #{holdingsId}
     </update>
-
-    <select id="selectHoldingsByUserIdAndProductCode" resultType="com.finsight.backend.holdings.dto.HoldingsResponseDto">
-        SELECT
-        holdings_id,
-        product_category,
-        holdings_total_price,
-        holdings_total_quantity,
-        holdings_status
-        FROM holdings
-        WHERE user_id = #{userId}
-        AND product_code = #{productCode}
-    </select>
-
-    <select id="selectHistoriesByHoldingsId" resultType="com.finsight.backend.holdings.vo.HistoryVO">
-        SELECT
-        history_id,
-        holdings_id,
-        history_trade_type,
-        history_trade_date,
-        history_quantity,
-        history_amount
-        FROM history
-        WHERE holdings_id = #{holdingsId}
-        ORDER BY history_trade_date DESC
-    </select>
-
-    <select id="isProductWatched" resultType="Boolean">
-        SELECT EXISTS (
-        SELECT 1
-        FROM Watch
-        WHERE user_id = #{userId}
-        AND product_code = #{productCode}
-        )
-    </select>
 </mapper>

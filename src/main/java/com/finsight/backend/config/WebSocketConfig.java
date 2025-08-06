@@ -1,10 +1,11 @@
 package com.finsight.backend.config;
 
+import com.finsight.backend.security.JwtAuthenticationProvider;
+import com.finsight.backend.util.JwtUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.*;
 
 /**
  * 메시지 브로커 종류 : Rabbit MQ, Radis Pub/Sub등이 있다
@@ -13,7 +14,11 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
  */
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    private final JwtUtil jwtUtil;
+    private final JwtAuthenticationProvider jwtAuthenticationProvider;
 
     //채팅방 이름 설정
     @Override
@@ -43,12 +48,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry
-                .addEndpoint("/ws");//자바 소켓 통신 가능
-        registry
-                .addEndpoint("/ws") // WebSocket 엔드포인트
-                .setAllowedOrigins("http://localhost:5173") // (CORS 허용)
-                .withSockJS(); //SocketJS자바 스크립트 소켓 통신
-
-           }
+        registry.addEndpoint("/ws-etf")
+                .setAllowedOrigins("http://localhost:5173", "http://localhost:8080")
+                .withSockJS();
+    }
 }

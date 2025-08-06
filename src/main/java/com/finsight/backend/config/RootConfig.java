@@ -37,12 +37,14 @@ import java.util.Properties;
         "com.finsight.backend.recommend",
         "com.finsight.backend.mongo",
         "com.finsight.backend.batch",
-        "com.finsight.backend.config"
+        "com.finsight.backend.config",
+        "com.finsight.backend.detailhodings",
+        "com.finsight.backend.tradeserverwebsocket"
 })
 @PropertySource({"classpath:/application.properties"})
 @EnableScheduling
 //지정된 패키지 내의 모든 매퍼 인터페이스를 자동으로 스캔하고, MyBatis의 매퍼로 등록
-@MapperScan(basePackages = {"com.finsight.backend.mapper"} )
+@MapperScan(basePackages = {"com.finsight.backend.mapper", "com.finsight.backend.detailhodings.mapper"} )
 @EnableTransactionManagement //<tx:annotation-driven transaction-manager="transactionManager"/>
 public class RootConfig {
     @Value("${jdbc.driver}")

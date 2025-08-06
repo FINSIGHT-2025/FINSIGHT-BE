@@ -14,6 +14,7 @@
         <package name="com.finsight.backend.handler"/>
     </typeHandlers>
     <mappers>
+        <mapper resource="com/finsight/backend/mapper/DetailHoldingsMapper.xml"/>
         <package name="com.finsight.backend.mapper"/>
     </mappers>
 </configuration>
