@@ -89,4 +89,12 @@ public class JwtUtil implements InitializingBean {
             throw new IllegalArgumentException("유효하지 않은 JWT 토큰입니다.");
         }
     }
+
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
 }
