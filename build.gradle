@@ -143,6 +143,9 @@ dependencies {
   // Spring Batch
   implementation 'org.springframework.batch:spring-batch-core:4.3.8'
 
+  // InfluxDB
+  implementation 'com.influxdb:influxdb-client-java:6.11.0'
+
   // WebClient
   implementation "org.springframework:spring-webflux:${springVersion}"
   implementation 'io.projectreactor.netty:reactor-netty-http:1.0.41'

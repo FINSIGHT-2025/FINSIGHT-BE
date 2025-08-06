@@ -1,7 +1,9 @@
 package com.finsight.backend.control;
 
 import com.finsight.backend.recommend.NewsClickRecommender;
+import com.finsight.backend.security.info.UserPrincipal;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -20,14 +22,17 @@ public class RecommendationController {
     }
 
     /**
-     * GET /recommendations/{userId}?top=5
-     * - 최근 뉴스 열람 로그를 기반으로 추천 상품 ID + 점수 반환
+     * GET /recommendations?top=5
+     * - 로그인된 사용자의 뉴스 열람 로그 기반 추천 상품 ID + 점수 반환
      */
-    @GetMapping("/{userId}")
+    @GetMapping("")
     public ResponseEntity<Map<String, Integer>> recommend(
-            @PathVariable String userId,
             @RequestParam(defaultValue = "5") int top
     ) {
+        // 🔥 올바른 형변환
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userId = principal.getUserId();
+
         Map<String, Integer> result = recommender.getTopRecommendedProducts(userId, top);
         return ResponseEntity.ok(result);
     }
