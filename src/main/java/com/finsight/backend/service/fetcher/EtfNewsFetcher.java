@@ -5,11 +5,9 @@ import com.finsight.backend.dto.external.NewsApiResponseDTO;
 import com.finsight.backend.service.NewsApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -23,8 +21,12 @@ public class EtfNewsFetcher implements NewsFetcher {
     }
 
     @Override
-    public Mono<NewsApiResponseDTO> fetch(String identifier) {
-        String symbols = identifier;
+    public Mono<NewsApiResponseDTO> fetch(Object identifier) {
+        if (!(identifier instanceof String symbols)) {
+            // 잘못된 타입이 들어오면 에러를 반환하거나 비어있는 결과를 반환
+            return Mono.error(new IllegalArgumentException("Identifier must be a String for ETF"));
+        }
+
         LocalDate to = LocalDate.now();
         LocalDate from = to.minusDays(7);
 

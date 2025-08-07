@@ -16,4 +16,7 @@ public interface UserService {
     Optional<User> findByUserId(String userId);
 
     void deleteUser(String userId);
+
+    void updateUserInfo(String userId, String newPassword, String newEmail);
+    String encodePassword(String rawPassword);
 }

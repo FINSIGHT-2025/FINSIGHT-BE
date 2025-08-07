@@ -21,12 +21,13 @@ import java.util.List;
 @RequestMapping("/products")
 public class ProductController {
     private final ProductService productService;
+    private final ProductAdapter productAdapter;
 
 
     @GetMapping("/{category}/{code}")
     public ResponseEntity<?> findDetailProduct(@PathVariable("category") String category,
                                                @PathVariable("code") String productCode){
-        Class<? extends Product> productType = ProductAdapter.productType(category);
+        Class<? extends Product> productType = productAdapter.productType(category);
 
         if (productType == null) {
             return ResponseEntity.status(ErrorCode.NOT_PATH_INVALID.getHttpStatus())
@@ -43,7 +44,7 @@ public class ProductController {
                                                  @RequestParam(name = "country", required = false) String country,
                                                  @RequestParam(name = "type", required = false) String type,
                                                  @RequestParam(name = "riskGrade", required = false) Integer riskGrade){
-        Class<? extends Product> productType = ProductAdapter.productType(category);
+        Class<? extends Product> productType = productAdapter.productType(category);
 
         if(productType == null){
             return ResponseEntity.status(ErrorCode.NOT_PATH_INVALID.getHttpStatus())

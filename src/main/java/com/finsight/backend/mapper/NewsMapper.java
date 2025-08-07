@@ -16,7 +16,7 @@ import java.util.List;
 public interface NewsMapper {
     void insertNews(NewsVO news);
 
-    void insertNewsProduct(@Param("newsId") String newsId, @Param("productCode") String productCode);
+    void insertNewsProduct(@Param("newsId") String newsId, @Param("productCode") String productCode, @Param("newsProductCategory") String newsProductCategory);
 
     void insertKeyword(@Param("keyword") String keyword);
 
@@ -41,5 +41,7 @@ public interface NewsMapper {
     List<TempFundVO> selectAllFunds();
 
     List<TempEtfVO> selectAllEtfs();
+
+    List<String> findNewsSentimentByProductCode(String productCode);
 
 }

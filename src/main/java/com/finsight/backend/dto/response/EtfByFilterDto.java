@@ -19,6 +19,7 @@ public class EtfByFilterDto extends ProductByFilterDto{
     // private List<Map<String, Integer>> newsSentiment;
     // private Boolean userOwns;
     // private Boolean isPopularInUserGroup;
+    // private Boolean recommandByNews;
 
     public static EtfByFilterDto etfVoToEtfByFilterDto(Etf etf){
         return EtfByFilterDto.builder()

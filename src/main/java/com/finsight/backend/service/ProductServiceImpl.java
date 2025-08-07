@@ -42,6 +42,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public <T extends Product> List<ProductByFilterDto> findProductByFilter(Class<T> expectedType, String sort, String country, String type, Integer riskGrade) {
+
         @SuppressWarnings("unchecked")
         ProductVoHandler<T> matchedVoHandler = (ProductVoHandler<T>) voHandlers.stream()
                 .filter(handler -> handler.getProductType().equals(expectedType))
