@@ -255,6 +255,49 @@ public class UserController {
         }
     }
 
+    @PutMapping("/info")
+    public ResponseEntity<?> updateUserInfo(
+            @RequestBody Map<String, String> updateData,
+            HttpServletRequest request
+    ) {
+        Optional<String> token = HeaderUtil.refineHeader(request, "Authorization", "Bearer ");
+        if (token.isEmpty()) {
+            return ResponseEntity.status(ErrorCode.NOT_FOUND_TOKEN.getHttpStatus())
+                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_FOUND_TOKEN.getMessage()));
+        }
+
+        try {
+            Claims claims = jwtUtil.validateToken(token.get());
+            String userId = claims.get("userId", String.class);
+
+            String newEmail = updateData.get("email");
+            String newPassword = updateData.get("password");
+
+            userService.updateUserInfo(userId, newPassword, newEmail);
+
+            return ResponseEntity.ok(new ApiResponse<>(true, null, "회원 정보가 수정되었습니다."));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(ErrorCode.NOT_AUTH_EMAIL.getHttpStatus())
+                    .body(new ApiResponse<>(false, null, e.getMessage()));
+
+        } catch (ExpiredJwtException e) {
+            return ResponseEntity.status(ErrorCode.EXPIRED_TOKEN_ERROR.getHttpStatus())
+                    .body(new ApiResponse<>(false, null, ErrorCode.EXPIRED_TOKEN_ERROR.getMessage()));
+
+        } catch (JwtException e) {
+            return ResponseEntity.status(ErrorCode.NOT_TOKEN_INVALID.getHttpStatus())
+                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_TOKEN_INVALID.getMessage()));
+
+        } catch (Exception e) {
+            log.error("[User.updateUserInfo] 서버 오류", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, null, "회원 정보 수정 중 오류가 발생했습니다."));
+        }
+    }
+
+
+
 //    @DeleteMapping("")
 //    public ResponseEntity<?> deleteUser(HttpServletRequest request) {
 //        Optional<String> token = HeaderUtil.refineHeader(request, "Authorization", "Bearer ");

@@ -38,4 +38,16 @@
         DELETE FROM User
                WHERE user_id = #{userId}
     </delete>
+    <update id="updatePassword">
+        UPDATE User
+        SET user_password = #{userPassword}
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateEmail">
+        UPDATE User
+        SET user_email = #{userEmail}
+        WHERE user_id = #{userId}
+    </update>
+
 </mapper>

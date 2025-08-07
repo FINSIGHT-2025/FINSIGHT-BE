@@ -29,8 +29,8 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
                 SecurityConfig.class,
                 WebClientConfig.class,
                 GcpConfig.class,
-                BatchConfig.class
-
+                BatchConfig.class,
+                AsyncConfig.class
         };
     }
 

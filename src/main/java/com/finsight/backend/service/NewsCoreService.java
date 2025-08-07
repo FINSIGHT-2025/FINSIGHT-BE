@@ -1,10 +1,13 @@
 package com.finsight.backend.service;
 
+import com.finsight.backend.dto.external.NewsApiResponseDTO;
+import com.finsight.backend.mapper.FundMapper;
 import com.finsight.backend.mapper.NewsMapper;
 import com.finsight.backend.service.fetcher.AssetType;
 import com.finsight.backend.service.fetcher.NewsFetcher;
+import com.finsight.backend.vo.FStockHoldings;
+import com.finsight.backend.vo.Fund;
 import com.finsight.backend.vo.TempEtfVO;
-import com.finsight.backend.vo.TempFundVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +24,12 @@ public class NewsCoreService {
     private final NewsSaveService newsSaveService;
     private final Map<AssetType, NewsFetcher> fetcherMap;
     private final NewsMapper newsMapper;
+    private final FundMapper fundMapper;
 
-    public NewsCoreService(List<NewsFetcher> fetchers, NewsSaveService newsSaveService, NewsMapper newsMapper){
+    public NewsCoreService(List<NewsFetcher> fetchers, NewsSaveService newsSaveService, NewsMapper newsMapper, FundMapper fundMapper){
         this.newsSaveService = newsSaveService;
         this.newsMapper = newsMapper;
+        this.fundMapper = fundMapper;
 
         Map<AssetType, NewsFetcher> map = new EnumMap<>(AssetType.class);
         for(NewsFetcher fetcher : fetchers){
@@ -39,7 +44,7 @@ public class NewsCoreService {
      */
     public void processAllAssets(){
         List<TempEtfVO> etfs = newsMapper.selectAllEtfs();
-        List<TempFundVO> funds = newsMapper.selectAllFunds();
+        List<Fund> funds = fundMapper.selectAllFundStock();
 
         processEtfsInternal(etfs);
         processFundsInternal(funds);
@@ -51,12 +56,11 @@ public class NewsCoreService {
 
         for(TempEtfVO etf : etfs){
             try {
-                // .subscribe() 대신 .block()을 사용하여 동기식으로 처리
                 etfFetcher.fetch(etf.getProductCode())
                         .doOnSuccess(response -> {
                             if (response != null && response.getData() != null) {
                                 response.getData().forEach(newsData ->
-                                        newsSaveService.saveNews(newsData, etf.getProductCode())
+                                        newsSaveService.saveNews(newsData, etf.getProductCode(), "etf")
                                 );
                             }
                         })
@@ -67,45 +71,42 @@ public class NewsCoreService {
             }
         }
     }
-    private void processFundsInternal(List<TempFundVO> funds) {
+    private void processFundsInternal(List<Fund> funds) {
         NewsFetcher fundFetcher = findFetcher(AssetType.FUND);
         log.info("Starting Fund news processing for {} items.", funds.size());
 
-        for (TempFundVO fund : funds) {
-            if (fund.getFundStockHoldings() == null || fund.getFundStockHoldings().isBlank()) {
-                continue;
-            }
+        for (Fund fund : funds) {
             try {
-                // ❗️ .subscribe() 대신 .block()을 사용하여 동기식으로 처리
-                fundFetcher.fetch(fund.getFundStockHoldings())
-                        .doOnSuccess(response -> {
+                // 보유 주식 정보가 없으면 다음 펀드로 넘어갑니다.
+                if (fund.getFStockHoldings() == null || fund.getFStockHoldings().isEmpty()) {
+                    continue;
+                }
 
-                            // 임시 로그 코드
-                            if (response == null) {
-                                log.warn("Response is null for fund: {}", fund.getProductCode());
-                                return;
-                            }
+                // 키워드가 될 주식 종목명 리스트를 추출합니다.
+                List<String> keywords = fund.getFStockHoldings().stream()
+                        .map(FStockHoldings::getFStockHoldingsName)
+                        .limit(2)
+                        .toList();
 
-                            if (response.getData() == null || response.getData().isEmpty()) {
-                                log.warn("No news data returned for fund: {}", fund.getProductCode());
-                                return;
-                            }
+                if (keywords.isEmpty()) {
+                    continue;
+                }
 
-                            log.info("Fetched {} news items for fund: {}", response.getData().size(), fund.getProductCode());
+                // 2. fetcher를 호출하고 .block()을 사용해 응답이 올 때까지 기다립니다.
+                //    이 부분이 동기 블로킹으로 동작하는 핵심입니다.
+                NewsApiResponseDTO response = fundFetcher.fetch(keywords).block();
 
+                // 3. 응답을 받은 후, 데이터를 저장합니다.
+                if (response != null && response.getData() != null) {
+                    log.info("Saving {} news items for fund: {}", response.getData().size(), fund.getProductCode());
+                    response.getData().forEach(newsData ->
+                            newsSaveService.saveNews(newsData, fund.getProductCode(), "fund")
+                    );
+                }
 
-                            // ----
-
-                            if (response != null && response.getData() != null) {
-                                response.getData().forEach(newsData ->
-                                        newsSaveService.saveNews(newsData, fund.getProductCode())
-                                );
-                            }
-                        })
-                        .doOnError(error -> log.error("Error fetching news for Fund: {}", fund.getProductCode(), error))
-                        .block(); // 작업이 끝날 때까지 여기서 대기
             } catch (Exception e) {
-                log.error("Failed to process Fund {} due to an error in the reactive stream.", fund.getProductCode(), e);
+                // 4. 특정 펀드 처리 중 에러가 발생해도 전체 작업이 멈추지 않도록 try-catch로 감쌉니다.
+                log.error("Failed to process Fund {} due to an error.", fund.getProductCode(), e);
             }
         }
     }

@@ -44,7 +44,7 @@ class NewsMapperTest {
                 new ArrayList<>(),
                 new ArrayList<>()
         );
-        newsMapper.insertNewsProduct("N001", "K55101EI1739");
+        newsMapper.insertNewsProduct("N001", "K55101EI1739", "fund");
     }
 
     @Test
