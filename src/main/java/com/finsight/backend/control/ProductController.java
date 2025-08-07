@@ -27,7 +27,7 @@ public class ProductController {
     @GetMapping("/{category}/{code}")
     public ResponseEntity<?> findDetailProduct(@PathVariable("category") String category,
                                                @PathVariable("code") String productCode){
-        Class<? extends Product> productType = productAdapter.productType(category);
+        Class<? extends Product> productType = productAdapter.category(category);
 
         if (productType == null) {
             return ResponseEntity.status(ErrorCode.NOT_PATH_INVALID.getHttpStatus())
@@ -44,7 +44,7 @@ public class ProductController {
                                                  @RequestParam(name = "country", required = false) String country,
                                                  @RequestParam(name = "type", required = false) String type,
                                                  @RequestParam(name = "riskGrade", required = false) Integer riskGrade){
-        Class<? extends Product> productType = productAdapter.productType(category);
+        Class<? extends Product> productType = productAdapter.category(category);
 
         if(productType == null){
             return ResponseEntity.status(ErrorCode.NOT_PATH_INVALID.getHttpStatus())
