@@ -89,4 +89,27 @@ public class HoldingsService {
         }
         return foreignBond4;
     }
+
+    // 보유내역
+    public Double getDepositByUserId(String userId) {
+        Double depositByUserId = holdingsMapper.selectDepositByUserId(userId);
+        if (depositByUserId == null) {
+            return  0.0;
+        }
+        return depositByUserId;
+    }
+    public Double getDomesticByUserId(String userId) {
+        Double domesticByUserId = holdingsMapper.selectDomesticByUserId(userId);
+        if (domesticByUserId == null) {
+            return  0.0;
+        }
+        return domesticByUserId;
+    }
+    public Double getForeignByUserId(String userId) {
+        Double foreignByUserId = holdingsMapper.selectForeignByUserId(userId);
+        if (foreignByUserId == null) {
+            return  0.0;
+        }
+        return foreignByUserId;
+    }
 }
