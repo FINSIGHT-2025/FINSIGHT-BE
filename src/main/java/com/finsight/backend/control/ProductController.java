@@ -44,14 +44,14 @@ public class ProductController {
                                                  @RequestParam(name = "country", required = false) String country,
                                                  @RequestParam(name = "type", required = false) String type,
                                                  @RequestParam(name = "riskGrade", required = false) Integer riskGrade){
-        Class<? extends Product> productType = productAdapter.category(category);
+        Class<? extends Product> productCategory = productAdapter.category(category);
 
-        if(productType == null){
+        if(productCategory == null){
             return ResponseEntity.status(ErrorCode.NOT_PATH_INVALID.getHttpStatus())
                     .body(ErrorCode.NOT_PATH_INVALID.getMessage());
         }
 
-        List<? extends ProductByFilterDto> productByFilter = productService.findProductByFilter(productType, sort, country, type, riskGrade);
+        List<? extends ProductByFilterDto> productByFilter = productService.findProductByFilter(productCategory, sort, country, type, riskGrade);
         return ResponseEntity.ok(productByFilter);
     }
 }
