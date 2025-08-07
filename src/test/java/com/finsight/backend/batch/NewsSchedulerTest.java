@@ -1,11 +1,7 @@
 package com.finsight.backend.batch;
 
-import com.finsight.backend.config.BatchConfig;
-import com.finsight.backend.config.MongoConfig;
-import com.finsight.backend.config.RootConfig;
-import com.finsight.backend.config.WebClientConfig;
-import com.finsight.backend.service.NewsSaveService;
-import com.finsight.backend.service.NewsApiService;
+import com.finsight.backend.config.*;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,18 +13,18 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
         BatchConfig.class,
         WebClientConfig.class,
         RootConfig.class,
+        GcpConfig.class,
         MongoConfig.class
 })
 public class NewsSchedulerTest {
     @Autowired
-    private NewsApiService newsApiService;
-
-    @Autowired
-    private NewsSaveService newsSaveService;
+    private NewsScheduler newsScheduler;
 
     @Test
-    public void testFetchNewsBatch() {
-        NewsScheduler scheduler = new NewsScheduler(newsApiService, newsSaveService);
-        scheduler.fetchNewsBatch();
+    @DisplayName("스케줄러를 실행하면 실제 API를 호출하고 DB에 뉴스 데이터가 저장된다")
+    void runRealNewsBatchTest() throws InterruptedException {
+
+        newsScheduler.runNewsBatch();
+
     }
 }

@@ -3,8 +3,11 @@ package com.finsight.backend.mapper;
 import com.finsight.backend.dto.response.KeywordResponseDTO;
 import com.finsight.backend.vo.KeywordVO;
 import com.finsight.backend.vo.NewsVO;
+import com.finsight.backend.vo.TempEtfVO;
+import com.finsight.backend.vo.TempFundVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 
@@ -13,14 +16,16 @@ import java.util.List;
 public interface NewsMapper {
     void insertNews(NewsVO news);
 
-    void insertNewsProduct(@Param("newsId") String newsId, @Param("productCode") String productCode);
+    void insertNewsProduct(@Param("newsId") String newsId, @Param("productCode") String productCode, @Param("newsProductCategory") String newsProductCategory);
 
     void insertKeyword(@Param("keyword") String keyword);
 
     void insertNewsKeyword(@Param("newsId") String newsId, @Param("keywordId") Long keywordId);
 
 
-    Boolean existsNewsId(@Param("newsId") String newsId);
+    boolean existsNewsId(@Param("newsId") String newsId);
+
+    boolean existsNewsTitle(@Param("newsTitle") String newsTitle);
 
     Long selectKeywordId(@Param("keyword") String keyword); // 키워드로 keyword_id 조회
 
@@ -30,5 +35,13 @@ public interface NewsMapper {
 
     List<NewsVO> findNewsByProductCode(String productCode); // 상품 코드로 뉴스 목록 조회
 
+
+
+//    임시 Fund mapper
+    List<TempFundVO> selectAllFunds();
+
+    List<TempEtfVO> selectAllEtfs();
+
+    List<String> findNewsSentimentByProductCode(String productCode);
 
 }

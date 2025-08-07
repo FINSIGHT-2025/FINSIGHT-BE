@@ -1,8 +1,9 @@
 package com.finsight.backend.mapper;
 
+import com.finsight.backend.dto.response.ProductScore;
 import java.util.List;
 
-// 키워드 → 상품 ID 리스트 조회
 public interface KeywordProductMapper {
-    List<String> findProductIdsByKeyword(String keyword);
+    // ✅ Map 대신 DTO 반환
+    List<ProductScore> findProductScoresByKeyword(String keyword);
 }

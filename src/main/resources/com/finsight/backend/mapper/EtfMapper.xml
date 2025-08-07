@@ -1,8 +1,78 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.finsight.backend.mapper.EtfMapper">
+    <resultMap id="etfResultMap" type="Etf">
+        <!-- 상속받은 Product 필드 -->
+        <id property="productCode" column="product_code"/>
+        <result property="productName" column="product_name"/>
+        <result property="productCompanyName" column="product_company_name"/>
+        <result property="productRiskGrade" column="product_risk_grade" />
+
+        <!-- Etf 자체 필드 -->
+        <result property="etfCountry" column="etf_country" />
+        <result property="etfType" column="etf_type" />
+        <result property="etfDelistingStatus" column="etf_delisting_status" />
+        <result property="etfNetAssets" column="etf_net_assets" />
+        <result property="etfFundCharacteristics" column="etf_fund_characteristics" />
+        <result property="etfManagementStrategy" column="etf_management_strategy" />
+        <result property="etfTotalExpenseRatio" column="etf_total_expense_ratio" />
+        <result property="etfCollectiveInvestmentAgreementUrl" column="etf_collective_investment_agreement_url" />
+        <result property="etfInvestmentProspectusUrl" column="etf_investment_prospectus_url" />
+        <result property="etfSimplifiedProspectusUrl" column="etf_simplified_prospectus_url" />
+        <result property="etfBenchmarkIndex" column="etf_benchmark_index" />
+        <result property="etfListingDate" column="etf_listing_date" />
+        <result property="etfMinTradingUnit" column="etf_min_trading_unit" />
+        <result property="etfTaxType" column="etf_tax_type" />
+
+        <collection property="eAssetAllocation" ofType="EAssetAllocation" column="e_asset_allocation_id" javaType="ArrayList">
+            <id property="eAssetAllocationId" column="e_asset_allocation_id" />
+            <result property="eAssetAllocationType" column="e_asset_allocation_type"/>
+            <result property="eAssetAllocationPer" column="e_asset_allocation_per"/>
+            <result property="eAssetAllocationValuation" column="e_asset_allocation_valuation"/>
+        </collection>
+        <collection property="eEquityRatio" ofType="EEquityRatio" column="e_equity_ratio_id" javaType="ArrayList">
+            <id property="eEquityRatioId" column="e_equity_ratio_id" />
+            <result property="eEquityRatioName" column="e_equity_ratio_name"/>
+            <result property="eEquityRatioCountry" column="e_equity_ratio_country"/>
+            <result property="eEquityRatioPer" column="e_equity_ratio_per"/>
+        </collection>
+        <collection property="eConstituentStocks" ofType="EConstituentStocks" column="e_constituent_stocks_id" javaType="ArrayList">
+            <id property="eConstituentStocksId" column="e_constituent_stocks_id" />
+            <result property="eConstituentStocksName" column="e_constituent_stocks_name"/>
+            <result property="eConstituentPer" column="e_constituent_per"/>
+        </collection>
+
+    </resultMap>
+    <select id="findEtfByCode" resultMap="etfResultMap">
+        select *
+        from Etf
+                 left join E_Asset_Allocation EAA on Etf.product_code = EAA.product_code
+                 left join E_Constituent_Stocks ECS on Etf.product_code = ECS.product_code
+                 left join E_Equity_Ratio EER on Etf.product_code = EER.product_code
+        where Etf.product_code = #{productCode};
+    </select>
+    <select id="findEtfListByFilter" resultMap="etfResultMap">
+        select *
+        from Etf
+                 left join E_Asset_Allocation EAA on Etf.product_code = EAA.product_code
+                 left join E_Constituent_Stocks ECS on Etf.product_code = ECS.product_code
+                 left join E_Equity_Ratio EER on Etf.product_code = EER.product_code
+        <where>
+            <trim prefixOverrides="and ">
+                <if test="productCountry != null">
+                    and Etf.etf_country = #{productCountry}
+                </if>
+                <if test="productType != null">
+                    and Etf.etf_type = #{productType}
+                </if>
+                <if test="productRiskGrade != null">
+                    and Etf.product_risk_grade = #{productRiskGrade}
+                </if>
+            </trim>
+        </where>
+    </select>
     <select id="findEtfNameByWord" parameterType="string" resultType="com.finsight.backend.dto.response.SearchSuggestionResponseDTO">
         SELECT product_code AS productCode,
                 product_name AS productName,

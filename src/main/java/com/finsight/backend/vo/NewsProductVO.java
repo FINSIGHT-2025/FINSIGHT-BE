@@ -13,4 +13,5 @@ import lombok.NoArgsConstructor;
 public class NewsProductVO {
     private String productCode; // product_code
     private String newsId;      // news_id
+    private String newsProductCategory; // news_product_category
 }

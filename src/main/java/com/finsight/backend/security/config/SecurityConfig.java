@@ -53,7 +53,7 @@ public class SecurityConfig {
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // 세션 비활성화
                 .authorizeHttpRequests(requestMatcherRegistry ->
                         requestMatcherRegistry
-                                .requestMatchers("/users", "/users/email", "/users/login", "/users/authcode", "/css/**").permitAll()
+                                .requestMatchers("/users", "/users/email", "/users/login", "/users/authcode", "/css/**", "/ws-etf/**", "/ws-etf").permitAll()
                                 .anyRequest().authenticated())
                 .logout(configurer ->
                         configurer

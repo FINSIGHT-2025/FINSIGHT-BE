@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.finsight.backend.mapper.DepositMapper">
     <select id="findDepositNameByWord" parameterType="string" resultType="com.finsight.backend.dto.response.SearchSuggestionResponseDTO">
         SELECT product_code AS productCode,
@@ -9,5 +9,52 @@
                 'deposit' AS type
         FROM deposit
         WHERE product_name LIKE CONCAT('%', #{word}, '%')
+    <resultMap id="depositResultMap" type="Deposit">
+        <!-- 상속받은 Product 필드 -->
+        <id property="productCode" column="product_code"/>
+        <result property="productName" column="product_name"/>
+        <result property="productCompanyName" column="product_company_name"/>
+        <result property="productRiskGrade" column="product_risk_grade"/>
+
+        <!-- Deposit 자체 필드 -->
+        <result property="depositJoinMember" column="deposit_join_member"/>
+        <result property="depositSpclCnd" column="deposit_spcl_cnd"/>
+        <result property="depositMtrtInt" column="deposit_mtrt_int"/>
+        <result property="depositMaxLimit" column="deposit_max_limit"/>
+        <result property="depositJoinWay" column="deposit_join_way"/>
+        <result property="depositJoinDeny" column="deposit_join_deny"/>
+        <result property="depositEtcNote" column="deposit_etc_note"/>
+
+        <!-- DOption 리스트 매핑 -->
+        <collection property="dOption" ofType="DOption" column="d_option_id" javaType="ArrayList">
+            <id property="dOptionId" column="d_option_id"/>
+            <result property="dOptionDclsMonth" column="d_option_dcls_month"/>
+            <result property="dOptionFinCoNo" column="d_option_fin_co_no"/>
+            <result property="dOptionIntrRateType" column="d_option_intr_rate_type"/>
+            <result property="dOptionIntrRateTypeNm" column="d_option_intr_rate_type_nm"/>
+            <result property="dOptionSaveTrm" column="d_option_save_trm"/>
+            <result property="dOptionIntrRate" column="d_option_intr_rate"/>
+            <result property="dOptionIntrRate2" column="d_option_intr_rate2"/>
+        </collection>
+    </resultMap>
+    <select id="findDepositByCode" resultMap="depositResultMap">
+        select *
+        from Deposit d
+            left join D_Option o on o.product_code = d.product_code
+        where d.product_code = #{productCode};
+    </select>
+    <select id="findDepositListOrderByIntrRate" resultMap="depositResultMap">
+        select *
+        from Deposit d
+                 left join D_option o on o.product_code = d.product_code
+        where o.d_option_save_trm = 12
+        order by o.d_option_intr_rate desc;
+    </select>
+    <select id="findDepositListOrderByIntrRate2" resultMap="depositResultMap">
+        select *
+        from Deposit d
+                 left join D_option o on o.product_code = d.product_code
+        where o.d_option_save_trm = 12
+        order by o.d_option_intr_rate2 desc;
     </select>
 </mapper>

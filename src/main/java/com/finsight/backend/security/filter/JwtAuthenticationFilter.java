@@ -13,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -26,14 +27,19 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-    private final String[] whiteList = {"/users", "/users/email", "/users/login", "/", "/users/authcode"};
+    private final String[] whiteList = {"/users", "/users/email", "/users/login", "/", "/users/authcode", "/ws-etf/**", "/ws-etf"};
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String uri = request.getRequestURI();
         log.info("JwtFilter 호출됨 : {}", request.getRequestURI());
+        if ("websocket".equalsIgnoreCase(request.getHeader("Upgrade"))) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         for (String white : whiteList) {
-            if (uri.equals(white)) {
+            if (pathMatcher.match(white, uri)) {
                 filterChain.doFilter(request, response);
                 return;
             }

@@ -71,4 +71,26 @@ public class InfluxWriteService {
             writeApi.writePoint(point);
         }
     }
+
+    public void writeEtfPrice(String etfCode, double price, Instant time) {
+        Point point = Point.measurement("etf_price")
+                .addTag("etf_code", etfCode)
+                .addField("price", price)
+                .time(time, WritePrecision.S);
+
+        try (WriteApi writeApi = influxDBClient.getWriteApi()) {
+            writeApi.writePoint(point);
+        }
+    }
+
+    public void writeEtfVolume(String etfCode, long volume, Instant time) {
+        Point point = Point.measurement("etf_volume")
+                .addTag("etf_code", etfCode)
+                .addField("volume", volume)
+                .time(time, WritePrecision.S);
+
+        try (WriteApi writeApi = influxDBClient.getWriteApi()) {
+            writeApi.writePoint(point);
+        }
+    }
 }
