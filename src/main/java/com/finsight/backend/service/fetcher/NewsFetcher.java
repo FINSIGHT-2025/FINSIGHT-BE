@@ -9,5 +9,5 @@ import java.util.List;
 public interface NewsFetcher {
     AssetType supports();
 
-    Mono<NewsApiResponseDTO> fetch(String identifier);
+    Mono<NewsApiResponseDTO> fetch(Object identifier);
 }
