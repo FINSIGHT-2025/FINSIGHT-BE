@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finsight.backend.mapper.DetailHoldingsMapper">
+
+    <select id="selectHoldingsByUserIdAndProductCode" resultType="com.finsight.backend.detailhodings.dto.DetailHoldingsResponseDto">
+        SELECT
+            holdings_id,
+            product_category,
+            holdings_total_price,
+            holdings_total_quantity,
+            holdings_status
+        FROM holdings
+        WHERE user_id = #{userId}
+          AND product_code = #{productCode}
+    </select>
+
+    <select id="selectHistoriesByHoldingsId" resultType="com.finsight.backend.detailhodings.vo.DetailHistoryVO">
+        SELECT
+            history_id,
+            holdings_id,
+            history_trade_type,
+            history_trade_date,
+            history_quantity,
+            history_amount
+        FROM history
+        WHERE holdings_id = #{holdingsId}
+        ORDER BY history_trade_date DESC
+    </select>
+
+    <select id="isProductWatched" resultType="Boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM Watch
+            WHERE user_id = #{userId}
+              AND product_code = #{productCode}
+        )
+    </select>
+
+</mapper>

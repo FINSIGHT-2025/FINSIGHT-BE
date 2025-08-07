@@ -3,6 +3,7 @@ package com.finsight.backend.config;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finsight.backend.service.InfluxWriteService;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -45,7 +46,6 @@ public class BatchConfig {
 
     @Value("${tradedata.url}")
     private String tradeDataUrl;
-
 
     // 1. Fund Init - 2개 step
     @Bean
