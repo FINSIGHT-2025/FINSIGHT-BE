@@ -1,6 +1,6 @@
 package com.finsight.backend.tradeserverwebsocket.handler;
 
-import com.finsight.backend.tradeserverwebsocket.service.ETFCacheService;
+import com.finsight.backend.tradeserverwebsocket.service.EtfCacheService;
 import com.finsight.backend.tradeserverwebsocket.service.TradeServerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 public class TradeWebSocketHandler extends TextWebSocketHandler {
 
     private final TradeServerService tradeServerService;
-    private final ETFCacheService etfCacheService;
+    private final EtfCacheService etfCacheService;
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
@@ -24,7 +24,8 @@ public class TradeWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        tradeServerService.handleConnectionEstablished(session.getUri().toString());
+        String uri = session.getUri() != null ? session.getUri().toString() : "unknown";
+        tradeServerService.handleConnectionEstablished(uri);
         tradeServerService.fetchAndSaveHistoricalData();
     }
 

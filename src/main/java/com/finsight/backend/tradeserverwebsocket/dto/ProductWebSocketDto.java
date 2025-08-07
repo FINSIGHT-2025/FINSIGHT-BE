@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductWebSocketDto {
+public class ProductWebSocketDTO {
     private String productCode;           // product_code
     private double currentPrice;          // 현재 시세
     private double currentVolume;         // 현재 거래량

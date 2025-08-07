@@ -1,12 +1,15 @@
 package com.finsight.backend.tradeserverwebsocket.dto;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class ETFPriceDTO {
-    private String product_code;
-    private double etf_price;
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+public class EtfPriceDTO {
+    private String productCode;
+    private double etfPrice;
     private String timestamp;
 }

@@ -10,26 +10,22 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class ETFCache {
+public class EtfCache {
 
     // product_code 별로 상태 저장
-    private final Map<String, ETFSnapshot> snapshotMap = new ConcurrentHashMap<>();
+    private final Map<String, EtfSnapshot> snapshotMap = new ConcurrentHashMap<>();
 
-    /**
-     * 가격과 거래량 업데이트 (기존 버전 - timestamp 없음)
-     */
-    public void update(String productCode, double priceNow, double volumeNow) {
+    // 가격과 거래량 업데이트 (기존 버전 - timestamp 없음)
+    public void update(String productCode, double priceNow, long volumeNow) {
         update(productCode, priceNow, volumeNow, System.currentTimeMillis());
     }
 
-    /**
-     * 가격, 거래량, 타임스탬프 포함 업데이트
-     */
-    public void update(String productCode, double priceNow, double volumeNow, long timestamp) {
+    // 가격, 거래량, 타임스탬프 포함 업데이트
+    public void update(String productCode, double priceNow, long volumeNow, long timestamp) {
         snapshotMap.compute(productCode, (key, oldSnapshot) -> {
             if (oldSnapshot == null) {
                 // 최초 등록 시 price1sAgo는 priceNow와 동일하게 세팅
-                return new ETFSnapshot(priceNow, priceNow, volumeNow, 0, 0, timestamp);
+                return new EtfSnapshot(priceNow, priceNow, volumeNow, 0, 0, timestamp);
             } else {
                 oldSnapshot.setPrice1sAgo(oldSnapshot.getPriceNow());
                 oldSnapshot.setPriceNow(priceNow);
@@ -40,7 +36,8 @@ public class ETFCache {
         });
     }
 
-    public ETFSnapshot get(String productCode) {
+
+    public EtfSnapshot get(String productCode) {
         return snapshotMap.get(productCode);
     }
 
@@ -51,10 +48,10 @@ public class ETFCache {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ETFSnapshot {
+    public static class EtfSnapshot {
         private double priceNow;
         private double price1sAgo;
-        private double volumeNow;
+        private long volumeNow;
         private double price3MonthsAgo;
         private double pricePrevDay;
         private long timestamp;

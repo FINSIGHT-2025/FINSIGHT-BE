@@ -1,7 +1,5 @@
 package com.finsight.backend.config;
 
-import com.finsight.backend.security.JwtAuthenticationProvider;
-import com.finsight.backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -16,9 +14,6 @@ import org.springframework.web.socket.config.annotation.*;
 @EnableWebSocketMessageBroker
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-
-    private final JwtUtil jwtUtil;
-    private final JwtAuthenticationProvider jwtAuthenticationProvider;
 
     //채팅방 이름 설정
     @Override

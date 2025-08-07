@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -22,7 +21,7 @@ RequestMappingHandlerMapping, RequestMappingHandlerAdapter 자동 등록
  */
 @EnableWebMvc
 @ComponentScan(
-        basePackages = {"com.finsight.backend.control", "com.finsight.backend.detailhodings.controller"}
+        basePackages = {"com.finsight.backend.control"}
         , excludeFilters = @ComponentScan.Filter(
             type = FilterType.ANNOTATION,
             classes = Configuration.class

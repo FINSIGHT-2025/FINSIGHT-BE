@@ -1,49 +1,45 @@
 package com.finsight.backend.tradeserverwebsocket.service;
 
-import com.finsight.backend.tradeserverwebsocket.dto.ProductWebSocketDto;
+import com.finsight.backend.tradeserverwebsocket.dto.ProductWebSocketDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ETFCalculationService {
+public class EtfCalculationService {
 
-    private final ETFCache etfCache;
+    private final EtfCache etfCache;
 
-    public ProductWebSocketDto calculateDto(String productCode) {
-        ETFCache.ETFSnapshot snapshot = etfCache.get(productCode);
-
+    // 상품 코드에 해당하는 ETF 정보를 기반으로 WebSocket 전송용 DTO 생성
+    public ProductWebSocketDTO calculateDto(String productCode) {
+        EtfCache.EtfSnapshot snapshot = etfCache.get(productCode);
         if (snapshot == null) return null;
 
         double currentPrice = snapshot.getPriceNow();
-        double currentVolume = snapshot.getVolumeNow();
+        long currentVolume = snapshot.getVolumeNow();
         double price3MonthsAgo = snapshot.getPrice3MonthsAgo();
         double pricePrevDay = snapshot.getPricePrevDay();
         double price1sAgo = snapshot.getPrice1sAgo();
 
-        double return3Months = 0.0;
-        if (price3MonthsAgo > 0) {
-            return3Months = (currentPrice - price3MonthsAgo) / price3MonthsAgo * 100;
-        }
-
+        double returnRate3MonthsAgo = calculateReturnRate(currentPrice, price3MonthsAgo);
         double changeFromPrevDay = currentPrice - pricePrevDay;
+        double changeRate1s = calculateReturnRate(currentPrice, price1sAgo);
 
-        double changeRate1s = 0.0;
-        if (price1sAgo > 0) {
-            changeRate1s = (currentPrice - price1sAgo) / price1sAgo * 100;
-        }
+        long timestamp = System.currentTimeMillis();
 
-        long timestamp = System.currentTimeMillis(); // 현재 시간 밀리초
-
-        return new ProductWebSocketDto(
+        return new ProductWebSocketDTO(
                 productCode,
                 currentPrice,
                 currentVolume,
-                return3Months,
+                returnRate3MonthsAgo,
                 changeFromPrevDay,
                 changeRate1s,
                 timestamp
         );
     }
 
+    // 기준 가격이 유효할 경우 수익률(%) 계산
+    private double calculateReturnRate(double current, double base) {
+        return base > 0 ? (current - base) / base * 100 : 0.0;
+    }
 }
