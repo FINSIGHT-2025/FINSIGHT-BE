@@ -73,6 +73,7 @@
             </trim>
         </where>
     </select>
+
     <select id="findEtfNameByWord" parameterType="string" resultType="com.finsight.backend.dto.response.SearchSuggestionResponseDTO">
         SELECT product_code AS productCode,
                 product_name AS productName,

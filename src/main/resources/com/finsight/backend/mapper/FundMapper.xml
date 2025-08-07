@@ -74,6 +74,7 @@
                                   FROM F_Stock_Holdings fsh) ranked
                             WHERE ranked.rn &lt;= 2) fsh ON f.product_code = fsh.product_code;
     </select>
+
     <select id="findFundNameByWord" parameterType="string" resultType="com.finsight.backend.dto.response.SearchSuggestionResponseDTO">
         SELECT product_code AS productCode,
                 product_name AS productName,
