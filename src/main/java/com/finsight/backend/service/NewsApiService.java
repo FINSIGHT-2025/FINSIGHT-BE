@@ -82,9 +82,8 @@ public class NewsApiService {
         }
 
         URI uri = uriBuilder.build().encode().toUri();
-        log.info("Requesting URI for page 1: {}", uri.toASCIIString());
+        log.info("Requesting URI = {}", uri.toASCIIString());
 
-        // 바로 API 호출 결과를 반환
         return callExternalApi(uri);
     }
 

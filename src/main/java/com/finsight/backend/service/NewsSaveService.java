@@ -16,7 +16,7 @@ public class NewsSaveService {
 
     private final NewsMapper newsMapper;
 
-    public void saveNews(NewsApiResponseDTO.NewsData data, String productCode) {
+    public void saveNews(NewsApiResponseDTO.NewsData data, String productCode, String newsProductCategory) {
         // 뉴스 VO 생성
         NewsVO newsVO = data.toVO(productCode);
         String newsId = newsVO.getNewsId();
@@ -31,7 +31,7 @@ public class NewsSaveService {
             if (newsVO.getKeywords() != null) {
                 for (KeywordVO keywordVO : newsVO.getKeywords()) {
                     String keyword = keywordVO.getKeyword();
-                    newsMapper.insertKeyword(keyword); // INSERT IGNORE 효과
+                    newsMapper.insertKeyword(keyword);
                     Long keywordId = newsMapper.selectKeywordId(keyword);
                     if (keywordId != null) {
                         newsMapper.insertNewsKeyword(newsId, keywordId);
@@ -44,7 +44,7 @@ public class NewsSaveService {
 
         // 뉴스-상품 연결 저장 (중복 관계 발생 시 무시)
         try {
-            newsMapper.insertNewsProduct(newsId, productCode);
+            newsMapper.insertNewsProduct(newsId, productCode, newsProductCategory);
         } catch (DuplicateKeyException e) {
             log.info("이미 연결된 뉴스-상품 관계입니다: newsId={}, productCode={}", newsId, productCode);
         }

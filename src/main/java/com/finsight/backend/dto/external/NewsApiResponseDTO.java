@@ -96,6 +96,7 @@ public class NewsApiResponseDTO {
             return NewsVO.builder()
                     .newsId(this.id)
                     .newsTitle(this.title)
+                    .newsPublisher(this.publisher)
                     .newsSummary(this.summary)
                     .newsContentUrl(this.contentUrl)
                     .newsPublishedAt(publishedAtDateTime)

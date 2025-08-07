@@ -64,4 +64,14 @@
             </trim>
         </where>
     </select>
+    <select id="selectAllFundStock" resultMap="fundResultMap">
+        SELECT f.product_code,
+               fsh.f_stock_holdings_name
+        FROM Fund f
+                 LEFT JOIN (SELECT *
+                            FROM (SELECT fsh.*,
+                                         ROW_NUMBER() OVER (PARTITION BY fsh.product_code ORDER BY fsh.f_stock_holdings_per DESC) as rn
+                                  FROM F_Stock_Holdings fsh) ranked
+                            WHERE ranked.rn &lt;= 2) fsh ON f.product_code = fsh.product_code;
+    </select>
 </mapper>
