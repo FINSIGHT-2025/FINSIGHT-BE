@@ -79,4 +79,26 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(String userId) {
         UserMapper.deleteUser(userId);
     }
+
+    @Override
+    public void updateUserInfo(String userId, String newPassword, String newEmail) {
+        if (newPassword != null && !newPassword.isBlank()) {
+            String encodedPw = passwordEncoder.encode(newPassword);
+            UserMapper.updatePassword(userId, encodedPw);
+        }
+
+        if (newEmail != null && !newEmail.isBlank()) {
+            if (!emailService.isEmailVerified(newEmail)) {
+                throw new IllegalArgumentException("이메일 인증이 완료되지 않았습니다.");
+            }
+            UserMapper.updateEmail(userId, newEmail);
+            emailService.removeVerifiedEmail(newEmail);
+        }
+    }
+
+    @Override
+    public String encodePassword(String rawPassword) {
+        return passwordEncoder.encode(rawPassword);
+    }
+
 }
