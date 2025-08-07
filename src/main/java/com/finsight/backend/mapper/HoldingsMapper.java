@@ -20,5 +20,11 @@ public interface HoldingsMapper {
     Double selectForeignEquity2ByUserId(String userId);
     Double selectForeignEquity3ByUserId(String userId);
     Double selectForeignBond4ByUserId(String userId);
+
+    // 보유내역
+    Double selectDepositByUserId(String userId);
+    Double selectDomesticByUserId(String userId);
+    Double selectForeignByUserId(String userId);
+
 }
 

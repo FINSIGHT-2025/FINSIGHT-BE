@@ -357,3 +357,10 @@ CREATE TABLE BATCH_JOB_SEQ (
 ) ENGINE=InnoDB;
 
 INSERT INTO BATCH_JOB_SEQ (ID, UNIQUE_KEY) select * from (select 0 as ID, '0' as UNIQUE_KEY) as tmp where not exists(select * from BATCH_JOB_SEQ);
+ALTER TABLE investment_profile
+    CHANGE insvestment_profile_type investment_profile_type
+        ENUM('stable', 'stableplus', 'neutral', 'aggressive', 'veryaggressive')
+        NOT NULL COMMENT '위험 성향';
+select news_sentiment
+from news_product np
+         left join news n on np.news_id = n.news_id;

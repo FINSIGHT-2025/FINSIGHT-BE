@@ -261,4 +261,29 @@
         ) total ON h.user_id = total.user_id
         WHERE h.user_id = #{userId}
     </select>
+
+    <!--  === 보유내역 - 투자 보아보기 ===================================================== -->
+    <!--  정기 예금상품  -->
+    <select id="selectDepositByUserId" parameterType="string" resultType="double">
+        SELECT holdings_total_price
+        FROM Holdings
+        WHERE (user_id = #{userId}) AND (product_category = 'deposit')
+    </select>
+    <!--  국내 투자상품  -->
+    <select id="selectDomesticByUserId" parameterType="string" resultType="double">
+        SELECT h.holdings_total_price
+        FROM Holdings AS h
+            INNER JOIN Fund as f ON h.product_code = f.product_code
+            INNER JOIN Etf as e ON h.product_code = e.product_code
+        WHERE (user_id = #{userId}) AND ((f.fund_country = 'domestic') OR (e.etf_country = 'domestic'))
+    </select>
+    <!--  해외 투자상품  -->
+    <select id="selectForeignByUserId" parameterType="string" resultType="double">
+        SELECT h.holdings_total_price
+        FROM Holdings AS h
+            INNER JOIN Fund as f ON h.product_code = f.product_code
+            INNER JOIN Etf as e ON h.product_code = e.product_code
+        WHERE (user_id = #{userId}) AND ((f.fund_country = 'foreign') OR (e.etf_country = 'foreign'))
+    </select>
+
 </mapper>
