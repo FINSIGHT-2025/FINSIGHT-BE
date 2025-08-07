@@ -41,6 +41,14 @@ public class UserController {
     private final EmailService emailService;
     private final UserService userService;
 
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        String token = jwtUtil.resolveToken(request);
+        
+        return ResponseEntity.ok("로그아웃 완료");
+    }
+
+
     // user123 / securepassword123!
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginForm loginForm){
