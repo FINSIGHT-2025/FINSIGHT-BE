@@ -42,13 +42,15 @@
         from Deposit d
                  left join D_option o on o.product_code = d.product_code
         where o.d_option_save_trm = 12
-        order by o.d_option_intr_rate desc;
+        order by o.d_option_intr_rate desc
+        limit #{limit} offset #{offset};
     </select>
     <select id="findDepositListOrderByIntrRate2" resultMap="depositResultMap">
         select *
         from Deposit d
                  left join D_option o on o.product_code = d.product_code
         where o.d_option_save_trm = 12
-        order by o.d_option_intr_rate2 desc;
+        order by o.d_option_intr_rate2 desc
+        limit #{limit} offset #{offset};
     </select>
 </mapper>

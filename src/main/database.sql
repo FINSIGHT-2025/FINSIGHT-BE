@@ -17,19 +17,6 @@ DROP TABLE IF EXISTS `Deposit`;
 DROP TABLE IF EXISTS `Fund`;
 DROP TABLE IF EXISTS `User`;
 
-DROP TABLE IF EXISTS `Watch`;
-DROP TABLE IF EXISTS `News_Product`;
-DROP TABLE IF EXISTS `News_Keyword`;
-DROP TABLE IF EXISTS `Keyword`;
-DROP TABLE IF EXISTS `News`;
-DROP TABLE IF EXISTS `History`;
-DROP TABLE IF EXISTS `Holdings`;
-DROP TABLE IF EXISTS `Investment_Profile`;
-DROP TABLE IF EXISTS `Etf`;
-DROP TABLE IF EXISTS `Deposit`;
-DROP TABLE IF EXISTS `Fund`;
-DROP TABLE IF EXISTS `User`;
-
 CREATE TABLE `User` (
                         `user_id` VARCHAR(255) NOT NULL COMMENT '아이디',
                         `user_name` VARCHAR(255) NOT NULL COMMENT '사용자 이름',
@@ -57,7 +44,7 @@ CREATE TABLE `Holdings` (
 
 CREATE TABLE `Investment_Profile` (
                                       `user_id` VARCHAR(255) NOT NULL COMMENT '아이디',
-                                      `insvestment_profile_type` ENUM('stable', 'stableplus', 'neutral', 'aggressive', 'veryaggressive') NOT NULL COMMENT '위험 성향',
+                                      `investment_profile_type` ENUM('stable', 'stableplus', 'neutral', 'aggressive', 'veryaggressive') NOT NULL COMMENT '위험 성향',
                                       `investment_profile_updated_at` DATETIME NOT NULL COMMENT '갱신일자',
                                       PRIMARY KEY (`user_id`),
                                       FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`) ON DELETE CASCADE
@@ -357,3 +344,12 @@ CREATE TABLE BATCH_JOB_SEQ (
 ) ENGINE=InnoDB;
 
 INSERT INTO BATCH_JOB_SEQ (ID, UNIQUE_KEY) select * from (select 0 as ID, '0' as UNIQUE_KEY) as tmp where not exists(select * from BATCH_JOB_SEQ);
+
+select *
+from news;
+
+select *
+from Keyword;
+
+select *
+from News_Keyword;

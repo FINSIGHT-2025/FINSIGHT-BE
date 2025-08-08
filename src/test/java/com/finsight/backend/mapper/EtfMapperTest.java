@@ -3,6 +3,7 @@ package com.finsight.backend.mapper;
 import com.finsight.backend.config.CorsConfig;
 import com.finsight.backend.config.MongoConfig;
 import com.finsight.backend.config.RootConfig;
+import com.finsight.backend.config.WebClientConfig;
 import com.finsight.backend.enumerate.ProductCountry;
 import com.finsight.backend.enumerate.ProductType;
 import com.finsight.backend.vo.EAssetAllocation;
@@ -25,8 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith({SpringExtension.class})
 @ContextConfiguration(classes = {
         RootConfig.class,
-        CorsConfig.class,
-        MongoConfig.class
+        WebClientConfig.class
 })
 class EtfMapperTest {
 
@@ -50,8 +50,8 @@ class EtfMapperTest {
 
     @Test
     void findEtfListByFilter() {
-        List<Etf> noFilterEtf = etfMapper.findEtfListByFilter(null, null, null);
-        List<Etf> etfListByFilter = etfMapper.findEtfListByFilter(ProductCountry.DOMESTIC, ProductType.EQUITY, 1);
+        List<Etf> noFilterEtf = etfMapper.findEtfListByFilter(null, null, null, 0, 3);
+        List<Etf> etfListByFilter = etfMapper.findEtfListByFilter(ProductCountry.DOMESTIC, ProductType.EQUITY, 1, 0, 3);
 
         Assertions.assertEquals(60, noFilterEtf.size());
         for (Etf etf : etfListByFilter) {

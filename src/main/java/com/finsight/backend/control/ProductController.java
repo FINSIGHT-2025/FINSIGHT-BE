@@ -43,7 +43,9 @@ public class ProductController {
                                                  @RequestParam("sort") String sort,
                                                  @RequestParam(name = "country", required = false) String country,
                                                  @RequestParam(name = "type", required = false) String type,
-                                                 @RequestParam(name = "riskGrade", required = false) Integer riskGrade){
+                                                 @RequestParam(name = "riskGrade", required = false) Integer riskGrade,
+                                                 @RequestParam(name = "limit") Integer limit,
+                                                 @RequestParam(name = "offset") Integer offset){
         Class<? extends Product> productType = productAdapter.productType(category);
 
         if(productType == null){
@@ -51,7 +53,7 @@ public class ProductController {
                     .body(ErrorCode.NOT_PATH_INVALID.getMessage());
         }
 
-        List<? extends ProductByFilterDto> productByFilter = productService.findProductByFilter(productType, sort, country, type, riskGrade);
+        List<? extends ProductByFilterDto> productByFilter = productService.findProductByFilter(productType, sort, country, type, riskGrade, limit, offset);
         return ResponseEntity.ok(productByFilter);
     }
 }

@@ -5,6 +5,7 @@ import com.finsight.backend.dto.response.ProductDetailDto;
 import com.finsight.backend.service.handler.ProductDtoHandler;
 import com.finsight.backend.service.handler.ProductVoHandler;
 import com.finsight.backend.vo.Product;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +42,13 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public <T extends Product> List<ProductByFilterDto> findProductByFilter(Class<T> expectedType, String sort, String country, String type, Integer riskGrade) {
+    public <T extends Product> List<ProductByFilterDto> findProductByFilter(Class<T> expectedType,
+                                                                            String sort,
+                                                                            String country,
+                                                                            String type,
+                                                                            Integer riskGrade,
+                                                                            Integer limit,
+                                                                            Integer offset) {
 
         @SuppressWarnings("unchecked")
         ProductVoHandler<T> matchedVoHandler = (ProductVoHandler<T>) voHandlers.stream()
@@ -49,7 +56,7 @@ public class ProductServiceImpl implements ProductService{
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("해당 vo 핸들러 없음 : " + expectedType));
 
-        List<T> productList = matchedVoHandler.findProductListByFilter(sort, country, type, riskGrade);
+        List<T> productList = matchedVoHandler.findProductListByFilter(sort, country, type, riskGrade, limit, offset);
 
 
         @SuppressWarnings("unchecked")

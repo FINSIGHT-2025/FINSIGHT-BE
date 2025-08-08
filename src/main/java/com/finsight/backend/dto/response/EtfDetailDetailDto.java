@@ -37,8 +37,9 @@ public class EtfDetailDetailDto extends ProductDetailDto {
     private LocalDate etfListingDate;
     private Integer etfMinTradingUnit;
     private String etfTaxType;
+    private List<NewsResponseDTO> etfNewsResponse;
 
-    public static EtfDetailDetailDto etfVoToEtfDetailDto(Etf etf){
+    public static EtfDetailDetailDto etfVoToEtfDetailDto(Etf etf, List<NewsResponseDTO> etfNewsResponse){
         return EtfDetailDetailDto.builder()
                 .productCode(etf.getProductCode())
                 .productName(etf.getProductName())
@@ -61,6 +62,7 @@ public class EtfDetailDetailDto extends ProductDetailDto {
                 .etfListingDate(etf.getEtfListingDate())
                 .etfMinTradingUnit(etf.getEtfMinTradingUnit())
                 .etfTaxType(etf.getEtfTaxType())
+                .etfNewsResponse(etfNewsResponse)
                 .build();
     }
 

@@ -122,7 +122,7 @@
         WHERE news_title = #{newsTitle}
     </select>
 <!--    상품 관련 Mapper -->
-    <select id="findNewsSentimentByProductCode" resultType="String">
+    <select id="findNewsSentimentByProductCode" resultType="java.lang.String">
         select news_sentiment
         from news_product np
                  left join news n on np.news_id = n.news_id

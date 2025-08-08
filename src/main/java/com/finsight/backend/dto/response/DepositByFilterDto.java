@@ -1,5 +1,6 @@
 package com.finsight.backend.dto.response;
 
+import com.finsight.backend.dto.NewsSentimentDto;
 import com.finsight.backend.vo.Deposit;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
