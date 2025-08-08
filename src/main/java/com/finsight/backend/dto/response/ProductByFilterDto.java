@@ -16,4 +16,5 @@ public abstract class ProductByFilterDto {
     private Boolean userOwns;
     private Boolean isPopularInUserGroup;
     private Integer productRiskGrade;
+    private Boolean userWatches;
 }

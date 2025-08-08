@@ -70,7 +70,6 @@
             </trim>
         </where>
         ORDER BY product_code
-        LIMIT #{limit} OFFSET #{offset};
     </select>
 
     <select id="findEtfNameByWord" parameterType="string" resultType="com.finsight.backend.dto.response.SearchSuggestionResponseDTO">
