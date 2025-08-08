@@ -1,7 +1,10 @@
 package com.finsight.backend.service;
 
+import com.finsight.backend.detailhodings.vo.DetailHistoryVO;
+import com.finsight.backend.detailhodings.dto.DetailHoldingsResponseDto;
 import com.finsight.backend.dto.response.ProductByFilterDto;
 import com.finsight.backend.dto.response.ProductDetailDto;
+import com.finsight.backend.mapper.DetailHoldingsMapper;
 import com.finsight.backend.service.handler.ProductDtoHandler;
 import com.finsight.backend.service.handler.ProductVoHandler;
 import com.finsight.backend.vo.Product;
@@ -16,14 +19,18 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService{
     private final List<ProductVoHandler<? extends Product>> voHandlers;
     private final List<ProductDtoHandler<? extends Product>> dtoHandlers;
+    private final DetailHoldingsMapper detailHoldingsMapper;
 
-    public ProductServiceImpl(List<ProductVoHandler<? extends Product>> voHandlers, List<ProductDtoHandler<? extends Product>> dtoHandlers) {
+    public ProductServiceImpl(List<ProductVoHandler<? extends Product>> voHandlers, 
+                            List<ProductDtoHandler<? extends Product>> dtoHandlers,
+                            DetailHoldingsMapper detailHoldingsMapper) {
         this.voHandlers = voHandlers;
         this.dtoHandlers = dtoHandlers;
+        this.detailHoldingsMapper = detailHoldingsMapper;
     }
 
     @Override
-    public <T extends Product> ProductDetailDto findProduct(String productCode, Class<T> expectedType){
+    public <T extends Product> ProductDetailDto findProduct(String productCode, Class<T> expectedType, String userId){
         T productVo =  voHandlers.stream()
                 .filter(handler -> handler.getProductType().equals(expectedType))
                 .findFirst()
@@ -38,7 +45,23 @@ public class ProductServiceImpl implements ProductService{
         @SuppressWarnings("unchecked")
         ProductDtoHandler<T> dtoHandler = (ProductDtoHandler<T>) matchedVoHandler;
 
-        return dtoHandler.toDetailDto(productVo);
+        ProductDetailDto dto = dtoHandler.toDetailDto(productVo);
+
+        // holdings 정보
+        DetailHoldingsResponseDto holdings = detailHoldingsMapper.selectHoldingsByUserIdAndProductCode(userId, productCode);
+        if (holdings != null) {
+            Long holdingsId = holdings.getHoldingsId();
+
+            List<DetailHistoryVO> histories = detailHoldingsMapper.selectHistoriesByHoldingsId(holdingsId);
+            holdings.setHistory(histories);
+
+            boolean isWatched = detailHoldingsMapper.isProductWatched(userId, productCode);
+            holdings.setWatched(isWatched);
+        }
+
+        dto.setHoldings(holdings);
+
+        return dto;
     }
 
     @Override

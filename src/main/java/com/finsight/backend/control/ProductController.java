@@ -39,7 +39,7 @@ public class ProductController {
                     .body(ErrorCode.NOT_PATH_INVALID.getMessage());
         }
 
-        ProductDetailDto productDetailDto = productService.findProduct(productCode, productType);
+        ProductDetailDto productDetailDto = productService.findProduct(productCode, productType, userId);
         return ResponseEntity.ok(productDetailDto);
     }
 

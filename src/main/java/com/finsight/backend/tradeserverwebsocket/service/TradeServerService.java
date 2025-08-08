@@ -2,8 +2,6 @@ package com.finsight.backend.tradeserverwebsocket.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.finsight.backend.config.BatchConfig;
-import com.finsight.backend.config.InfluxDBConfig;
 import com.finsight.backend.service.InfluxWriteService;
 import com.finsight.backend.tradeserverwebsocket.dto.EtfPriceDTO;
 import com.finsight.backend.tradeserverwebsocket.dto.EtfVolumeDTO;
@@ -32,7 +30,6 @@ public class TradeServerService {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper mapper;
-    private final BatchConfig batchConfig;
     private final InfluxWriteService influxWriteService;
 
     @Value("${tradedata.url}")

@@ -6,12 +6,14 @@ import com.influxdb.client.WriteApi;
 import com.influxdb.client.domain.DeletePredicateRequest;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
+@Slf4j
 @Service
 public class InfluxWriteService {
 
@@ -80,6 +82,8 @@ public class InfluxWriteService {
 
         try (WriteApi writeApi = influxDBClient.getWriteApi()) {
             writeApi.writePoint(point);
+        } catch (Exception e) {
+            log.warn("[InfluxWriteError] etf_price write failed for {}", etfCode);
         }
     }
 
@@ -91,6 +95,9 @@ public class InfluxWriteService {
 
         try (WriteApi writeApi = influxDBClient.getWriteApi()) {
             writeApi.writePoint(point);
+        } catch (Exception e) {
+            log.warn("[InfluxWriteError] etf_volume write failed for {}", etfCode);
         }
     }
+
 }

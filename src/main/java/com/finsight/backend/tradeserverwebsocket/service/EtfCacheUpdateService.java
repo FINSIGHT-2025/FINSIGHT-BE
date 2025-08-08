@@ -18,9 +18,9 @@ public class EtfCacheUpdateService {
         Instant threeMonthsAgo = now.minusSeconds(60L * 60 * 24 * 30 * 3);
         Instant prevDay = now.minusSeconds(60L * 60 * 24);
 
-        double price3M = historicalPriceService.queryNavAtTime(etfCode, threeMonthsAgo, "etf_nav", "value");
-        double pricePrevDay = historicalPriceService.queryNavAtTime(etfCode, prevDay, "etf_nav", "value");
-
+        double price3M = historicalPriceService.queryNavAtTime(etfCode, threeMonthsAgo, "etf_nav", "etf_nav");
+        double pricePrevDay = historicalPriceService.queryNavAtTime(etfCode, prevDay, "etf_nav", "etf_nav");
+//        System.out.println("price3M: " + price3M + ", pricePrevDay: " + pricePrevDay);
         EtfCache.EtfSnapshot snapshot = etfCache.get(etfCode);
 
         if (snapshot != null) {
