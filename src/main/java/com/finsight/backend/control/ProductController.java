@@ -24,6 +24,7 @@ import java.util.List;
 public class ProductController {
     private final ProductService productService;
     private final ProductAdapter productAdapter;
+    private final JwtUtil jwtUtil;
 
 
     @GetMapping("/{category}/{code}")
@@ -31,7 +32,7 @@ public class ProductController {
                                                @PathVariable("category") String category,
                                                @PathVariable("code") String productCode){
         Class<? extends Product> productType = productAdapter.category(category);
-        String userId = JwtUtil.extractUserIdFromRequest(request);
+        String userId = jwtUtil.extractUserIdFromRequest(request);
 
         if (productType == null) {
             return ResponseEntity.status(ErrorCode.NOT_PATH_INVALID.getHttpStatus())
@@ -50,7 +51,7 @@ public class ProductController {
                                                  @RequestParam(name = "type", required = false) String type,
                                                  @RequestParam(name = "risk_grade", required = false) Integer riskGrade){
         Class<? extends Product> productCategory = productAdapter.category(category);
-        String userId = JwtUtil.extractUserIdFromRequest(request);
+        String userId = jwtUtil.extractUserIdFromRequest(request);
         if(productCategory == null){
             return ResponseEntity.status(ErrorCode.NOT_PATH_INVALID.getHttpStatus())
                     .body(ErrorCode.NOT_PATH_INVALID.getMessage());

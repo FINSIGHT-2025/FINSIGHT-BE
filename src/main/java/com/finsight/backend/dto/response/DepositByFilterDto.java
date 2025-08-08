@@ -18,7 +18,8 @@ public class DepositByFilterDto extends ProductByFilterDto{
     public static DepositByFilterDto depositVoToDepositByFilterDto(Deposit deposit,
                                                                    Double depositIntrRate,
                                                                    Double depositIntrRate2,
-                                                                   Boolean userOwn){
+                                                                   Boolean userOwn,
+                                                                   Boolean userWatch){
         return DepositByFilterDto.builder()
                 .productCode(deposit.getProductCode())
                 .productName(deposit.getProductName())
@@ -27,6 +28,8 @@ public class DepositByFilterDto extends ProductByFilterDto{
                 .depositIntrRate(depositIntrRate)
                 .depositIntrRate2(depositIntrRate2)
                 .userOwns(userOwn)
+                .isPopularInUserGroup(Boolean.FALSE)
+                .userWatches(userWatch)
                 .build();
     }
 }

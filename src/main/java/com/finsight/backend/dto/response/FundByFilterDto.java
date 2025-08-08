@@ -21,7 +21,7 @@ public class FundByFilterDto extends ProductByFilterDto{
     private Double productRateOfReturn;
     private Integer fundScale;
 
-    public static FundByFilterDto fundVoToFundByFilterDto(Fund fund, NewsSentimentDto newsSentimentDto, Boolean userOwn){
+    public static FundByFilterDto fundVoToFundByFilterDto(Fund fund, NewsSentimentDto newsSentimentDto, Boolean userOwn, Boolean userWatch){
         return FundByFilterDto.builder()
                 .productCode(fund.getProductCode())
                 .productCountry(fund.getFundCountry().getDbValue())
@@ -31,6 +31,8 @@ public class FundByFilterDto extends ProductByFilterDto{
                 .productRiskGrade(fund.getProductRiskGrade())
                 .newsSentiment(newsSentimentDto)
                 .userOwns(userOwn)
+                .isPopularInUserGroup(Boolean.FALSE)
+                .userWatches(userWatch)
                 .build();
     }
 }

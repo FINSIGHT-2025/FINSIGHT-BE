@@ -26,10 +26,10 @@ public class JwtUtil implements InitializingBean {
     private String secretKey;
     private Key key;
 
-    public static String extractUserIdFromRequest(HttpServletRequest request) {
+    public String extractUserIdFromRequest(HttpServletRequest request) {
         String token = request.getHeader("Authorization").replace("Bearer ", "");
         Claims claims = Jwts.parser()
-                .setSigningKey(String.valueOf(SECRET_KEY))
+                .setSigningKey(secretKey)
                 .parseClaimsJws(token)
                 .getBody();
         return claims.get("userId", String.class);

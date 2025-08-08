@@ -16,7 +16,7 @@ public class EtfByFilterDto extends ProductByFilterDto{
     private String productType;
     private NewsSentimentDto newsSentiment;
 
-    public static EtfByFilterDto etfVoToEtfByFilterDto(Etf etf, NewsSentimentDto newsSentimentDto, Boolean userOwn){
+    public static EtfByFilterDto etfVoToEtfByFilterDto(Etf etf, NewsSentimentDto newsSentimentDto, Boolean userOwn, Boolean userWatch){
         return EtfByFilterDto.builder()
                 .productCode(etf.getProductCode())
                 .productCountry(etf.getEtfCountry().getDbValue())
@@ -26,6 +26,8 @@ public class EtfByFilterDto extends ProductByFilterDto{
                 .productRiskGrade(etf.getProductRiskGrade())
                 .newsSentiment(newsSentimentDto)
                 .userOwns(userOwn)
+                .isPopularInUserGroup(Boolean.FALSE)
+                .userWatches(userWatch)
                 .build();
     }
 }

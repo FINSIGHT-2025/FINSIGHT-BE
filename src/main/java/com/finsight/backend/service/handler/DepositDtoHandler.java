@@ -4,6 +4,7 @@ import com.finsight.backend.dto.response.DepositByFilterDto;
 import com.finsight.backend.dto.response.DepositDetailDto;
 import com.finsight.backend.dto.response.ProductByFilterDto;
 import com.finsight.backend.dto.response.ProductDetailDto;
+import com.finsight.backend.mapper.DetailHoldingsMapper;
 import com.finsight.backend.mapper.HoldingsMapper;
 import com.finsight.backend.util.JwtUtil;
 import com.finsight.backend.vo.DOption;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DepositDtoHandler implements ProductDtoHandler<Deposit>{
     private final HoldingsMapper holdingsMapper;
+    private final DetailHoldingsMapper detailHoldingsMapper;
     @Override
     public Class<Deposit> getProductType() {
         return Deposit.class;
@@ -40,7 +42,8 @@ public class DepositDtoHandler implements ProductDtoHandler<Deposit>{
                             deposit,
                             option.getDOptionIntrRate(),
                             option.getDOptionIntrRate2(),
-                            holdingsMapper.existProductByUserIdAndProductCode(userId, deposit.getProductCode())
+                            holdingsMapper.existProductByUserIdAndProductCode(userId, deposit.getProductCode()),
+                            detailHoldingsMapper.isProductWatched(userId, deposit.getProductCode())
                     );
                 })
                 .collect(Collectors.toList());

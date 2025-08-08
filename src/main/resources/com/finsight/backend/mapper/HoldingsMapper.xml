@@ -287,10 +287,12 @@
     </select>
 
     <select id="existProductByUserIdAndProductCode" parameterType="java.lang.String" resultType="java.lang.Boolean">
+        SELECT EXISTS (
         SELECT 1
-        From Holdings
+        FROM Holdings
         WHERE user_id = #{userId}
         AND product_code = #{productCode}
+        )
     </select>
 
 </mapper>
