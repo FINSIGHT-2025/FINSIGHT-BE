@@ -34,9 +34,10 @@ class ProductServiceImplTest {
 
     @Test
     void findProduct() {
-        ProductDetailDto depositDto = productService.findProduct("1", Deposit.class);
-        ProductDetailDto etfDto = productService.findProduct("292190", Etf.class);
-        ProductDetailDto fundDto = productService.findProduct("K55301BB5738", Fund.class);
+        String userId = "user";
+        ProductDetailDto depositDto = productService.findProduct("1", Deposit.class, userId);
+        ProductDetailDto etfDto = productService.findProduct("292190", Etf.class, userId);
+        ProductDetailDto fundDto = productService.findProduct("K55301BB5738", Fund.class, userId);
 
         Assertions.assertInstanceOf(DepositDetailDto.class, depositDto);
         Assertions.assertInstanceOf(EtfDetailDetailDto.class, etfDto);

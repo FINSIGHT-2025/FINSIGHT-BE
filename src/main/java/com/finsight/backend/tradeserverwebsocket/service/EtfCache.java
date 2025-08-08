@@ -1,5 +1,7 @@
 package com.finsight.backend.tradeserverwebsocket.service;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,17 +27,17 @@ public class EtfCache {
         snapshotMap.compute(productCode, (key, oldSnapshot) -> {
             if (oldSnapshot == null) {
                 // 최초 등록 시 price1sAgo는 priceNow와 동일하게 세팅
-                return new EtfSnapshot(priceNow, priceNow, volumeNow, 0, 0, timestamp);
+                return new EtfSnapshot(productCode, priceNow, priceNow, volumeNow, 0, 0, timestamp);
             } else {
                 oldSnapshot.setPrice1sAgo(oldSnapshot.getPriceNow());
                 oldSnapshot.setPriceNow(priceNow);
                 oldSnapshot.setVolumeNow(volumeNow);
                 oldSnapshot.setTimestamp(timestamp);
+                oldSnapshot.setProductCode(productCode);
                 return oldSnapshot;
             }
         });
     }
-
 
     public EtfSnapshot get(String productCode) {
         return snapshotMap.get(productCode);
@@ -45,10 +47,12 @@ public class EtfCache {
         return snapshotMap.keySet();
     }
 
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class EtfSnapshot {
+        private String productCode;
         private double priceNow;
         private double price1sAgo;
         private long volumeNow;

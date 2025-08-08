@@ -7,7 +7,7 @@ import com.finsight.backend.vo.Product;
 import java.util.List;
 
 public interface ProductService {
-    <T extends Product> ProductDetailDto findProduct(String productCode, Class<T> expectedType);
+    <T extends Product> ProductDetailDto findProduct(String productCode, Class<T> expectedType, String userId);
 
     <T extends Product> List<ProductByFilterDto> findProductByFilter(Class<T> expectedType,
                                                                      String sort,

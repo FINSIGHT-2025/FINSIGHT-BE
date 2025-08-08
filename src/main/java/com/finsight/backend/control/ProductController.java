@@ -5,12 +5,14 @@ import com.finsight.backend.dto.response.ApiResponse;
 import com.finsight.backend.dto.response.ProductByFilterDto;
 import com.finsight.backend.dto.response.ProductDetailDto;
 import com.finsight.backend.enumerate.ErrorCode;
+import com.finsight.backend.security.info.UserPrincipal;
 import com.finsight.backend.service.ProductService;
 import com.finsight.backend.adapter.ProductAdapter;
 import com.finsight.backend.vo.Product;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +28,9 @@ public class ProductController {
 
     @GetMapping("/{category}/{code}")
     public ResponseEntity<?> findDetailProduct(@PathVariable("category") String category,
-                                               @PathVariable("code") String productCode){
+                                               @PathVariable("code") String productCode,
+                                               @AuthenticationPrincipal UserPrincipal principal) {
+        String userId = principal.getUserId();
         Class<? extends Product> productType = productAdapter.productType(category);
 
         if (productType == null) {
@@ -34,7 +38,7 @@ public class ProductController {
                     .body(ErrorCode.NOT_PATH_INVALID.getMessage());
         }
 
-        ProductDetailDto productDetailDto = productService.findProduct(productCode, productType);
+        ProductDetailDto productDetailDto = productService.findProduct(productCode, productType, userId);
         return ResponseEntity.ok(productDetailDto);
     }
 

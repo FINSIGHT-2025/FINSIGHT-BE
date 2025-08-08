@@ -4,6 +4,9 @@ import com.finsight.backend.tradeserverwebsocket.dto.ProductWebSocketDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 @Service
 @RequiredArgsConstructor
 public class EtfCalculationService {
@@ -39,7 +42,18 @@ public class EtfCalculationService {
     }
 
     // 기준 가격이 유효할 경우 수익률(%) 계산
+    // 기준 가격이 유효할 경우 수익률(%) 계산
     private double calculateReturnRate(double current, double base) {
-        return base > 0 ? (current - base) / base * 100 : 0.0;
+        if (base <= 0) return 0.0;
+
+        BigDecimal currentPrice = BigDecimal.valueOf(current);
+        BigDecimal basePrice = BigDecimal.valueOf(base);
+
+        BigDecimal rate = currentPrice.subtract(basePrice)
+                .divide(basePrice, 10, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+
+        return rate.setScale(2, RoundingMode.HALF_UP).doubleValue(); // 소수점 둘째 자리까지 반올림
     }
+
 }
