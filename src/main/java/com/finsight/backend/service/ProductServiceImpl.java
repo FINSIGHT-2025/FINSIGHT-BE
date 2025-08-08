@@ -87,6 +87,6 @@ public class ProductServiceImpl implements ProductService{
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("해당 dto 핸들러 없음 : " + expectedType));
 
-        return productDtoHandler.toFilterDto(productList, userId);
+        return productDtoHandler.toFilterDto(productList, userId, sort);
     }
 }
