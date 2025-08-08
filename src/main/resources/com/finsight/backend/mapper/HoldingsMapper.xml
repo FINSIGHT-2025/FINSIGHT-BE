@@ -139,7 +139,7 @@
         WHERE h.user_id = #{userId}
     </select>
     <!--  현금성(예금 등) -->
-    <select id="selectDepositPriceByUserId" parameterType="string">
+    <select id="selectDepositPriceByUserId" parameterType="string" resultType="double">
         SELECT
             CASE
                 WHEN his.history_amount = 0 THEN 0
@@ -284,6 +284,13 @@
             INNER JOIN Fund as f ON h.product_code = f.product_code
             INNER JOIN Etf as e ON h.product_code = e.product_code
         WHERE (user_id = #{userId}) AND ((f.fund_country = 'foreign') OR (e.etf_country = 'foreign'))
+    </select>
+
+    <select id="existProductByUserIdAndProductCode" parameterType="java.lang.String" resultType="java.lang.Boolean">
+        SELECT 1
+        From Holdings
+        WHERE user_id = #{userId}
+        AND product_code = #{productCode}
     </select>
 
 </mapper>

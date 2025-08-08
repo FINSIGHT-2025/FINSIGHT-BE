@@ -47,8 +47,7 @@ public class ProductServiceImpl implements ProductService{
                                                                             String country,
                                                                             String type,
                                                                             Integer riskGrade,
-                                                                            Integer limit,
-                                                                            Integer offset) {
+                                                                            String userId) {
 
         @SuppressWarnings("unchecked")
         ProductVoHandler<T> matchedVoHandler = (ProductVoHandler<T>) voHandlers.stream()
@@ -56,7 +55,7 @@ public class ProductServiceImpl implements ProductService{
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("해당 vo 핸들러 없음 : " + expectedType));
 
-        List<T> productList = matchedVoHandler.findProductListByFilter(sort, country, type, riskGrade, limit, offset);
+        List<T> productList = matchedVoHandler.findProductListByFilter(sort, country, type, riskGrade);
 
 
         @SuppressWarnings("unchecked")
@@ -65,6 +64,6 @@ public class ProductServiceImpl implements ProductService{
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("해당 dto 핸들러 없음 : " + expectedType));
 
-        return productDtoHandler.toFilterDto(productList);
+        return productDtoHandler.toFilterDto(productList, userId);
     }
 }

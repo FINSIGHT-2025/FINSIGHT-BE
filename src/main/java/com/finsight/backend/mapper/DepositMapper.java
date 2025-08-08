@@ -9,7 +9,7 @@ import java.util.List;
 public interface DepositMapper {
     List<SearchSuggestionResponseDTO> findDepositNameByWord(String word);
     Deposit findDepositByCode(String productCode);
-    List<Deposit> findDepositListOrderByIntrRate(@Param("limit") Integer limit, @Param("offset") Integer offset);
-    List<Deposit> findDepositListOrderByIntrRate2(@Param("limit") Integer limit, @Param("offset") Integer offset);
+    List<Deposit> findDepositListOrderByIntrRate();
+    List<Deposit> findDepositListOrderByIntrRate2();
 
 }

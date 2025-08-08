@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finsight.backend.dto.NewsSentimentDto;
 import com.finsight.backend.dto.response.*;
+import com.finsight.backend.mapper.HoldingsMapper;
 import com.finsight.backend.mapper.NewsMapper;
 import com.finsight.backend.vo.Fund;
 import com.finsight.backend.vo.NewsVO;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FundDtoHandler implements ProductDtoHandler<Fund> {
     private final NewsMapper newsMapper;
+    private final HoldingsMapper holdingsMapper;
     @Override
     public Class<Fund> getProductType() {
         return Fund.class;
@@ -35,10 +37,12 @@ public class FundDtoHandler implements ProductDtoHandler<Fund> {
     }
 
     @Override
-    public List<ProductByFilterDto> toFilterDto(List<Fund> product) {
+    public List<ProductByFilterDto> toFilterDto(List<Fund> product, String userId) {
         return product.stream()
                 .map((Fund fund) -> FundByFilterDto.fundVoToFundByFilterDto(fund,
-                        newsSentimentPer(newsMapper.findNewsSentimentByProductCode(fund.getProductCode()))))
+                        newsSentimentPer(newsMapper.findNewsSentimentByProductCode(fund.getProductCode())),
+                        holdingsMapper.existProductByUserIdAndProductCode(userId, fund.getProductCode()))
+                )
                 .collect(Collectors.toList());
     }
     public NewsSentimentDto newsSentimentPer(List<String> newsSentimentList){

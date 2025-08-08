@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 public class DepositVoHandler implements ProductVoHandler<Deposit> {
     private final DepositMapper depositMapper;
 
-    private Map<String, BiFunction<Integer, Integer, List<Deposit>>> SORT_HANDLERS;
+    private Map<String,  Supplier<List<Deposit>>> SORT_HANDLERS;
 
 
     @Override
@@ -32,17 +32,15 @@ public class DepositVoHandler implements ProductVoHandler<Deposit> {
     public List<Deposit> findProductListByFilter(String sort,
                                                  String country,
                                                  String type,
-                                                 Integer riskGrade,
-                                                 Integer limit,
-                                                 Integer offset) {
+                                                 Integer riskGrade) {
         SORT_HANDLERS = Map.of(
                 "intr_rate", depositMapper::findDepositListOrderByIntrRate,
                 "intr_rate2", depositMapper::findDepositListOrderByIntrRate2
         );
-        BiFunction<Integer, Integer, List<Deposit>> handler = SORT_HANDLERS.get(sort);
+        Supplier<List<Deposit>> handler = SORT_HANDLERS.get(sort);
         if(handler == null){
             throw new RuntimeException("Invalid sort parameter: " + sort);
         }
-        return handler.apply(limit, offset);
+        return handler.get();
     }
 }

@@ -26,5 +26,8 @@ public interface HoldingsMapper {
     Double selectDomesticByUserId(String userId);
     Double selectForeignByUserId(String userId);
 
+    // userOwns 사용
+    Boolean existProductByUserIdAndProductCode(@Param("userId") String userId, @Param("productCode") String productCode);
+
 }
 

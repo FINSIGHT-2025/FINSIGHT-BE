@@ -14,12 +14,11 @@ import lombok.experimental.SuperBuilder;
 public class DepositByFilterDto extends ProductByFilterDto{
     private Double depositIntrRate;
     private Double depositIntrRate2;
-//     private Boolean userOwns;
-//     private Boolean isPopularInUserGroup;
 
     public static DepositByFilterDto depositVoToDepositByFilterDto(Deposit deposit,
                                                                    Double depositIntrRate,
-                                                                   Double depositIntrRate2){
+                                                                   Double depositIntrRate2,
+                                                                   Boolean userOwn){
         return DepositByFilterDto.builder()
                 .productCode(deposit.getProductCode())
                 .productName(deposit.getProductName())
@@ -27,7 +26,7 @@ public class DepositByFilterDto extends ProductByFilterDto{
                 .productRiskGrade(deposit.getProductRiskGrade())
                 .depositIntrRate(depositIntrRate)
                 .depositIntrRate2(depositIntrRate2)
+                .userOwns(userOwn)
                 .build();
-                // userOwns이랑 isPopularInUserGroup builder에 추가해야함
     }
 }

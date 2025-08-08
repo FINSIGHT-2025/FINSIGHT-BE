@@ -4,8 +4,11 @@ import com.finsight.backend.dto.response.DepositByFilterDto;
 import com.finsight.backend.dto.response.DepositDetailDto;
 import com.finsight.backend.dto.response.ProductByFilterDto;
 import com.finsight.backend.dto.response.ProductDetailDto;
+import com.finsight.backend.mapper.HoldingsMapper;
+import com.finsight.backend.util.JwtUtil;
 import com.finsight.backend.vo.DOption;
 import com.finsight.backend.vo.Deposit;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -13,7 +16,9 @@ import java.util.stream.Collectors;
 
 
 @Component
+@RequiredArgsConstructor
 public class DepositDtoHandler implements ProductDtoHandler<Deposit>{
+    private final HoldingsMapper holdingsMapper;
     @Override
     public Class<Deposit> getProductType() {
         return Deposit.class;
@@ -25,7 +30,7 @@ public class DepositDtoHandler implements ProductDtoHandler<Deposit>{
     }
 
     @Override
-    public List<ProductByFilterDto> toFilterDto(List<Deposit> product) {
+    public List<ProductByFilterDto> toFilterDto(List<Deposit> product, String userId) {
         return product.stream()
                 .map(deposit -> {
                     DOption option = deposit.getDOption().stream()
@@ -34,7 +39,8 @@ public class DepositDtoHandler implements ProductDtoHandler<Deposit>{
                     return DepositByFilterDto.depositVoToDepositByFilterDto(
                             deposit,
                             option.getDOptionIntrRate(),
-                            option.getDOptionIntrRate2()
+                            option.getDOptionIntrRate2(),
+                            holdingsMapper.existProductByUserIdAndProductCode(userId, deposit.getProductCode())
                     );
                 })
                 .collect(Collectors.toList());

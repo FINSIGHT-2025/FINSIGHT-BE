@@ -2,6 +2,7 @@ package com.finsight.backend.service.handler;
 
 import com.finsight.backend.dto.NewsSentimentDto;
 import com.finsight.backend.dto.response.*;
+import com.finsight.backend.mapper.HoldingsMapper;
 import com.finsight.backend.mapper.NewsMapper;
 import com.finsight.backend.vo.Etf;
 import com.finsight.backend.vo.NewsVO;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EtfDtoHandler implements ProductDtoHandler<Etf>{
     private final NewsMapper newsMapper;
+    private final HoldingsMapper holdingsMapper;
     @Override
     public Class<Etf> getProductType() {
         return Etf.class;
@@ -33,10 +35,13 @@ public class EtfDtoHandler implements ProductDtoHandler<Etf>{
     }
 
     @Override
-    public List<ProductByFilterDto> toFilterDto(List<Etf> product) {
+    public List<ProductByFilterDto> toFilterDto(List<Etf> product, String userId) {
         return product.stream()
                 .map((Etf etf) -> EtfByFilterDto.etfVoToEtfByFilterDto(etf,
-                        newsSentimentPer(newsMapper.findNewsSentimentByProductCode(etf.getProductCode()))))
+                        newsSentimentPer(newsMapper.findNewsSentimentByProductCode(etf.getProductCode())),
+                        holdingsMapper.existProductByUserIdAndProductCode(userId, etf.getProductCode())
+                        )
+                )
                 .collect(Collectors.toList());
     }
 

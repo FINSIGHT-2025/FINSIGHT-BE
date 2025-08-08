@@ -29,9 +29,7 @@ public class EtfVoHandler implements ProductVoHandler<Etf> {
     public List<Etf> findProductListByFilter(String sort,
                                              String country,
                                              String type,
-                                             Integer riskGrade,
-                                             Integer limit,
-                                             Integer offset) {
+                                             Integer riskGrade) {
         ProductCountry productCountry = (country == null || country.isBlank())
                 ? null
                 : ProductCountry.fromDbValue(country);
@@ -42,15 +40,15 @@ public class EtfVoHandler implements ProductVoHandler<Etf> {
 
         if(sort.equals("volume")){
             // 펀드 규모 정렬해서 리턴
-            return etfMapper.findEtfListByFilter(productCountry, productType, riskGrade, limit, offset);
+            return etfMapper.findEtfListByFilter(productCountry, productType, riskGrade);
         }
         if(sort.equals("rate_of_return")){
             // 수익률 정렬해서 리턴
-            return etfMapper.findEtfListByFilter(productCountry, productType, riskGrade, limit, offset);
+            return etfMapper.findEtfListByFilter(productCountry, productType, riskGrade);
         }
         if(sort.equals("view_count")){
             // 조회수 정렬해서 리턴
-            return etfMapper.findEtfListByFilter(productCountry, productType, riskGrade, limit, offset);
+            return etfMapper.findEtfListByFilter(productCountry, productType, riskGrade);
         }
         throw new RuntimeException("Invalid sort parameter: " + sort);
     }

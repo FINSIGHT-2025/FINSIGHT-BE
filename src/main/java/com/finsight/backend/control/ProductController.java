@@ -7,12 +7,14 @@ import com.finsight.backend.dto.response.ProductDetailDto;
 import com.finsight.backend.enumerate.ErrorCode;
 import com.finsight.backend.service.ProductService;
 import com.finsight.backend.adapter.ProductAdapter;
+import com.finsight.backend.util.JwtUtil;
 import com.finsight.backend.vo.Product;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Slf4j
@@ -25,9 +27,11 @@ public class ProductController {
 
 
     @GetMapping("/{category}/{code}")
-    public ResponseEntity<?> findDetailProduct(@PathVariable("category") String category,
+    public ResponseEntity<?> findDetailProduct(HttpServletRequest request,
+                                               @PathVariable("category") String category,
                                                @PathVariable("code") String productCode){
         Class<? extends Product> productType = productAdapter.category(category);
+        String userId = JwtUtil.extractUserIdFromRequest(request);
 
         if (productType == null) {
             return ResponseEntity.status(ErrorCode.NOT_PATH_INVALID.getHttpStatus())
@@ -39,21 +43,20 @@ public class ProductController {
     }
 
     @GetMapping("/{category}")
-    public ResponseEntity<?> findProductByFilter(@PathVariable("category") String category,
+    public ResponseEntity<?> findProductByFilter(HttpServletRequest request,
+                                                 @PathVariable("category") String category,
                                                  @RequestParam("sort") String sort,
                                                  @RequestParam(name = "country", required = false) String country,
                                                  @RequestParam(name = "type", required = false) String type,
-                                                 @RequestParam(name = "risk_grade", required = false) Integer riskGrade,
-                                                 @RequestParam(name = "limit") Integer limit,
-                                                 @RequestParam(name = "offset") Integer offset){
+                                                 @RequestParam(name = "risk_grade", required = false) Integer riskGrade){
         Class<? extends Product> productCategory = productAdapter.category(category);
-
+        String userId = JwtUtil.extractUserIdFromRequest(request);
         if(productCategory == null){
             return ResponseEntity.status(ErrorCode.NOT_PATH_INVALID.getHttpStatus())
                     .body(ErrorCode.NOT_PATH_INVALID.getMessage());
         }
 
-        List<? extends ProductByFilterDto> productByFilter = productService.findProductByFilter(productCategory, sort, country, type, riskGrade, limit, offset);
+        List<? extends ProductByFilterDto> productByFilter = productService.findProductByFilter(productCategory, sort, country, type, riskGrade, userId);
         return ResponseEntity.ok(productByFilter);
     }
 }
