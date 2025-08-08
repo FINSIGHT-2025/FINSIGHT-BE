@@ -29,6 +29,7 @@ public class EtfCache {
                 // 최초 등록 시 price1sAgo는 priceNow와 동일하게 세팅
                 return new EtfSnapshot(productCode, priceNow, priceNow, volumeNow, 0, 0, timestamp);
             } else {
+                oldSnapshot.setPrice3MonthsAgo(oldSnapshot.getPriceNow());
                 oldSnapshot.setPrice1sAgo(oldSnapshot.getPriceNow());
                 oldSnapshot.setPriceNow(priceNow);
                 oldSnapshot.setVolumeNow(volumeNow);
