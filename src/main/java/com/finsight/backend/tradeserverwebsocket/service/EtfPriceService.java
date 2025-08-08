@@ -15,7 +15,8 @@ import java.time.ZoneId;
 import java.util.List;
 
 /*
- - 현재 값 조회: getCurrentPrice(measurement, productCode)
+ - 현재 값 조회: getCurrent(measurement, productCode)
+ (fund_aum, K1234)
  - 전일 대비 변화량(값): getPriceChangeFromYesterday(measurement, productCode)
  - 전일 대비 변화량(퍼센트): getPercentChangeFromYesterday(measurement, productCode)
  - 3개월 수익률(퍼센트): getPercentChangeFrom3MonthsAgo(measurement, productCode)
@@ -28,12 +29,16 @@ public class EtfPriceService {
     private final InfluxDBClient influxDBClient;
     private final InfluxDBConfig influxDBConfig;
 
+    Instant yesterDay = LocalDate.now().minusDays(1)
+            .atStartOfDay(ZoneId.systemDefault())
+            .toInstant();
+
     public double getCurrent(String measurement, String productCode) {
-        return querySingleValue(measurement, measurement, productCode, Instant.now());
+        return querySingleValue(measurement, measurement, productCode, yesterDay);
     }
 
     public double getChangeFromYesterday(String measurement, String productCode) {
-        Instant today = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant today = yesterDay;
         Instant yesterday = today.minusSeconds(86400);
 
         double todayValue = querySingleValue(measurement, measurement, productCode, today);
@@ -43,7 +48,7 @@ public class EtfPriceService {
     }
 
     public double getPercentChangeFromYesterday(String measurement, String productCode) {
-        Instant today = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant today = yesterDay;
         Instant yesterday = today.minusSeconds(86400);
 
         double todayValue = querySingleValue(measurement, measurement, productCode, today);
@@ -56,7 +61,7 @@ public class EtfPriceService {
     }
 
     public double getPercentChangeFrom3MonthsAgo(String measurement, String productCode) {
-        Instant today = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant today = yesterDay;
         Instant threeMonthsAgo = today.minusSeconds(60L * 60 * 24 * 90);
 
         double todayValue = querySingleValue(measurement, measurement, productCode, today);

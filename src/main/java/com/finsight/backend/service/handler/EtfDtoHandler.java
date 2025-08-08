@@ -37,7 +37,7 @@ public class EtfDtoHandler implements ProductDtoHandler<Etf>{
     }
 
     @Override
-    public List<ProductByFilterDto> toFilterDto(List<Etf> product, String userId) {
+    public List<ProductByFilterDto> toFilterDto(List<Etf> product, String userId, String sort) {
         return product.stream()
                 .map((Etf etf) -> EtfByFilterDto.etfVoToEtfByFilterDto(etf,
                         newsSentimentPer(newsMapper.findNewsSentimentByProductCode(etf.getProductCode())),

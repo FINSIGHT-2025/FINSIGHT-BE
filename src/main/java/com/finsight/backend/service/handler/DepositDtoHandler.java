@@ -32,7 +32,7 @@ public class DepositDtoHandler implements ProductDtoHandler<Deposit>{
     }
 
     @Override
-    public List<ProductByFilterDto> toFilterDto(List<Deposit> product, String userId) {
+    public List<ProductByFilterDto> toFilterDto(List<Deposit> product, String userId, String sort) {
         return product.stream()
                 .map(deposit -> {
                     DOption option = deposit.getDOption().stream()
