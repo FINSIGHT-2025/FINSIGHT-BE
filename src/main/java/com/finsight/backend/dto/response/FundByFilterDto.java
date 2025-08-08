@@ -1,5 +1,6 @@
 package com.finsight.backend.dto.response;
 
+import com.finsight.backend.dto.NewsSentimentDto;
 import com.finsight.backend.vo.Fund;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,19 +17,20 @@ import java.util.Map;
 public class FundByFilterDto extends ProductByFilterDto{
     private String productCountry;
     private String productType;
-//    private Double productRateOfReturn;
-//    private Integer fundScale;
-//    private List<Map<String, String>> newsSentiment;
-//    private Boolean userOwns;
-//    private Boolean isPopularInUserGroup;
+    private NewsSentimentDto newsSentiment;
+    private Double productRateOfReturn;
+    private Integer fundScale;
 
-    public static FundByFilterDto fundVoToFundByFilterDto(Fund fund){
+    public static FundByFilterDto fundVoToFundByFilterDto(Fund fund, NewsSentimentDto newsSentimentDto, Boolean userOwn){
         return FundByFilterDto.builder()
                 .productCode(fund.getProductCode())
                 .productCountry(fund.getFundCountry().getDbValue())
+                .productCompanyName(fund.getProductCompanyName())
                 .productType(fund.getFundType().getDbValue())
                 .productName(fund.getProductName())
                 .productRiskGrade(fund.getProductRiskGrade())
+                .newsSentiment(newsSentimentDto)
+                .userOwns(userOwn)
                 .build();
     }
 }

@@ -44,3 +44,4 @@ bin/
 
 /src/main/resources/application.properties
 /src/main/database.sql
+/src/main/resources/kbit-468206-acfea3b0039c.json

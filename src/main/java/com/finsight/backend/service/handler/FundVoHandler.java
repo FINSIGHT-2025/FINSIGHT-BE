@@ -25,7 +25,10 @@ public class FundVoHandler implements ProductVoHandler<Fund> {
     }
 
     @Override
-    public List<Fund> findProductListByFilter(String sort, String country, String type, Integer riskGrade) {
+    public List<Fund> findProductListByFilter(String sort,
+                                              String country,
+                                              String type,
+                                              Integer riskGrade) {
         ProductCountry productCountry = (country == null || country.isBlank())
                 ? null
                 : ProductCountry.fromDbValue(country);

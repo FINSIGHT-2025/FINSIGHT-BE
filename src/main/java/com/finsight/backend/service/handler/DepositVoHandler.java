@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 @Component
@@ -14,7 +15,7 @@ import java.util.function.Supplier;
 public class DepositVoHandler implements ProductVoHandler<Deposit> {
     private final DepositMapper depositMapper;
 
-    private Map<String, Supplier<List<Deposit>>> SORT_HANDLERS;
+    private Map<String,  Supplier<List<Deposit>>> SORT_HANDLERS;
 
 
     @Override
@@ -28,7 +29,10 @@ public class DepositVoHandler implements ProductVoHandler<Deposit> {
     }
 
     @Override
-    public List<Deposit> findProductListByFilter(String sort, String country, String type, Integer riskGrade) {
+    public List<Deposit> findProductListByFilter(String sort,
+                                                 String country,
+                                                 String type,
+                                                 Integer riskGrade) {
         SORT_HANDLERS = Map.of(
                 "intr_rate", depositMapper::findDepositListOrderByIntrRate,
                 "intr_rate2", depositMapper::findDepositListOrderByIntrRate2

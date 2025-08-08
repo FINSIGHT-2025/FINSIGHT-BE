@@ -53,25 +53,24 @@
                  left join E_Equity_Ratio EER on Etf.product_code = EER.product_code
         where Etf.product_code = #{productCode};
     </select>
-    <select id="findEtfListByFilter" resultMap="etfResultMap">
-        select *
-        from Etf
-                 left join E_Asset_Allocation EAA on Etf.product_code = EAA.product_code
-                 left join E_Constituent_Stocks ECS on Etf.product_code = ECS.product_code
-                 left join E_Equity_Ratio EER on Etf.product_code = EER.product_code
+    <select id="findEtfListByFilter" resultMap="etfResultMap" parameterType="map">
+        SELECT *
+        FROM Etf
         <where>
             <trim prefixOverrides="and ">
                 <if test="productCountry != null">
-                    and Etf.etf_country = #{productCountry}
+                    and etf_country = #{productCountry}
                 </if>
                 <if test="productType != null">
-                    and Etf.etf_type = #{productType}
+                    and etf_type = #{productType}
                 </if>
                 <if test="productRiskGrade != null">
-                    and Etf.product_risk_grade = #{productRiskGrade}
+                    and product_risk_grade = #{productRiskGrade}
                 </if>
             </trim>
         </where>
+        ORDER BY product_code
+        LIMIT #{limit} OFFSET #{offset};
     </select>
 
     <select id="findEtfNameByWord" parameterType="string" resultType="com.finsight.backend.dto.response.SearchSuggestionResponseDTO">

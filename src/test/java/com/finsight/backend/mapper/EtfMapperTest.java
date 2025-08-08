@@ -3,6 +3,7 @@ package com.finsight.backend.mapper;
 import com.finsight.backend.config.CorsConfig;
 import com.finsight.backend.config.MongoConfig;
 import com.finsight.backend.config.RootConfig;
+import com.finsight.backend.config.WebClientConfig;
 import com.finsight.backend.enumerate.ProductCountry;
 import com.finsight.backend.enumerate.ProductType;
 import com.finsight.backend.vo.EAssetAllocation;
@@ -25,8 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith({SpringExtension.class})
 @ContextConfiguration(classes = {
         RootConfig.class,
-        CorsConfig.class,
-        MongoConfig.class
+        WebClientConfig.class
 })
 class EtfMapperTest {
 

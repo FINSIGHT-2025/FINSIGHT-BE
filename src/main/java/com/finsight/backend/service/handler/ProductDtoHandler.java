@@ -9,5 +9,5 @@ import java.util.List;
 public interface ProductDtoHandler<T extends Product> {
     Class<T> getProductType();
     ProductDetailDto toDetailDto(T product);
-    List<ProductByFilterDto> toFilterDto(List<T> product);
+    List<ProductByFilterDto> toFilterDto(List<T> product, String userId);
 }

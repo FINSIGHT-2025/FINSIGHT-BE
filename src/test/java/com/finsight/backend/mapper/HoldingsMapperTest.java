@@ -1,10 +1,10 @@
 package com.finsight.backend.mapper;
 
 import com.finsight.backend.config.*;
-import com.finsight.backend.security.config.SecurityConfig;
-import com.finsight.backend.vo.NewsVO;
+import com.finsight.backend.dto.request.TradeRequest;
+import com.finsight.backend.vo.Holdings;
+import com.mongodb.assertions.Assertions;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +12,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
+
 @Slf4j
 @ExtendWith({SpringExtension.class})
 @ContextConfiguration(classes = {
@@ -26,13 +22,24 @@ import static org.junit.jupiter.api.Assertions.*;
         WebSocketConfig.class
 })
 @WebAppConfiguration
-class NewsMapperTest {
-
+class HoldingsMapperTest {
     @Autowired
-    private NewsMapper newsMapper;
+    private HoldingsMapper holdingsMapper;
+
     @Test
-    void findNewsSentimentByProductCode() {
-        List<String> newsSentimentList = newsMapper.findNewsSentimentByProductCode("139240");
-        log.info("newsSentimentList : {}", newsSentimentList);
+    void existProductByUserId() {
+        TradeRequest tradeRequest = new TradeRequest(
+                "gfdsa9497",
+                "K55105BV6755",
+                "fund",
+                10000,
+                12
+        );
+        Holdings holdings = new Holdings(
+            tradeRequest
+        );
+        holdingsMapper.insert(holdings);
+        Boolean ch = holdingsMapper.existProductByUserIdAndProductCode("gfdsa9497", "K55105BV6755");
+        Assertions.assertTrue(ch);
     }
 }

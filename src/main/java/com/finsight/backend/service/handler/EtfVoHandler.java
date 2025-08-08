@@ -26,7 +26,10 @@ public class EtfVoHandler implements ProductVoHandler<Etf> {
     }
 
     @Override
-    public List<Etf> findProductListByFilter(String sort, String country, String type, Integer riskGrade) {
+    public List<Etf> findProductListByFilter(String sort,
+                                             String country,
+                                             String type,
+                                             Integer riskGrade) {
         ProductCountry productCountry = (country == null || country.isBlank())
                 ? null
                 : ProductCountry.fromDbValue(country);

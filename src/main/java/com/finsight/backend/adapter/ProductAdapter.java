@@ -11,17 +11,17 @@ import java.util.Map;
 @Component
 public class ProductAdapter {
 
-    private final Map<String, Class<? extends Product>> productTypeMap;
+    private final Map<String, Class<? extends Product>> categoryMap;
 
     public ProductAdapter() {
-        this.productTypeMap = Map.of(
+        this.categoryMap = Map.of(
                 "deposit", Deposit.class,
                 "fund", Fund.class,
                 "etf", Etf.class
         );
     }
 
-    public Class<? extends Product> productType(String category){
-        return productTypeMap.get(category.toLowerCase());
+    public Class<? extends Product> category(String category){
+        return categoryMap.get(category.toLowerCase());
     }
 }
