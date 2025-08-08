@@ -25,7 +25,12 @@ public class FundVoHandler implements ProductVoHandler<Fund> {
     }
 
     @Override
-    public List<Fund> findProductListByFilter(String sort, String country, String type, Integer riskGrade) {
+    public List<Fund> findProductListByFilter(String sort,
+                                              String country,
+                                              String type,
+                                              Integer riskGrade,
+                                              Integer limit,
+                                              Integer offset) {
         ProductCountry productCountry = (country == null || country.isBlank())
                 ? null
                 : ProductCountry.fromDbValue(country);
@@ -36,15 +41,15 @@ public class FundVoHandler implements ProductVoHandler<Fund> {
 
         if(sort.equals("fund_scale")){
             // 펀드 규모 정렬해서 리턴
-            return fundMapper.findFundListByFilter(productCountry, productType, riskGrade);
+            return fundMapper.findFundListByFilter(productCountry, productType, riskGrade, limit, offset);
         }
         if(sort.equals("rate_of_return")){
             // 수익률 정렬해서 리턴
-            return fundMapper.findFundListByFilter(productCountry, productType, riskGrade);
+            return fundMapper.findFundListByFilter(productCountry, productType, riskGrade, limit, offset);
         }
         if(sort.equals("view_count")){
             // 조회수 정렬해서 리턴
-            return fundMapper.findFundListByFilter(productCountry, productType, riskGrade);
+            return fundMapper.findFundListByFilter(productCountry, productType, riskGrade, limit, offset);
         }
         throw new RuntimeException("Invalid sort parameter: " + sort);
     }

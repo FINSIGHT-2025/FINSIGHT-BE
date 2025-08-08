@@ -34,8 +34,9 @@ public class FundDetailDetailDto extends ProductDetailDto {
     private List<FStockHoldings> fStockHoldings;
     private String fundFeeFrontEndLoad;
     private String fundEstablishedDate;
+    private List<NewsResponseDTO> fundNewsResponse;
 
-    public static FundDetailDetailDto fundVoToFundDetailDto(Fund fund){
+    public static FundDetailDetailDto fundVoToFundDetailDto(Fund fund, List<NewsResponseDTO> fundNewsResponse){
         return FundDetailDetailDto.builder()
                 .productCode(fund.getProductCode())
                 .productName(fund.getProductName())
@@ -57,6 +58,7 @@ public class FundDetailDetailDto extends ProductDetailDto {
                 .fStockHoldings(fund.getFStockHoldings())
                 .fundFeeFrontEndLoad(fund.getFundFeeFrontEndLoad())
                 .fundEstablishedDate(fund.getFundEstablishedDate())
+                .fundNewsResponse(fundNewsResponse)
                 .build();
     }
 }

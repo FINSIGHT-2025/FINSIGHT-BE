@@ -44,7 +44,7 @@ class DepositMapperTest {
 
     @Test
     void findDepositListOrderByIntrRate() {
-        List<Deposit> depositList = depositMapper.findDepositListOrderByIntrRate();
+        List<Deposit> depositList = depositMapper.findDepositListOrderByIntrRate(0, 5);
         Assertions.assertNotNull(depositList);
         for (Deposit deposit : depositList) {
             for (DOption option : deposit.getDOption()) {
@@ -55,7 +55,7 @@ class DepositMapperTest {
 
     @Test
     void findDepositListOrderByIntrRate2() {
-        List<Deposit> depositList = depositMapper.findDepositListOrderByIntrRate2();
+        List<Deposit> depositList = depositMapper.findDepositListOrderByIntrRate2(0, 5);
         Assertions.assertNotNull(depositList);
         for (Deposit deposit : depositList) {
             for (DOption option : deposit.getDOption()) {

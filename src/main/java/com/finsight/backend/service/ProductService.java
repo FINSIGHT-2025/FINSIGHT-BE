@@ -13,5 +13,7 @@ public interface ProductService {
                                                                      String sort,
                                                                      String country,
                                                                      String type,
-                                                                     Integer riskGrade);
+                                                                     Integer riskGrade,
+                                                                     Integer limit,
+                                                                     Integer offset);
 }

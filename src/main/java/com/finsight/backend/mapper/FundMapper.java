@@ -12,8 +12,10 @@ import java.util.List;
 public interface FundMapper {
     Fund findFundByCode(String productCode);
     List<Fund> findFundListByFilter(@Param("productCountry") ProductCountry productCountry,
-                                         @Param("productType")ProductType productType,
-                                         @Param("productRiskGrade") Integer productRiskGrade);
+                                    @Param("productType")ProductType productType,
+                                    @Param("productRiskGrade") Integer productRiskGrade,
+                                    @Param("limit") Integer limit,
+                                    @Param("offset") Integer offset);
 
     List<SearchSuggestionResponseDTO> findFundNameByWord(String word);
 

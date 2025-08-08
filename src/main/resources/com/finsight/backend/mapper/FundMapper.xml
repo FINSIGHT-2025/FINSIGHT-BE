@@ -46,23 +46,22 @@
         where Fund.product_code = #{productCode};
     </select>
     <select id="findFundListByFilter" resultMap="fundResultMap">
-        select *
-        from Fund
-            left join F_Asset_Allocation FAA on Fund.product_code = FAA.product_code
-            left join F_Stock_Holdings FSH on Fund.product_code = FSH.product_code
+        SELECT *
+        FROM Fund
         <where>
             <trim prefixOverrides="and ">
                 <if test="productCountry != null">
-                    and Fund.fund_country = #{productCountry}
+                    and fund_country = #{productCountry}
                 </if>
                 <if test="productType != null">
-                    and Fund.fund_type = #{productType}
+                    and fund_type = #{productType}
                 </if>
                 <if test="productRiskGrade != null">
-                    and Fund.product_risk_grade = #{productRiskGrade}
+                    and product_risk_grade = #{productRiskGrade}
                 </if>
             </trim>
         </where>
+        LIMIT #{limit} OFFSET #{offset};
     </select>
     <select id="selectAllFundStock" resultMap="fundResultMap">
         SELECT f.product_code,

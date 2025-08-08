@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 @Component
@@ -14,7 +15,7 @@ import java.util.function.Supplier;
 public class DepositVoHandler implements ProductVoHandler<Deposit> {
     private final DepositMapper depositMapper;
 
-    private Map<String, Supplier<List<Deposit>>> SORT_HANDLERS;
+    private Map<String, BiFunction<Integer, Integer, List<Deposit>>> SORT_HANDLERS;
 
 
     @Override
@@ -28,15 +29,20 @@ public class DepositVoHandler implements ProductVoHandler<Deposit> {
     }
 
     @Override
-    public List<Deposit> findProductListByFilter(String sort, String country, String type, Integer riskGrade) {
+    public List<Deposit> findProductListByFilter(String sort,
+                                                 String country,
+                                                 String type,
+                                                 Integer riskGrade,
+                                                 Integer limit,
+                                                 Integer offset) {
         SORT_HANDLERS = Map.of(
                 "intr_rate", depositMapper::findDepositListOrderByIntrRate,
                 "intr_rate2", depositMapper::findDepositListOrderByIntrRate2
         );
-        Supplier<List<Deposit>> handler = SORT_HANDLERS.get(sort);
+        BiFunction<Integer, Integer, List<Deposit>> handler = SORT_HANDLERS.get(sort);
         if(handler == null){
             throw new RuntimeException("Invalid sort parameter: " + sort);
         }
-        return handler.get();
+        return handler.apply(limit, offset);
     }
 }
