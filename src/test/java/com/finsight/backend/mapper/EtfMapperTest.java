@@ -51,7 +51,7 @@ class EtfMapperTest {
     @Test
     void findEtfListByFilter() {
         List<Etf> noFilterEtf = etfMapper.findEtfListByFilter(null, null, null);
-        List<Etf> etfListByFilter = etfMapper.findEtfListByFilter(ProductCountry.DOMESTIC, ProductType.EQUITY, 1);
+        List<Etf> etfListByFilter = etfMapper.findEtfListByFilter(ProductCountry.DOMESTIC, ProductType.EQUITY, new Integer[]{1});
 
         Assertions.assertEquals(60, noFilterEtf.size());
         for (Etf etf : etfListByFilter) {

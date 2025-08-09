@@ -13,7 +13,7 @@ public interface FundMapper {
     Fund findFundByCode(String productCode);
     List<Fund> findFundListByFilter(@Param("productCountry") ProductCountry productCountry,
                                     @Param("productType")ProductType productType,
-                                    @Param("productRiskGrade") Integer productRiskGrade);
+                                    @Param("productRiskGrade") Integer[] productRiskGrade);
 
     List<SearchSuggestionResponseDTO> findFundNameByWord(String word);
 

@@ -13,6 +13,6 @@ public interface ProductService {
                                                                      String sort,
                                                                      String country,
                                                                      String type,
-                                                                     Integer riskGrade,
-                                                                     String userId);
+                                                                     String userId,
+                                                                     Boolean isMatched);
 }

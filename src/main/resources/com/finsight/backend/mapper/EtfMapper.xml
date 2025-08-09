@@ -64,8 +64,11 @@
                 <if test="productType != null">
                     and etf_type = #{productType}
                 </if>
-                <if test="productRiskGrade != null">
-                    and product_risk_grade = #{productRiskGrade}
+                <if test="productRiskGrade != null and productRiskGrade.length > 0">
+                    AND product_risk_grade IN
+                    <foreach item="grade" collection="productRiskGrade" open="(" separator="," close=")">
+                        #{grade}
+                    </foreach>
                 </if>
             </trim>
         </where>

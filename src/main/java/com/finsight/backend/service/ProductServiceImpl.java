@@ -5,6 +5,7 @@ import com.finsight.backend.detailhodings.dto.DetailHoldingsResponseDto;
 import com.finsight.backend.dto.response.ProductByFilterDto;
 import com.finsight.backend.dto.response.ProductDetailDto;
 import com.finsight.backend.mapper.DetailHoldingsMapper;
+import com.finsight.backend.mapper.UserMapper;
 import com.finsight.backend.service.handler.ProductDtoHandler;
 import com.finsight.backend.service.handler.ProductVoHandler;
 import com.finsight.backend.vo.Product;
@@ -69,8 +70,8 @@ public class ProductServiceImpl implements ProductService{
                                                                             String sort,
                                                                             String country,
                                                                             String type,
-                                                                            Integer riskGrade,
-                                                                            String userId) {
+                                                                            String userId,
+                                                                            Boolean isMatched) {
 
         @SuppressWarnings("unchecked")
         ProductVoHandler<T> matchedVoHandler = (ProductVoHandler<T>) voHandlers.stream()
@@ -78,7 +79,7 @@ public class ProductServiceImpl implements ProductService{
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("해당 vo 핸들러 없음 : " + expectedType));
 
-        List<T> productList = matchedVoHandler.findProductListByFilter(sort, country, type, riskGrade);
+        List<T> productList = matchedVoHandler.findProductListByFilter(sort, country, type, isMatched, userId);
 
 
         @SuppressWarnings("unchecked")
