@@ -1,5 +1,6 @@
 package com.finsight.backend.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.finsight.backend.detailhodings.dto.DetailHoldingsResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,5 +19,6 @@ public abstract class ProductDetailDto {
     private String productCompanyName;
     private Integer productRiskGrade;
 
+    @JsonProperty("holdings")
     private DetailHoldingsResponseDto holdings;
 }

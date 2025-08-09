@@ -82,4 +82,54 @@
         FROM etf
         WHERE product_name LIKE CONCAT('%', #{word}, '%')
     </select>
+
+
+
+
+    <!-- 임시 : 뉴스에서 사용할 mapper -->
+    <resultMap id="EtfWithSentiment" type="NewsEtfDTO">
+        <id property="productCode" column="product_code"/>
+        <result property="productName" column="product_name"/>
+        <result property="productCompanyName" column="product_company_name"/>
+        <result property="productRiskGrade" column="product_risk_grade" />
+
+        <!-- Etf 자체 필드 -->
+        <result property="etfCountry" column="etf_country" />
+        <result property="etfType" column="etf_type" />
+        <result property="etfDelistingStatus" column="etf_delisting_status" />
+        <result property="etfNetAssets" column="etf_net_assets" />
+        <result property="etfFundCharacteristics" column="etf_fund_characteristics" />
+        <result property="etfManagementStrategy" column="etf_management_strategy" />
+        <result property="etfTotalExpenseRatio" column="etf_total_expense_ratio" />
+        <result property="etfCollectiveInvestmentAgreementUrl" column="etf_collective_investment_agreement_url" />
+        <result property="etfInvestmentProspectusUrl" column="etf_investment_prospectus_url" />
+        <result property="etfSimplifiedProspectusUrl" column="etf_simplified_prospectus_url" />
+        <result property="etfBenchmarkIndex" column="etf_benchmark_index" />
+        <result property="etfListingDate" column="etf_listing_date" />
+        <result property="etfMinTradingUnit" column="etf_min_trading_unit" />
+        <result property="etfTaxType" column="etf_tax_type" />
+
+        <association property="newsSentiment" javaType="NewsSentiment">
+            <result property="positive" column="positive_count"/>
+            <result property="neutral" column="neutral_count"/>
+            <result property="negative" column="negative_count"/>
+            <result property="total" column="total_count"/>
+        </association>
+    </resultMap>
+    <select id="findEtfByProductCode" parameterType="string" resultMap="EtfWithSentiment">
+        SELECT
+            e.*,
+            IFNULL(COUNT(IF(n.news_sentiment = 'positive', 1, NULL)), 0) AS positive_count,
+            IFNULL(COUNT(IF(n.news_sentiment = 'neutral', 1, NULL)), 0) AS neutral_count,
+            IFNULL(COUNT(IF(n.news_sentiment = 'negative', 1, NULL)), 0) AS negative_count,
+            IFNULL(COUNT(n.news_id), 0) AS total_count
+        FROM
+            etf e
+                LEFT JOIN news_product np ON e.product_code = np.product_code
+                LEFT JOIN news n ON np.news_id = n.news_id
+        WHERE
+            e.product_code = #{productCode}
+        GROUP BY
+            e.product_code
+    </select>
 </mapper>

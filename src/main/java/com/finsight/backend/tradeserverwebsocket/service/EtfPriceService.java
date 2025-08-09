@@ -1,6 +1,7 @@
 package com.finsight.backend.tradeserverwebsocket.service;
 
 import com.finsight.backend.config.InfluxDBConfig;
+import com.finsight.backend.vo.pricehistory.PricePoint;
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.QueryApi;
 import com.influxdb.query.FluxTable;
@@ -12,6 +13,7 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -30,11 +32,12 @@ public class EtfPriceService {
     private final InfluxDBConfig influxDBConfig;
 
     Instant yesterDay = LocalDate.now().minusDays(1)
-            .atStartOfDay(ZoneId.systemDefault())
+            .atStartOfDay(ZoneId.of("Asia/Seoul"))
             .toInstant();
 
     public double getCurrent(String measurement, String productCode) {
-        return querySingleValue(measurement, measurement, productCode, yesterDay);
+        double value = querySingleValue(measurement, measurement, productCode, yesterDay);
+        return round(value);
     }
 
     public double getChangeFromYesterday(String measurement, String productCode) {
@@ -71,6 +74,42 @@ public class EtfPriceService {
             return round((todayValue - pastValue) / pastValue * 100);
         }
         return 0.0;
+    }
+
+    public List<PricePoint> getThreeMonthsPriceHistory(String measurementAndField, String productCode, String tagName) {
+        QueryApi queryApi = influxDBClient.getQueryApi();
+
+        Instant now = yesterDay; // 기준일을 동일하게 유지
+        Instant start = now.minusSeconds(60L * 60 * 24 * 90);
+
+        String flux = String.format(
+                "from(bucket: \"%s\") " +
+                        "|> range(start: %s, stop: %s) " +
+                        "|> filter(fn: (r) => r._measurement == \"%s\" and r.%s == \"%s\" and r._field == \"%s\") " +
+                        "|> sort(columns: [\"_time\"], desc: false)",
+                influxDBConfig.getInfluxBucket(),
+                start.toString(),
+                now.toString(),
+                measurementAndField,
+                tagName,
+                productCode,
+                measurementAndField
+        );
+
+        System.out.println("Flux query: " + flux);
+        List<FluxTable> tables = queryApi.query(flux);
+        List<PricePoint> result = new ArrayList<>();
+
+        for (FluxTable table : tables) {
+            table.getRecords().forEach(record -> {
+                Instant time = record.getTime();
+                Double rawValue = ((Number) record.getValue()).doubleValue();
+                Double roundedValue = round(rawValue);
+                result.add(new PricePoint(time, roundedValue));
+            });
+        }
+
+        return result;
     }
 
     private double querySingleValue(String measurement, String field, String productCode, Instant targetTime) {

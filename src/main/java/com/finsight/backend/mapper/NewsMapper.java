@@ -1,10 +1,7 @@
 package com.finsight.backend.mapper;
 
 import com.finsight.backend.dto.response.KeywordResponseDTO;
-import com.finsight.backend.vo.KeywordVO;
-import com.finsight.backend.vo.NewsVO;
-import com.finsight.backend.vo.TempEtfVO;
-import com.finsight.backend.vo.TempFundVO;
+import com.finsight.backend.vo.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.security.core.parameters.P;
@@ -35,6 +32,7 @@ public interface NewsMapper {
 
     List<NewsVO> findNewsByProductCode(String productCode); // 상품 코드로 뉴스 목록 조회
 
+    List<NewsProductVO> findProductInfoByKeywordId(Long keywordId);
 
 
 //    임시 Fund mapper

@@ -1,12 +1,9 @@
 package com.finsight.backend.service.handler;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finsight.backend.dto.NewsSentimentDto;
 import com.finsight.backend.dto.response.*;
 import com.finsight.backend.mapper.*;
 import com.finsight.backend.tradeserverwebsocket.service.EtfPriceService;
-import com.finsight.backend.util.InvUtil;
 import com.finsight.backend.vo.Fund;
 import com.finsight.backend.vo.NewsVO;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +37,14 @@ public class FundDtoHandler implements ProductDtoHandler<Fund> {
         List<NewsResponseDTO> newsResponseDTOList = newsByProductCode.stream()
                 .map(NewsResponseDTO::from)
                 .toList();
-        return FundDetailDetailDto.fundVoToFundDetailDto(product, newsResponseDTOList);
+        FundPriceSummaryDto fundPriceSummary = FundPriceSummaryDto.builder()
+                .currentNav(etfPriceService.getCurrent("fund_nav", product.getProductCode()))
+                .currentAum(etfPriceService.getCurrent("fund_aum", product.getProductCode()))
+                .changeFromYesterday(etfPriceService.getChangeFromYesterday("fund_nav", product.getProductCode()))
+                .percentChangeFromYesterday(etfPriceService.getPercentChangeFromYesterday("fund_nav", product.getProductCode()))
+                .percentChangeFrom3MonthsAgo(etfPriceService.getPercentChangeFrom3MonthsAgo("fund_nav", product.getProductCode()))
+                .build();
+        return FundDetailDetailDto.fundVoToFundDetailDto(product, newsResponseDTOList, fundPriceSummary);
     }
 
     @Override

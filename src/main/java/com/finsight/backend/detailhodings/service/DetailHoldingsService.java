@@ -22,7 +22,7 @@ public class DetailHoldingsService {
         List<DetailHistoryVO> histories = detailHoldingsMapper.selectHistoriesByHoldingsId(holdingsId);
         holdings.setHistory(histories);
 
-        boolean isWatched = detailHoldingsMapper.isProductWatched(userId, productCode);
+        Boolean isWatched = detailHoldingsMapper.isProductWatched(userId, productCode);
         holdings.setWatched(isWatched);
 
         return holdings;
