@@ -1,21 +1,25 @@
 package com.finsight.backend.service;
 
-import com.finsight.backend.dto.response.KeywordResponseDTO;
-import com.finsight.backend.dto.response.NewsByKeywordResponseDTO;
-import com.finsight.backend.dto.response.NewsResponseDTO;
+import com.finsight.backend.dto.response.*;
+import com.finsight.backend.mapper.EtfMapper;
+import com.finsight.backend.mapper.FundMapper;
 import com.finsight.backend.mapper.NewsMapper;
-import com.finsight.backend.vo.KeywordVO;
-import com.finsight.backend.vo.NewsVO;
+import com.finsight.backend.vo.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class NewsService {
+
+    private final NewsProductSelector newsProductSelector;
     private final NewsMapper newsMapper;
+    private final EtfMapper etfMapper;
+    private final FundMapper fundMapper;
 
     public List<KeywordResponseDTO> getTopKeywords() {
         List<KeywordVO> topKeywords = newsMapper.findTopKeywords();
@@ -49,15 +53,30 @@ public class NewsService {
                 .map(NewsResponseDTO::from)
                 .collect(Collectors.toList());
 
-        // 연관 상품 코드 최대 3개 추출
-        List<String> productCodes = newsVOs.stream()
-                .flatMap(news -> news.getProductCodes().stream())
-                .distinct()
-                .limit(3)
-                .collect(Collectors.toList());
+        List<NewsProductVO> candidateProducts = newsMapper.findProductInfoByKeywordId(keywordId);
+        List<NewsProductVO> top3Products = newsProductSelector.recommendTop3(candidateProducts);
 
-        // DTO에 뉴스 리스트를 담아 반환
-        return new NewsByKeywordResponseDTO(newsDtos, productCodes);
+        /* 수정 필요 */
+        List<Object> productDetails = new ArrayList<>();
+        for (NewsProductVO info : top3Products) {
+            String category = info.getNewsProductCategory();
+            String code = info.getProductCode();
+
+            if ("etf".equalsIgnoreCase(category)) {
+                NewsEtfDTO etf = etfMapper.findEtfByProductCode(code);
+                if (etf != null) {
+                    productDetails.add(etf);
+                }
+            } else if ("fund".equalsIgnoreCase(category)) {
+                NewsFundDTO fund = fundMapper.findFundByProductCode(code);
+                if (fund != null) {
+                    productDetails.add(fund);
+                }
+            }
+        }
+
+        return new NewsByKeywordResponseDTO(newsDtos, productDetails);
+        /* ============== */
     }
 
     public List<NewsResponseDTO> getNewsByProductCode(String productCode) {

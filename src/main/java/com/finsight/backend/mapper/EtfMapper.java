@@ -1,5 +1,6 @@
 package com.finsight.backend.mapper;
 
+import com.finsight.backend.dto.response.NewsEtfDTO;
 import com.finsight.backend.dto.response.SearchSuggestionResponseDTO;
 import com.finsight.backend.enumerate.ProductCountry;
 import com.finsight.backend.enumerate.ProductType;
@@ -15,4 +16,7 @@ public interface EtfMapper {
     List<Etf> findEtfListByFilter(@Param("productCountry")ProductCountry productCountry,
                                   @Param("productType")ProductType productType,
                                   @Param("productRiskGrade")Integer productRiskGrade);
+
+
+    NewsEtfDTO findEtfByProductCode(String productCode);
 }
