@@ -15,7 +15,8 @@ public class EtfCacheUpdateService {
     // ETF 코드에 맞는 가격과 거래량을 찾아서 업데이트
     public void updateHistoricalPrices(String etfCode) {
         Instant now = Instant.now();
-        Instant threeMonthsAgo = now.minusSeconds(60L * 60 * 24 * 30 * 3);
+//        Instant threeMonthsAgo = now.minusSeconds(60L * 60 * 24 * 30 * 3);
+        Instant threeMonthsAgo = now.minusSeconds(60L * 60 * 24);
         Instant prevDay = now.minusSeconds(60L * 60 * 24);
 
         double price3M = historicalPriceService.queryNavAtTime(etfCode, threeMonthsAgo, "etf_nav", "etf_nav");

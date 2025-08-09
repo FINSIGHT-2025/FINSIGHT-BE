@@ -31,16 +31,23 @@ public class HoldingsController {
 
 
     @PostMapping("/purchases")
-    public ResponseEntity<String> purchase(@RequestBody TradeRequest request) {
+    public ResponseEntity<String> purchase(@RequestBody TradeRequest request,
+                                           HttpServletRequest http) {
+        String userId = jwtUtil.extractUserIdFromRequest(http);
+        request.setUserId(userId); // 바디에 직접 세팅
         tradeService.processTrade(request, "buy");
         return ResponseEntity.ok("매수 완료");
     }
 
     @PostMapping("/sales")
-    public ResponseEntity<String> sell(@RequestBody TradeRequest request) {
+    public ResponseEntity<String> sell(@RequestBody TradeRequest request,
+                                       HttpServletRequest http) {
+        String userId = jwtUtil.extractUserIdFromRequest(http);
+        request.setUserId(userId); // 바디에 직접 세팅
         tradeService.processTrade(request, "sell");
         return ResponseEntity.ok("매도 완료");
     }
+
 
     @GetMapping("/deposit")
     public ResponseEntity<?> getDeposit(HttpServletRequest request) {
