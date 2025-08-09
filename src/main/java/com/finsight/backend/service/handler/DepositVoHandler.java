@@ -32,7 +32,8 @@ public class DepositVoHandler implements ProductVoHandler<Deposit> {
     public List<Deposit> findProductListByFilter(String sort,
                                                  String country,
                                                  String type,
-                                                 Integer riskGrade) {
+                                                 Boolean isMatched,
+                                                 String userId) {
         SORT_HANDLERS = Map.of(
                 "intr_rate", depositMapper::findDepositListOrderByIntrRate,
                 "intr_rate2", depositMapper::findDepositListOrderByIntrRate2

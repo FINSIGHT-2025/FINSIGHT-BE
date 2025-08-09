@@ -1,12 +1,8 @@
 package com.finsight.backend.service.handler;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finsight.backend.dto.NewsSentimentDto;
 import com.finsight.backend.dto.response.*;
-import com.finsight.backend.mapper.DetailHoldingsMapper;
-import com.finsight.backend.mapper.HoldingsMapper;
-import com.finsight.backend.mapper.NewsMapper;
+import com.finsight.backend.mapper.*;
 import com.finsight.backend.tradeserverwebsocket.service.EtfPriceService;
 import com.finsight.backend.vo.Fund;
 import com.finsight.backend.vo.NewsVO;

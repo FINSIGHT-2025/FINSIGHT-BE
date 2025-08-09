@@ -15,7 +15,9 @@ public interface EtfMapper {
     Etf findEtfByCode(String productCode);
     List<Etf> findEtfListByFilter(@Param("productCountry")ProductCountry productCountry,
                                   @Param("productType")ProductType productType,
-                                  @Param("productRiskGrade")Integer productRiskGrade);
+                                  @Param("productRiskGrade")Integer[] productRiskGrade);
+
+
 
 
     NewsEtfDTO findEtfByProductCode(String productCode);

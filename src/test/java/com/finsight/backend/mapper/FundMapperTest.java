@@ -47,7 +47,7 @@ class FundMapperTest {
     @Test
     void findFundListOrderByFilter() {
         List<Fund> noFilterFund = fundMapper.findFundListByFilter(null, null, null);
-        List<Fund> fundListOrderByFilter = fundMapper.findFundListByFilter(ProductCountry.DOMESTIC, ProductType.EQUITY, 1);
+        List<Fund> fundListOrderByFilter = fundMapper.findFundListByFilter(ProductCountry.DOMESTIC, ProductType.EQUITY, new Integer[]{1,2,3,4,5,6});
 
         Assertions.assertEquals(60, noFilterFund.size());
         System.out.println("fundListOrderByFilter.size() = " + fundListOrderByFilter.size());
