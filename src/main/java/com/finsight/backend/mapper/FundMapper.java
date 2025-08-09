@@ -1,5 +1,6 @@
 package com.finsight.backend.mapper;
 
+import com.finsight.backend.dto.response.NewsFundDTO;
 import com.finsight.backend.enumerate.ProductCountry;
 import com.finsight.backend.enumerate.ProductType;
 import com.finsight.backend.vo.Fund;
@@ -18,4 +19,6 @@ public interface FundMapper {
     List<SearchSuggestionResponseDTO> findFundNameByWord(String word);
 
     List<Fund> selectAllFundStock();
+
+    NewsFundDTO findFundByProductCode(String productCode);
 }
