@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class NewsSentimentDto {
+public class NewsSentimentTotalDto {
     private Integer positive;
     private Integer negative;
     private Integer neutral;

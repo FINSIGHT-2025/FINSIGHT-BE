@@ -1,6 +1,8 @@
 package com.finsight.backend.service;
 
+import com.finsight.backend.common.exception.user.CustomEmailNotVerifiedException;
 import com.finsight.backend.domain.vo.user.EmailVerificationVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.mail.SimpleMailMessage;
@@ -20,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 해당 코드를 검증하고,
 만료된 코드는 자동으로 제거하는 기능까지 담당
  */
+@Slf4j
 @Service
 public class EmailService {
 
@@ -59,8 +62,12 @@ public class EmailService {
         return false;
     }
 
-    public boolean isEmailVerified(String email) {
-        return verifiedEmails.contains(email);        // ✅ 회원가입 시 인증 여부 확인용
+    public void isEmailVerified(String email) {
+        boolean isCheckEmail = verifiedEmails.contains(email);// ✅ 회원가입 시 인증 여부 확인용
+        if(!isCheckEmail) {
+            log.warn("[EmailService] Not Verified Email");
+            throw new CustomEmailNotVerifiedException();
+        }
     }
 
     public void removeVerifiedEmail(String email) {

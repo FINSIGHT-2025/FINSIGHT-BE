@@ -30,7 +30,7 @@ import java.util.Collections;
 public class EmailController {
     private final EmailService emailService;
 
-    private final UserService UserService;
+    private final UserService userService;
 
     // ✅ 이메일 인증 코드 요청 (중복 확인 포함)
     @PostMapping("/email")
@@ -38,11 +38,7 @@ public class EmailController {
         String email = req.getEmail();
 
         // 1. 중복된 이메일이면 차단
-        if (UserService.checkEmail(email)) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)  // 409 Conflict
-                    .body(Collections.singletonMap("message", "이미 가입된 이메일입니다."));
-        }
+        userService.checkEmail(email);
 
         // 2. 인증 코드 전송
         emailService.sendVerificationCode(email);

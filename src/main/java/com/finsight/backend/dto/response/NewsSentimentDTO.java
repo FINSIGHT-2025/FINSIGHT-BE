@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class NewsSentiment {
+public class NewsSentimentDTO {
     private int positive;
     private int neutral;
     private int negative;

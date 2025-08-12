@@ -7,16 +7,15 @@ import com.finsight.backend.domain.vo.user.UserVO;
 import java.util.Optional;
 
 public interface UserService {
-    Optional<UserVO> findUser(LoginForm loginForm);
-    boolean registerUser(SignupForm signupForm);
+    UserVO findUser(LoginForm loginForm);
+    void registerUser(SignupForm signupForm);
 
-    boolean checkUserId(String userId);
-    boolean checkEmail(String email);
+    void checkUserId(String userId);
+    void checkEmail(String email);
+    UserVO findByUserId(String userId);
 
-    Optional<UserVO> findByUserId(String userId);
+    void deleteUser(String userId);
 
-    boolean deleteUser(String userId);
-
-    boolean updateUserInfo(String userId, String newPassword, String newEmail);
+    void updateUserInfo(String userId, String newPassword, String newEmail);
     String encodePassword(String rawPassword);
 }

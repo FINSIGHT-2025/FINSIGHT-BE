@@ -1,6 +1,6 @@
 package com.finsight.backend.dto.response;
 
-import com.finsight.backend.dto.NewsSentimentDto;
+import com.finsight.backend.dto.NewsSentimentTotalDto;
 import com.finsight.backend.domain.vo.product.FundVO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,12 +14,12 @@ import lombok.experimental.SuperBuilder;
 public class FundByFilterDto extends ProductByFilterDto{
     private String productCountry;
     private String productType;
-    private NewsSentimentDto newsSentiment;
+    private NewsSentimentTotalDto newsSentiment;
     private Double productRateOfReturn;
     private Double fundScale;
 
     public static FundByFilterDto fundVoToFundByFilterDto(FundVO fund,
-                                                          NewsSentimentDto newsSentimentDto,
+                                                          NewsSentimentTotalDto newsSentimentDto,
                                                           Boolean userOwn,
                                                           Boolean userWatch,
                                                           double productRateOfReturn,

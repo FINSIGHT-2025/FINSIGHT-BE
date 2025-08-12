@@ -1,5 +1,6 @@
 package com.finsight.backend.common.util;
 
+import com.finsight.backend.common.exception.user.CustomNotValidTokenException;
 import com.finsight.backend.dto.response.TokenInfoDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -60,7 +61,7 @@ public class JwtUtil implements InitializingBean {
                     .compact();
         } catch (Exception e) {
             log.error("토큰 생성 중 오류", e);
-            throw e; // 필요 시 rethrow
+            throw new RuntimeException();
         }
     }
 
@@ -76,7 +77,7 @@ public class JwtUtil implements InitializingBean {
         try {
             String[] parts = token.split("\\.");
             if (parts.length != 3) {
-                throw new IllegalArgumentException("JWT 형식이 올바르지 않습니다.");
+                throw new CustomNotValidTokenException();
             }
 
             String payload = new String(Decoders.BASE64URL.decode(parts[1]));
@@ -86,7 +87,7 @@ public class JwtUtil implements InitializingBean {
                     .getBody();
         } catch (Exception e) {
             log.error("JWT 디코딩 실패", e);
-            throw new IllegalArgumentException("유효하지 않은 JWT 토큰입니다.");
+            throw new CustomNotValidTokenException();
         }
     }
 
