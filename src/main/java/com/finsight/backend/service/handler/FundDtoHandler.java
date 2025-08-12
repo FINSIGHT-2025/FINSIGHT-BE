@@ -1,6 +1,6 @@
 package com.finsight.backend.service.handler;
 
-import com.finsight.backend.dto.NewsSentimentDto;
+import com.finsight.backend.dto.NewsSentimentTotalDto;
 import com.finsight.backend.dto.response.*;
 import com.finsight.backend.repository.mapper.DetailHoldingsMapper;
 import com.finsight.backend.repository.mapper.HoldingsMapper;
@@ -71,7 +71,7 @@ public class FundDtoHandler implements ProductDtoHandler<FundVO> {
                 .map(fund -> (ProductByFilterDto) fund)
                 .toList();
     }
-    public NewsSentimentDto newsSentimentPer(List<String> newsSentimentList){
+    public NewsSentimentTotalDto newsSentimentPer(List<String> newsSentimentList){
         Map<String, Long> sentimentCnt = newsSentimentList.stream()
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
@@ -81,7 +81,7 @@ public class FundDtoHandler implements ProductDtoHandler<FundVO> {
         Function<String, Integer> getPercent = sentiment ->
                 (int) (sentimentCnt.getOrDefault(sentiment, 0L) * 100 / total);
 
-        return NewsSentimentDto.builder()
+        return NewsSentimentTotalDto.builder()
                 .positive(getPercent.apply("positive"))
                 .negative(getPercent.apply("negative"))
                 .neutral(getPercent.apply("neutral"))

@@ -26,5 +26,5 @@ public class NewsFundDTO extends ProductDetailDto{
     private String fundEstablishedDate;
 
     private final String productCategory = "fund";
-    private NewsSentiment newsSentiment;
+    private NewsSentimentDTO newsSentiment;
 }

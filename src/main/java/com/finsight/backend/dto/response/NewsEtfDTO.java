@@ -28,6 +28,6 @@ public class NewsEtfDTO extends ProductDetailDto {
     private String etfTaxType;
 
     private final String productCategory = "etf";
-    private NewsSentiment newsSentiment;
+    private NewsSentimentDTO newsSentiment;
 
 }
