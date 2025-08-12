@@ -19,6 +19,5 @@ public abstract class ProductDetailDto {
     private String productCompanyName;
     private Integer productRiskGrade;
 
-    @JsonProperty("holdings")
     private DetailHoldingsResponseDto holdings;
 }

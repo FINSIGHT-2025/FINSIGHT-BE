@@ -14,22 +14,18 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class EtfCache {
 
-    // product_code 별로 상태 저장
     private final Map<String, EtfSnapshot> snapshotMap = new ConcurrentHashMap<>();
 
-    // 가격과 거래량 업데이트 (기존 버전 - timestamp 없음)
     public void update(String productCode, double priceNow, long volumeNow) {
         update(productCode, priceNow, volumeNow, System.currentTimeMillis());
     }
 
-    // 가격, 거래량, 타임스탬프 포함 업데이트
     public void update(String productCode, double priceNow, long volumeNow, long timestamp) {
         snapshotMap.compute(productCode, (key, oldSnapshot) -> {
             if (oldSnapshot == null) {
-                // 최초 등록 시 price1sAgo는 priceNow와 동일하게 세팅
+                // 최초 등록 시에는 과거 데이터가 없으므로 0으로 초기화
                 return new EtfSnapshot(productCode, priceNow, priceNow, volumeNow, 0, 0, timestamp);
             } else {
-                oldSnapshot.setPrice3MonthsAgo(oldSnapshot.getPriceNow());
                 oldSnapshot.setPrice1sAgo(oldSnapshot.getPriceNow());
                 oldSnapshot.setPriceNow(priceNow);
                 oldSnapshot.setVolumeNow(volumeNow);
@@ -48,7 +44,6 @@ public class EtfCache {
         return snapshotMap.keySet();
     }
 
-    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

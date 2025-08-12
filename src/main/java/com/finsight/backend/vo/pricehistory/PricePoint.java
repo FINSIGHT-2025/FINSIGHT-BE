@@ -9,5 +9,5 @@
     @AllArgsConstructor
     public class PricePoint {
         private Instant time;
-        private double value;
+        private Double value;
     }
