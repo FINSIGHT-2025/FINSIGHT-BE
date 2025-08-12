@@ -22,8 +22,10 @@ public class DepositDetailDto extends ProductDetailDto{
     private String depositJoinDeny;
     private String depositEtcNote;
     private List<DOptionVO> dOptionVO;
+    private Double dOptionIntrRate;
+    private Double dOptionIntrRate2;
 
-    public static DepositDetailDto depositVoToDepositDetailDto(DepositVO deposit){
+    public static DepositDetailDto depositVoToDepositDetailDto(DepositVO deposit, Double dOptionIntrRate, Double dOptionIntrRate2){
         return DepositDetailDto.builder()
                 .productCode(deposit.getProductCode())
                 .productName(deposit.getProductName())
@@ -37,6 +39,8 @@ public class DepositDetailDto extends ProductDetailDto{
                 .depositJoinDeny(deposit.getDepositJoinDeny())
                 .depositEtcNote(deposit.getDepositEtcNote())
                 .dOptionVO(deposit.getDOptionVO())
+                .dOptionIntrRate(dOptionIntrRate)
+                .dOptionIntrRate2(dOptionIntrRate2)
                 .build();
     }
 }

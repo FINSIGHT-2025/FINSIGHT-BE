@@ -27,7 +27,13 @@ public class DepositDtoHandler implements ProductDtoHandler<DepositVO>{
 
     @Override
     public ProductDetailDto toDetailDto(DepositVO product) {
-        return DepositDetailDto.depositVoToDepositDetailDto(product);
+        DOptionVO option = product.getDOptionVO().stream()
+                .filter(o -> "12".equals(o.getDOptionSaveTrm()))
+                .findFirst()
+                .orElse(product.getDOptionVO().stream()
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalStateException("DOption이 비어있습니다: " + product.getProductCode())));
+        return DepositDetailDto.depositVoToDepositDetailDto(product, option.getDOptionIntrRate(), option.getDOptionIntrRate2());
     }
 
     @Override
@@ -35,8 +41,11 @@ public class DepositDtoHandler implements ProductDtoHandler<DepositVO>{
         return product.stream()
                 .map(deposit -> {
                     DOptionVO option = deposit.getDOptionVO().stream()
+                            .filter(o -> "12".equals(o.getDOptionSaveTrm()))
                             .findFirst()
-                            .orElseThrow(() -> new IllegalStateException("DOption이 비어있습니다: " + deposit.getProductCode()));
+                            .orElse(deposit.getDOptionVO().stream()
+                                    .findFirst()
+                                    .orElseThrow(() -> new IllegalStateException("DOption이 비어있습니다: " + deposit.getProductCode())));
                     return DepositByFilterDto.depositVoToDepositByFilterDto(
                             deposit,
                             option.getDOptionIntrRate(),
