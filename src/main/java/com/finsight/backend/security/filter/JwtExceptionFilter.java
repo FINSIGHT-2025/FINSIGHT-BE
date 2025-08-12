@@ -1,6 +1,6 @@
 package com.finsight.backend.security.filter;
 
-import com.finsight.backend.enumerate.ErrorCode;
+import com.finsight.backend.common.exception.ErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;

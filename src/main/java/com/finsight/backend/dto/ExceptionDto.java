@@ -1,6 +1,6 @@
 package com.finsight.backend.dto;
 
-import com.finsight.backend.enumerate.ErrorCode;
+import com.finsight.backend.common.exception.ErrorCode;
 import lombok.Getter;
 
 import javax.validation.constraints.Min;

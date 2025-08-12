@@ -1,6 +1,6 @@
 package com.finsight.backend.config;
 
-import com.finsight.backend.listener.MySQLCleanupListener;
+import com.finsight.backend.common.listener.MySQLCleanupListener;
 import com.finsight.backend.security.config.SecurityConfig;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.filter.DelegatingFilterProxy;

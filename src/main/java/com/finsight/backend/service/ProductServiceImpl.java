@@ -1,15 +1,13 @@
 package com.finsight.backend.service;
 
-import com.finsight.backend.detailhodings.vo.DetailHistoryVO;
-import com.finsight.backend.detailhodings.dto.DetailHoldingsResponseDto;
+import com.finsight.backend.tmpdetailhodings.vo.DetailHistoryVO;
+import com.finsight.backend.tmpdetailhodings.dto.DetailHoldingsResponseDto;
 import com.finsight.backend.dto.response.ProductByFilterDto;
 import com.finsight.backend.dto.response.ProductDetailDto;
-import com.finsight.backend.mapper.DetailHoldingsMapper;
-import com.finsight.backend.mapper.UserMapper;
+import com.finsight.backend.repository.mapper.DetailHoldingsMapper;
 import com.finsight.backend.service.handler.ProductDtoHandler;
 import com.finsight.backend.service.handler.ProductVoHandler;
-import com.finsight.backend.vo.Product;
-import lombok.RequiredArgsConstructor;
+import com.finsight.backend.domain.vo.product.ProductVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +16,12 @@ import java.util.List;
 @Service
 @Slf4j
 public class ProductServiceImpl implements ProductService{
-    private final List<ProductVoHandler<? extends Product>> voHandlers;
-    private final List<ProductDtoHandler<? extends Product>> dtoHandlers;
+    private final List<ProductVoHandler<? extends ProductVO>> voHandlers;
+    private final List<ProductDtoHandler<? extends ProductVO>> dtoHandlers;
     private final DetailHoldingsMapper detailHoldingsMapper;
 
-    public ProductServiceImpl(List<ProductVoHandler<? extends Product>> voHandlers, 
-                            List<ProductDtoHandler<? extends Product>> dtoHandlers,
+    public ProductServiceImpl(List<ProductVoHandler<? extends ProductVO>> voHandlers,
+                            List<ProductDtoHandler<? extends ProductVO>> dtoHandlers,
                             DetailHoldingsMapper detailHoldingsMapper) {
         this.voHandlers = voHandlers;
         this.dtoHandlers = dtoHandlers;
@@ -31,14 +29,14 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public <T extends Product> ProductDetailDto findProduct(String productCode, Class<T> expectedType, String userId){
+    public <T extends ProductVO> ProductDetailDto findProduct(String productCode, Class<T> expectedType, String userId){
         T productVo =  voHandlers.stream()
                 .filter(handler -> handler.getProductType().equals(expectedType))
                 .findFirst()
                 .map(handler -> expectedType.cast(handler.findProduct(productCode)))
                 .orElseThrow(() -> new IllegalArgumentException("해당 vo 핸들러 없음 : " + expectedType));
 
-        ProductDtoHandler<? extends Product> matchedVoHandler = dtoHandlers.stream()
+        ProductDtoHandler<? extends ProductVO> matchedVoHandler = dtoHandlers.stream()
                 .filter(handler -> handler.getProductType().equals(expectedType))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("해당 dto 핸들러 없음 : " + expectedType));
@@ -66,12 +64,12 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public <T extends Product> List<ProductByFilterDto> findProductByFilter(Class<T> expectedType,
-                                                                            String sort,
-                                                                            String country,
-                                                                            String type,
-                                                                            String userId,
-                                                                            Boolean isMatched) {
+    public <T extends ProductVO> List<ProductByFilterDto> findProductByFilter(Class<T> expectedType,
+                                                                              String sort,
+                                                                              String country,
+                                                                              String type,
+                                                                              String userId,
+                                                                              Boolean isMatched) {
 
         @SuppressWarnings("unchecked")
         ProductVoHandler<T> matchedVoHandler = (ProductVoHandler<T>) voHandlers.stream()

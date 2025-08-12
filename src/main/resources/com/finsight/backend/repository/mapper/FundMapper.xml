@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finsight.backend.repository.mapper.FundMapper">
+    <resultMap id="fundResultMap" type="FundVO">
+
+        <id property="productCode" column="product_code"/>
+        <result property="productName" column="product_name" />
+        <result property="productCompanyName" column="product_company_name" />
+        <result property="productRiskGrade" column="product_risk_grade" />
+
+        <result property="fundCountry" column="fund_country" />
+        <result property="fundType" column="fund_type" />
+        <result property="fundDelistingStatus" column="fund_delisting_status" />
+        <result property="fundFeature" column="fund_feature" />
+        <result property="fundManagementStrategy" column="fund_management_strategy" />
+        <result property="fundFeeTotalExpenseRatio" column="fund_fee_total_expense_ratio" />
+        <result property="fundFeeBackEndLoad" column="fund_fee_back_end_load" />
+        <result property="fundFeeRedemption" column="fund_fee_redemption" />
+        <result property="fundReportInvestment" column="fund_report_investment" />
+        <result property="fundReportCollectiveInvestmentTermsUrl" column="fund_report_collective_investment_terms_url" />
+        <result property="fundReportInvestmentProspectusUrl" column="fund_report_investment_prospectus_url" />
+        <result property="fundReportSimplidfiedProspectusUrl" column="fund_report_simplidfied_prospectus_url" />
+        <result property="fundFeeFrontEndLoad" column="fund_fee_front_end_load" />
+        <result property="fundEstablishedDate" column="fund_established_date" />
+
+        <collection property="fAssetAllocation" ofType="FAssetAllocationVO" column="f_asset_allocation_id" javaType="ArrayList">
+            <id property="fAssetAllocationId" column="f_asset_allocation_id" />
+            <result property="fAssetAllocationType" column="f_asset_allocation_type"/>
+            <result property="fAssetAllocationPer" column="f_asset_allocation_per"/>
+            <result property="fAssetAllocationValuation" column="f_asset_allocation_valuation"/>
+        </collection>
+        <collection property="fStockHoldings" ofType="FStockHoldingsVO" column="f_stock_holdings_id" javaType="ArrayList">
+            <id property="fStockHoldingsId" column="f_stock_holdings_id"/>
+            <result property="fStockHoldingsName" column="f_stock_holdings_name"/>
+            <result property="fStockHoldingsCountry" column="f_stock_holdings_country"/>
+            <result property="fStockHoldingsPer" column="f_stock_holdings_per"/>
+        </collection>
+    </resultMap>
+    <select id="findFundByCode" resultMap="fundResultMap">
+        select *
+        from Fund
+            left join F_Asset_Allocation FAA on Fund.product_code = FAA.product_code
+            left join F_Stock_Holdings FSH on Fund.product_code = FSH.product_code
+        where Fund.product_code = #{productCode};
+    </select>
+    <select id="findFundListByFilter" resultMap="fundResultMap">
+        SELECT *
+        FROM Fund
+        <where>
+            <trim prefixOverrides="and ">
+                <if test="productCountry != null">
+                    and fund_country = #{productCountry}
+                </if>
+                <if test="productType != null">
+                    and fund_type = #{productType}
+                </if>
+                <if test="productRiskGrade != null and productRiskGrade.length > 0">
+                    AND product_risk_grade IN
+                    <foreach item="grade" collection="productRiskGrade" open="(" separator="," close=")">
+                        #{grade}
+                    </foreach>
+                </if>
+            </trim>
+        </where>
+    </select>
+    <select id="selectAllFundStock" resultMap="fundResultMap">
+        SELECT f.product_code,
+               fsh.f_stock_holdings_name
+        FROM Fund f
+                 LEFT JOIN (SELECT *
+                            FROM (SELECT fsh.*,
+                                         ROW_NUMBER() OVER (PARTITION BY fsh.product_code ORDER BY fsh.f_stock_holdings_per DESC) as rn
+                                  FROM F_Stock_Holdings fsh) ranked
+                            WHERE ranked.rn &lt;= 2) fsh ON f.product_code = fsh.product_code;
+    </select>
+
+    <select id="findFundNameByWord" parameterType="string" resultType="com.finsight.backend.dto.response.SearchSuggestionResponseDTO">
+        SELECT product_code AS productCode,
+                product_name AS productName,
+                'fund' AS type
+        FROM fund
+        WHERE product_name LIKE CONCAT('%', #{word}, '%')
+    </select>
+
+
+    <!-- 임시 : 뉴스 Fund -->
+    <resultMap id="FundWithSentiment" type="NewsFundDTO">
+        <id property="productCode" column="product_code"/>
+        <result property="productName" column="product_name" />
+        <result property="productCompanyName" column="product_company_name" />
+        <result property="productRiskGrade" column="product_risk_grade" />
+
+        <result property="fundCountry" column="fund_country" />
+        <result property="fundType" column="fund_type" />
+        <result property="fundDelistingStatus" column="fund_delisting_status" />
+        <result property="fundFeature" column="fund_feature" />
+        <result property="fundManagementStrategy" column="fund_management_strategy" />
+        <result property="fundFeeTotalExpenseRatio" column="fund_fee_total_expense_ratio" />
+        <result property="fundFeeBackEndLoad" column="fund_fee_back_end_load" />
+        <result property="fundFeeRedemption" column="fund_fee_redemption" />
+        <result property="fundReportInvestment" column="fund_report_investment" />
+        <result property="fundReportCollectiveInvestmentTermsUrl" column="fund_report_collective_investment_terms_url" />
+        <result property="fundReportInvestmentProspectusUrl" column="fund_report_investment_prospectus_url" />
+        <result property="fundReportSimplidfiedProspectusUrl" column="fund_report_simplidfied_prospectus_url" />
+        <result property="fundFeeFrontEndLoad" column="fund_fee_front_end_load" />
+        <result property="fundEstablishedDate" column="fund_established_date" />
+        <association property="newsSentiment" javaType="NewsSentimentDTO">
+            <result property="positive" column="positive_count"/>
+            <result property="neutral" column="neutral_count"/>
+            <result property="negative" column="negative_count"/>
+            <result property="total" column="total_count"/>
+        </association>
+    </resultMap>
+    <select id="findFundByProductCode" parameterType="string" resultMap="FundWithSentiment">
+        SELECT
+            f.*,
+            IFNULL(COUNT(IF(n.news_sentiment = 'positive', 1, NULL)), 0) AS positive_count,
+            IFNULL(COUNT(IF(n.news_sentiment = 'neutral', 1, NULL)), 0) AS neutral_count,
+            IFNULL(COUNT(IF(n.news_sentiment = 'negative', 1, NULL)), 0) AS negative_count,
+            IFNULL(COUNT(n.news_id), 0) AS total_count
+        FROM
+            fund f
+                LEFT JOIN news_product np ON f.product_code = np.product_code
+                LEFT JOIN news n ON np.news_id = n.news_id
+        WHERE
+            f.product_code = #{productCode}
+        GROUP BY
+            f.product_code
+    </select>
+
+
+</mapper>

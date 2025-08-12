@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.finsight.backend.repository.mapper.KeywordProductMapper">
+
+    <select id="findProductScoresByKeyword" resultType="com.finsight.backend.dto.response.ProductScore">
+        SELECT
+        np.product_code AS productCode,
+        CASE
+        WHEN f.product_code IS NOT NULL THEN 'fund'
+        WHEN e.product_code IS NOT NULL THEN 'etf'
+        WHEN d.product_code IS NOT NULL THEN 'deposit'
+        END AS productCategory,
+        0 AS score  -- 초기 점수는 0으로 반환 (자바에서 가중치로 누적)
+        FROM keyword k
+        JOIN news_keyword nk ON k.keyword_id = nk.keyword_id
+        JOIN news_product np ON nk.news_id = np.news_id
+        LEFT JOIN fund f ON np.product_code = f.product_code
+        LEFT JOIN etf e ON np.product_code = e.product_code
+        LEFT JOIN deposit d ON np.product_code = d.product_code
+        WHERE k.keyword = #{keyword}
+    </select>
+
+</mapper>

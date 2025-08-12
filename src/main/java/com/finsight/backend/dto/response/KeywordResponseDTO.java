@@ -1,6 +1,5 @@
 package com.finsight.backend.dto.response;
 
-import com.finsight.backend.vo.KeywordVO;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

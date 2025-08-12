@@ -1,6 +1,7 @@
 package com.finsight.backend.batch;
 
 import com.finsight.backend.config.*;
+import com.finsight.backend.scheduler.NewsScheduler;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

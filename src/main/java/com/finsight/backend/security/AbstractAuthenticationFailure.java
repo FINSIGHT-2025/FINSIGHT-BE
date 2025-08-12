@@ -2,7 +2,7 @@ package com.finsight.backend.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finsight.backend.dto.ExceptionDto;
-import com.finsight.backend.enumerate.ErrorCode;
+import com.finsight.backend.common.exception.ErrorCode;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;

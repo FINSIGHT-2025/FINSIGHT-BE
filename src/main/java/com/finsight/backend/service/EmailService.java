@@ -1,6 +1,8 @@
 package com.finsight.backend.service;
 
-import com.finsight.backend.vo.EmailVerification;
+import com.finsight.backend.common.exception.user.CustomEmailNotVerifiedException;
+import com.finsight.backend.domain.vo.user.EmailVerificationVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.mail.SimpleMailMessage;
@@ -20,10 +22,11 @@ import java.util.concurrent.ConcurrentHashMap;
 해당 코드를 검증하고,
 만료된 코드는 자동으로 제거하는 기능까지 담당
  */
+@Slf4j
 @Service
 public class EmailService {
 
-    private final Map<String, EmailVerification> codeStorage = new ConcurrentHashMap<>();
+    private final Map<String, EmailVerificationVO> codeStorage = new ConcurrentHashMap<>();
     private final Set<String> verifiedEmails = ConcurrentHashMap.newKeySet();  // ✅ 인증 완료 이메일 저장소
     private final Random random = new SecureRandom();
 
@@ -35,7 +38,7 @@ public class EmailService {
         long expireAt = System.currentTimeMillis() + (5 * 60 * 1000);
 
         codeStorage.remove(email); // 기존 인증코드 제거
-        codeStorage.put(email, new EmailVerification(code, expireAt)); // 새 코드 저장
+        codeStorage.put(email, new EmailVerificationVO(code, expireAt)); // 새 코드 저장
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
@@ -45,7 +48,7 @@ public class EmailService {
     }
 
     public boolean verifyCode(String email, String code) {
-        EmailVerification v = codeStorage.get(email);
+        EmailVerificationVO v = codeStorage.get(email);
         if (v == null || v.isExpired()) {
             codeStorage.remove(email);
             return false;
@@ -59,8 +62,12 @@ public class EmailService {
         return false;
     }
 
-    public boolean isEmailVerified(String email) {
-        return verifiedEmails.contains(email);        // ✅ 회원가입 시 인증 여부 확인용
+    public void isEmailVerified(String email) {
+        boolean isCheckEmail = verifiedEmails.contains(email);// ✅ 회원가입 시 인증 여부 확인용
+        if(!isCheckEmail) {
+            log.warn("[EmailService] Not Verified Email");
+            throw new CustomEmailNotVerifiedException();
+        }
     }
 
     public void removeVerifiedEmail(String email) {

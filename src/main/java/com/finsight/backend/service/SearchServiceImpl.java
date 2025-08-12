@@ -1,9 +1,9 @@
 package com.finsight.backend.service;
 
 import com.finsight.backend.dto.response.SearchSuggestionResponseDTO;
-import com.finsight.backend.mapper.DepositMapper;
-import com.finsight.backend.mapper.EtfMapper;
-import com.finsight.backend.mapper.FundMapper;
+import com.finsight.backend.repository.mapper.DepositMapper;
+import com.finsight.backend.repository.mapper.EtfMapper;
+import com.finsight.backend.repository.mapper.FundMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
