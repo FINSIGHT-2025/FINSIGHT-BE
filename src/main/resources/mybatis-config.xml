@@ -9,13 +9,13 @@
 <!--        <setting name="aggressiveLazyLoading" value="false" />-->
     </settings>
     <typeAliases>
-        <package name="com.finsight.backend.vo"/>
+        <package name="com.finsight.backend.domain.vo"/>
         <package name="com.finsight.backend.dto"/>
     </typeAliases>
     <typeHandlers>
-        <package name="com.finsight.backend.handler"/>
+        <package name="com.finsight.backend.domain.enumerate.handler"/>
     </typeHandlers>
     <mappers>
-        <package name="com.finsight.backend.mapper"/>
+        <package name="com.finsight.backend.repository.mapper"/>
     </mappers>
 </configuration>

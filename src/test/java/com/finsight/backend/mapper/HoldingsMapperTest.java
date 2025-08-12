@@ -2,7 +2,8 @@ package com.finsight.backend.mapper;
 
 import com.finsight.backend.config.*;
 import com.finsight.backend.dto.request.TradeRequest;
-import com.finsight.backend.vo.Holdings;
+import com.finsight.backend.repository.mapper.HoldingsMapper;
+import com.finsight.backend.domain.vo.user.HoldingsVO;
 import com.mongodb.assertions.Assertions;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -11,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @ExtendWith({SpringExtension.class})
@@ -35,7 +34,7 @@ class HoldingsMapperTest {
                 10000,
                 12
         );
-        Holdings holdings = new Holdings(
+        HoldingsVO holdings = new HoldingsVO(
             tradeRequest
         );
         holdingsMapper.insert(holdings);

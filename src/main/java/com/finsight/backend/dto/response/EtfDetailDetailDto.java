@@ -1,11 +1,11 @@
 package com.finsight.backend.dto.response;
 
-import com.finsight.backend.enumerate.ProductCountry;
-import com.finsight.backend.enumerate.ProductType;
-import com.finsight.backend.vo.EAssetAllocation;
-import com.finsight.backend.vo.EConstituentStocks;
-import com.finsight.backend.vo.EEquityRatio;
-import com.finsight.backend.vo.Etf;
+import com.finsight.backend.domain.enumerate.ProductCountry;
+import com.finsight.backend.domain.enumerate.ProductType;
+import com.finsight.backend.domain.vo.product.EAssetAllocationVO;
+import com.finsight.backend.domain.vo.product.EConstituentStocksVO;
+import com.finsight.backend.domain.vo.product.EEquityRatioVO;
+import com.finsight.backend.domain.vo.product.EtfVO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +13,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @NoArgsConstructor
@@ -31,15 +30,15 @@ public class EtfDetailDetailDto extends ProductDetailDto {
     private String etfInvestmentProspectusUrl;
     private String etfSimplifiedProspectusUrl;
     private String etfBenchmarkIndex;
-    private List<EAssetAllocation> eAssetAllocation;
-    private List<EEquityRatio> eEquityRatio;
-    private List<EConstituentStocks> eConstituentStocks;
+    private List<EAssetAllocationVO> eAssetAllocation;
+    private List<EEquityRatioVO> eEquityRatio;
+    private List<EConstituentStocksVO> eConstituentStocks;
     private LocalDate etfListingDate;
     private Integer etfMinTradingUnit;
     private String etfTaxType;
     private List<NewsResponseDTO> etfNewsResponse;
 
-    public static EtfDetailDetailDto etfVoToEtfDetailDto(Etf etf, List<NewsResponseDTO> etfNewsResponse){
+    public static EtfDetailDetailDto etfVoToEtfDetailDto(EtfVO etf, List<NewsResponseDTO> etfNewsResponse){
         return EtfDetailDetailDto.builder()
                 .productCode(etf.getProductCode())
                 .productName(etf.getProductName())

@@ -1,7 +1,6 @@
 package com.finsight.backend.dto.response;
 
-import com.finsight.backend.dto.NewsSentimentDto;
-import com.finsight.backend.vo.Deposit;
+import com.finsight.backend.domain.vo.product.DepositVO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +14,7 @@ public class DepositByFilterDto extends ProductByFilterDto{
     private Double depositIntrRate;
     private Double depositIntrRate2;
 
-    public static DepositByFilterDto depositVoToDepositByFilterDto(Deposit deposit,
+    public static DepositByFilterDto depositVoToDepositByFilterDto(DepositVO deposit,
                                                                    Double depositIntrRate,
                                                                    Double depositIntrRate2,
                                                                    Boolean userOwn,

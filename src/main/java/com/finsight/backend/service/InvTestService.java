@@ -6,15 +6,14 @@ o DTO에 담겨있는 정보를 Mapper를 통해 DB에 INSERT를 함.
  */
 package com.finsight.backend.service;
 
-import com.finsight.backend.mapper.InvTestMapper;
+import com.finsight.backend.repository.mapper.InvTestMapper;
 import com.finsight.backend.dto.InvTestDTO;
-import com.finsight.backend.mapper.UserMapper;
-import com.finsight.backend.util.JwtUtil;
-import com.finsight.backend.vo.InvTestVO;
+import com.finsight.backend.repository.mapper.UserMapper;
+import com.finsight.backend.common.util.JwtUtil;
+import com.finsight.backend.domain.vo.user.InvestmentProfileVO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +43,7 @@ public class InvTestService {
             System.err.println("[에러] 토큰 검증 실패: " + e.getMessage());
             throw e; // 컨트롤러에서 InvTestException으로 변환하여 처리
         }
-        InvTestVO invTestVO = new InvTestVO(
+        InvestmentProfileVO invTestVO = new InvestmentProfileVO(
                 userId,
                 invTestDTO.getInvestmentProfileType(),
                 now()

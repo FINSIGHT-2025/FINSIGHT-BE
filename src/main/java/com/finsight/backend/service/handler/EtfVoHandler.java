@@ -1,11 +1,11 @@
 package com.finsight.backend.service.handler;
 
-import com.finsight.backend.enumerate.ProductCountry;
-import com.finsight.backend.enumerate.ProductType;
-import com.finsight.backend.mapper.EtfMapper;
-import com.finsight.backend.mapper.InvTestMapper;
-import com.finsight.backend.util.InvUtil;
-import com.finsight.backend.vo.Etf;
+import com.finsight.backend.domain.enumerate.ProductCountry;
+import com.finsight.backend.domain.enumerate.ProductType;
+import com.finsight.backend.repository.mapper.EtfMapper;
+import com.finsight.backend.repository.mapper.InvTestMapper;
+import com.finsight.backend.common.util.InvUtil;
+import com.finsight.backend.domain.vo.product.EtfVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -13,27 +13,27 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class EtfVoHandler implements ProductVoHandler<Etf> {
+public class EtfVoHandler implements ProductVoHandler<EtfVO> {
     private final EtfMapper etfMapper;
     private final InvTestMapper invTestMapper;
     private final InvUtil invUtil;
 
     @Override
-    public Etf findProduct(String productCode) {
+    public EtfVO findProduct(String productCode) {
         return etfMapper.findEtfByCode(productCode);
     }
 
     @Override
-    public Class<Etf> getProductType() {
-        return Etf.class;
+    public Class<EtfVO> getProductType() {
+        return EtfVO.class;
     }
 
     @Override
-    public List<Etf> findProductListByFilter(String sort,
-                                             String country,
-                                             String type,
-                                             Boolean isMatched,
-                                             String userId) {
+    public List<EtfVO> findProductListByFilter(String sort,
+                                               String country,
+                                               String type,
+                                               Boolean isMatched,
+                                               String userId) {
         ProductCountry productCountry = (country == null || country.isBlank())
                 ? null
                 : ProductCountry.fromDbValue(country);

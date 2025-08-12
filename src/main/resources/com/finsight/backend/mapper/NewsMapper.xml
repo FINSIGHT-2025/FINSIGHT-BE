@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.finsight.backend.mapper.NewsMapper">
+<mapper namespace="com.finsight.backend.repository.mapper.NewsMapper">
 
     <insert id="insertNews" parameterType="NewsVO">
         INSERT INTO news (news_id, news_title, news_summary, news_content_url, news_published_at, news_score, news_sentiment, news_publisher)
@@ -49,7 +49,7 @@
             LIMIT 10;
     </select>
 
-    <!--<resultMap id="NewsResultMap" type="com.finsight.backend.vo.NewsVO">
+    <!--<resultMap id="NewsResultMap" type="com.finsight.backend.vo.news.NewsVO">
         <id property="newsId" column="news_id"/>
         <result property="newsTitle" column="news_title"/>
         <result property="newsPublisher" column="news_publisher"/>
@@ -60,7 +60,7 @@
         <result property="newsSentiment" column="news_sentiment"/>
 
         &lt;!&ndash; 키워드 리스트 매핑 &ndash;&gt;
-        <collection property="keywords" ofType="com.finsight.backend.vo.KeywordVO" column="news_id" select="selectKeywordsByNewsId"/>
+        <collection property="keywords" ofType="com.finsight.backend.vo.news.KeywordVO" column="news_id" select="selectKeywordsByNewsId"/>
 
         &lt;!&ndash; 상품코드 리스트 매핑 &ndash;&gt;
         <collection property="productCodes" ofType="string" column="news_id" select="selectProductCodesByNewsId"/>

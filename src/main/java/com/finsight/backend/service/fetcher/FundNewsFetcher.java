@@ -2,7 +2,7 @@ package com.finsight.backend.service.fetcher;
 
 import com.finsight.backend.dto.external.NewsApiRequestDTO;
 import com.finsight.backend.dto.external.NewsApiResponseDTO;
-import com.finsight.backend.service.NewsApiService;
+import com.finsight.backend.service.news.NewsApiService;
 
 
 import lombok.RequiredArgsConstructor;

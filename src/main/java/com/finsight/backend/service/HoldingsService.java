@@ -1,8 +1,8 @@
 package com.finsight.backend.service;
 
-import com.finsight.backend.mapper.HoldingsMapper;
-import com.finsight.backend.mapper.UserMapper;
-import com.finsight.backend.util.JwtUtil;
+import com.finsight.backend.repository.mapper.HoldingsMapper;
+import com.finsight.backend.repository.mapper.UserMapper;
+import com.finsight.backend.common.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

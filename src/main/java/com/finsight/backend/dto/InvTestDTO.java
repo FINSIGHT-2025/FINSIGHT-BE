@@ -1,7 +1,7 @@
 // 2025-07-29 JY
 package com.finsight.backend.dto;
 
-import com.finsight.backend.enumerate.InvTestProfileType;
+import com.finsight.backend.domain.enumerate.InvestmentProfileType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +14,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor // 모든 필드를 포함하는 생성자 자동 생성
 @Builder // 빌더 패턴 자동 생성
 public class InvTestDTO {
-    private InvTestProfileType investmentProfileType;
+    private InvestmentProfileType investmentProfileType;
 //    private investmentProfileUpdatedAt investmentProfileUpdatedAt;
 }

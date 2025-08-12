@@ -2,8 +2,8 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.finsight.backend.mapper.DepositMapper">
-    <resultMap id="depositResultMap" type="Deposit">
+<mapper namespace="com.finsight.backend.repository.mapper.DepositMapper">
+    <resultMap id="depositResultMap" type="DepositVO">
         <!-- 상속받은 Product 필드 -->
         <id property="productCode" column="product_code"/>
         <result property="productName" column="product_name"/>
@@ -20,7 +20,7 @@
         <result property="depositEtcNote" column="deposit_etc_note"/>
 
         <!-- DOption 리스트 매핑 -->
-        <collection property="dOption" ofType="DOption" column="d_option_id" javaType="ArrayList">
+        <collection property="dOption" ofType="DOptionVO" column="d_option_id" javaType="ArrayList">
             <id property="dOptionId" column="d_option_id"/>
             <result property="dOptionDclsMonth" column="d_option_dcls_month"/>
             <result property="dOptionFinCoNo" column="d_option_fin_co_no"/>

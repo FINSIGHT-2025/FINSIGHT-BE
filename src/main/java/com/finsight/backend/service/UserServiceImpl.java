@@ -2,13 +2,15 @@ package com.finsight.backend.service;
 
 import com.finsight.backend.dto.request.LoginForm;
 import com.finsight.backend.dto.request.SignupForm;
-import com.finsight.backend.enumerate.UserRole;
-import com.finsight.backend.mapper.UserMapper;
-import com.finsight.backend.vo.User;
+import com.finsight.backend.domain.enumerate.UserRole;
+import com.finsight.backend.common.exception.CustomEmailNotVerifiedException;
+import com.finsight.backend.repository.mapper.UserMapper;
+import com.finsight.backend.domain.vo.user.UserVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -22,14 +24,15 @@ public class UserServiceImpl implements UserService {
     private final EmailService emailService;
 
     @Override
-    public Optional<User> findUser(LoginForm loginForm) {
-        User user = UserMapper.findUserByUserId(loginForm.getUserId());
+    public Optional<UserVO> findUser(LoginForm loginForm) {
+        UserVO user = UserMapper.findUserByUserId(loginForm.getUserId());
         if(user != null && passwordEncoder.matches(loginForm.getPassword(), user.getUserPassword())){
             return Optional.of(user);
         }
         return Optional.empty();
     }
 
+    @Transactional
     @Override
     public boolean registerUser(SignupForm signupForm) {
         if (!emailService.isEmailVerified(signupForm.getEmail())) {
@@ -41,7 +44,7 @@ public class UserServiceImpl implements UserService {
             return false;
         }
 
-        User user = User.builder()
+        UserVO user = UserVO.builder()
                 .userId(signupForm.getUserId())
                 .userName(signupForm.getUsername())
                 .userPassword(passwordEncoder.encode(signupForm.getPassword()))
@@ -72,16 +75,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findByUserId(String userId) {
+    public Optional<UserVO> findByUserId(String userId) {
         return Optional.ofNullable(UserMapper.findUserByUserId(userId));
     }
     @Override
-    public void deleteUser(String userId) {
-        UserMapper.deleteUser(userId);
+    public boolean deleteUser(String userId) {
+        return UserMapper.deleteUser(userId);
     }
 
+    @Transactional
     @Override
-    public void updateUserInfo(String userId, String newPassword, String newEmail) {
+    public boolean updateUserInfo(String userId, String newPassword, String newEmail) {
         if (newPassword != null && !newPassword.isBlank()) {
             String encodedPw = passwordEncoder.encode(newPassword);
             UserMapper.updatePassword(userId, encodedPw);
@@ -89,11 +93,13 @@ public class UserServiceImpl implements UserService {
 
         if (newEmail != null && !newEmail.isBlank()) {
             if (!emailService.isEmailVerified(newEmail)) {
-                throw new IllegalArgumentException("이메일 인증이 완료되지 않았습니다.");
+                log.error("[UserService] Not Verified Email");
+                throw new CustomEmailNotVerifiedException("이메일 인증이 완료되지 않았습니다.");
             }
             UserMapper.updateEmail(userId, newEmail);
             emailService.removeVerifiedEmail(newEmail);
         }
+        return true;
     }
 
     @Override

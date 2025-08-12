@@ -1,6 +1,6 @@
 package com.finsight.backend.service;
 
-import com.finsight.backend.mongo.UserView;
+import com.finsight.backend.domain.entity.UserView;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import java.util.Date;
 

@@ -1,6 +1,6 @@
 package com.finsight.backend.service;
 
-import com.finsight.backend.vo.EmailVerification;
+import com.finsight.backend.domain.vo.user.EmailVerificationVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.mail.SimpleMailMessage;
@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class EmailService {
 
-    private final Map<String, EmailVerification> codeStorage = new ConcurrentHashMap<>();
+    private final Map<String, EmailVerificationVO> codeStorage = new ConcurrentHashMap<>();
     private final Set<String> verifiedEmails = ConcurrentHashMap.newKeySet();  // ✅ 인증 완료 이메일 저장소
     private final Random random = new SecureRandom();
 
@@ -35,7 +35,7 @@ public class EmailService {
         long expireAt = System.currentTimeMillis() + (5 * 60 * 1000);
 
         codeStorage.remove(email); // 기존 인증코드 제거
-        codeStorage.put(email, new EmailVerification(code, expireAt)); // 새 코드 저장
+        codeStorage.put(email, new EmailVerificationVO(code, expireAt)); // 새 코드 저장
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
@@ -45,7 +45,7 @@ public class EmailService {
     }
 
     public boolean verifyCode(String email, String code) {
-        EmailVerification v = codeStorage.get(email);
+        EmailVerificationVO v = codeStorage.get(email);
         if (v == null || v.isExpired()) {
             codeStorage.remove(email);
             return false;

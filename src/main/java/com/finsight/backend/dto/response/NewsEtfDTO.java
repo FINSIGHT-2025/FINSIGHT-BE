@@ -1,7 +1,7 @@
 package com.finsight.backend.dto.response;
 
-import com.finsight.backend.enumerate.ProductCountry;
-import com.finsight.backend.enumerate.ProductType;
+import com.finsight.backend.domain.enumerate.ProductCountry;
+import com.finsight.backend.domain.enumerate.ProductType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

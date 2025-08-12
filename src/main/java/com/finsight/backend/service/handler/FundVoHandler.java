@@ -1,11 +1,11 @@
 package com.finsight.backend.service.handler;
 
-import com.finsight.backend.enumerate.ProductCountry;
-import com.finsight.backend.enumerate.ProductType;
-import com.finsight.backend.mapper.FundMapper;
-import com.finsight.backend.mapper.InvTestMapper;
-import com.finsight.backend.util.InvUtil;
-import com.finsight.backend.vo.Fund;
+import com.finsight.backend.domain.enumerate.ProductCountry;
+import com.finsight.backend.domain.enumerate.ProductType;
+import com.finsight.backend.repository.mapper.FundMapper;
+import com.finsight.backend.repository.mapper.InvTestMapper;
+import com.finsight.backend.common.util.InvUtil;
+import com.finsight.backend.domain.vo.product.FundVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -13,27 +13,27 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class FundVoHandler implements ProductVoHandler<Fund> {
+public class FundVoHandler implements ProductVoHandler<FundVO> {
     private final FundMapper fundMapper;
     private final InvTestMapper invTestMapper;
     private final InvUtil invUtil;
 
     @Override
-    public Fund findProduct(String productCode) {
+    public FundVO findProduct(String productCode) {
         return fundMapper.findFundByCode(productCode);
     }
 
     @Override
-    public Class<Fund> getProductType() {
-        return Fund.class;
+    public Class<FundVO> getProductType() {
+        return FundVO.class;
     }
 
     @Override
-    public List<Fund> findProductListByFilter(String sort,
-                                              String country,
-                                              String type,
-                                              Boolean isMatched,
-                                              String userId) {
+    public List<FundVO> findProductListByFilter(String sort,
+                                                String country,
+                                                String type,
+                                                Boolean isMatched,
+                                                String userId) {
         ProductCountry productCountry = (country == null || country.isBlank())
                 ? null
                 : ProductCountry.fromDbValue(country);

@@ -2,15 +2,16 @@ package com.finsight.backend.service.handler;
 
 import com.finsight.backend.dto.NewsSentimentDto;
 import com.finsight.backend.dto.response.*;
-import com.finsight.backend.mapper.*;
-import com.finsight.backend.tradeserverwebsocket.service.EtfPriceService;
-import com.finsight.backend.vo.Fund;
-import com.finsight.backend.vo.NewsVO;
+import com.finsight.backend.repository.mapper.DetailHoldingsMapper;
+import com.finsight.backend.repository.mapper.HoldingsMapper;
+import com.finsight.backend.repository.mapper.NewsMapper;
+import com.finsight.backend.tmptradeserverwebsocket.service.EtfPriceService;
+import com.finsight.backend.domain.vo.product.FundVO;
+import com.finsight.backend.domain.vo.news.NewsVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class FundDtoHandler implements ProductDtoHandler<Fund> {
+public class FundDtoHandler implements ProductDtoHandler<FundVO> {
     private final NewsMapper newsMapper;
     private final HoldingsMapper holdingsMapper;
     private final DetailHoldingsMapper detailHoldingsMapper;
@@ -27,12 +28,12 @@ public class FundDtoHandler implements ProductDtoHandler<Fund> {
 
     private static Map<String, Supplier<List<FundByFilterDto>>> SORT_HANDLERS;
     @Override
-    public Class<Fund> getProductType() {
-        return Fund.class;
+    public Class<FundVO> getProductType() {
+        return FundVO.class;
     }
 
     @Override
-    public ProductDetailDto toDetailDto(Fund product) {
+    public ProductDetailDto toDetailDto(FundVO product) {
         List<NewsVO> newsByProductCode = newsMapper.findNewsByProductCode(product.getProductCode());
         List<NewsResponseDTO> newsResponseDTOList = newsByProductCode.stream()
                 .map(NewsResponseDTO::from)
@@ -48,9 +49,9 @@ public class FundDtoHandler implements ProductDtoHandler<Fund> {
     }
 
     @Override
-    public List<ProductByFilterDto> toFilterDto(List<Fund> product, String userId, String sort) {
+    public List<ProductByFilterDto> toFilterDto(List<FundVO> product, String userId, String sort) {
         List<FundByFilterDto> fundByFilterDtoList = product.stream()
-                .map((Fund fund) -> FundByFilterDto.fundVoToFundByFilterDto(fund,
+                .map((FundVO fund) -> FundByFilterDto.fundVoToFundByFilterDto(fund,
                         newsSentimentPer(newsMapper.findNewsSentimentByProductCode(fund.getProductCode())),
                         holdingsMapper.existProductByUserIdAndProductCode(userId, fund.getProductCode()),
                         detailHoldingsMapper.isProductWatched(userId, fund.getProductCode()),
