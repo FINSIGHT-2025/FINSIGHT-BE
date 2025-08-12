@@ -26,7 +26,6 @@ public class TradeWebSocketClient {
     private final TradeServerService tradeServerService;
     private final WebSocketClient webSocketClient;
     private final EtfCacheScheduler etfCacheScheduler;
-    private final EtfPriceService etfPriceService;
 
     @Value("${tradedata.url}")
     private String webSocketUrl;
@@ -68,7 +67,7 @@ public class TradeWebSocketClient {
                         log.warn("[시세 서버] 세션이 닫혔습니다. 재연결 시도 예정");
 
                     } catch (Exception e) {
-                        log.error("[시세 서버] WebSocket 연결 중 예외 발생", e);
+                        log.error("[시세 서버] WebSocket 연결 중 예외 발생: {} - {}", e.getClass().getSimpleName(), e.getMessage());
                     }
 
                     Thread.sleep(60000); // 재연결까지 대기 시간

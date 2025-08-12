@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class EtfUpdateDTO {
     private String productCode;
-    private double priceNow;
-    private long volumeNow;
+    private Double priceNow;
+    private Long volumeNow;
 }

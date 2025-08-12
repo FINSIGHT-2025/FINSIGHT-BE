@@ -26,6 +26,7 @@ public class EtfCalculationService {
 
         double returnRate3MonthsAgo = calculateReturnRate(currentPrice, price3MonthsAgo);
         double changeFromPrevDay = currentPrice - pricePrevDay;
+        double changeRateFromPrevDay = calculateReturnRate(currentPrice, pricePrevDay);
         double changeRate1s = calculateReturnRate(currentPrice, price1sAgo);
 
         long timestamp = System.currentTimeMillis();
@@ -36,13 +37,12 @@ public class EtfCalculationService {
                 currentVolume,
                 returnRate3MonthsAgo,
                 changeFromPrevDay,
+                changeRateFromPrevDay,
                 changeRate1s,
                 timestamp
         );
     }
 
-    // 기준 가격이 유효할 경우 수익률(%) 계산
-    // 기준 가격이 유효할 경우 수익률(%) 계산
     private double calculateReturnRate(double current, double base) {
         if (base <= 0) return 0.0;
 
