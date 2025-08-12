@@ -1,7 +1,7 @@
-package com.finsight.backend.controller;
+package com.finsight.backend.controller.search;
 
-import com.finsight.backend.dto.response.SearchSuggestionResponseDTO;
-import com.finsight.backend.service.SearchService;
+import com.finsight.backend.dto.response.search.SearchSuggestionResponseDTO;
+import com.finsight.backend.service.search.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

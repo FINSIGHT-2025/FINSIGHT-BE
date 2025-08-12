@@ -1,6 +1,6 @@
-package com.finsight.backend.service;
+package com.finsight.backend.service.search;
 
-import com.finsight.backend.dto.response.SearchSuggestionResponseDTO;
+import com.finsight.backend.dto.response.search.SearchSuggestionResponseDTO;
 
 import java.util.List;
 
