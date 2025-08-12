@@ -1,4 +1,4 @@
-package com.finsight.backend.mapper;
+package com.finsight.backend.repository.mapper;
 
 import com.finsight.backend.dto.WatchListDTO;
 import org.apache.ibatis.annotations.Mapper;
