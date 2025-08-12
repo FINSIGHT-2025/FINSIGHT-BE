@@ -1,4 +1,4 @@
-package com.finsight.backend.vo;
+package com.finsight.backend.domain.vo.product;
 
 import lombok.*;
 

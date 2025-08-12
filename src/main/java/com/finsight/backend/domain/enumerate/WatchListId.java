@@ -1,4 +1,4 @@
-package com.finsight.backend.enumerate;
+package com.finsight.backend.domain.enumerate;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

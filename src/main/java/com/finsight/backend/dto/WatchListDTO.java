@@ -1,6 +1,6 @@
 package com.finsight.backend.dto;
 
-import com.finsight.backend.enumerate.WatchListId;
+import com.finsight.backend.domain.enumerate.WatchListId;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
