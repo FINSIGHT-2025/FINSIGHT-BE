@@ -34,7 +34,7 @@ public class DepositDtoHandler implements ProductDtoHandler<DepositVO>{
     public List<ProductByFilterDto> toFilterDto(List<DepositVO> product, String userId, String sort) {
         return product.stream()
                 .map(deposit -> {
-                    DOptionVO option = deposit.getDOptionVO().stream()
+                    DOptionVO option = deposit.getDOption().stream()
                             .findFirst()
                             .orElseThrow(() -> new IllegalStateException("DOption이 비어있습니다: " + deposit.getProductCode()));
                     return DepositByFilterDto.depositVoToDepositByFilterDto(

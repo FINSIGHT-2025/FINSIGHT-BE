@@ -36,7 +36,7 @@ public class DepositDetailDto extends ProductDetailDto{
                 .depositJoinWay(deposit.getDepositJoinWay())
                 .depositJoinDeny(deposit.getDepositJoinDeny())
                 .depositEtcNote(deposit.getDepositEtcNote())
-                .dOptionVO(deposit.getDOptionVO())
+                .dOptionVO(deposit.getDOption())
                 .build();
     }
 }

@@ -18,5 +18,5 @@ public class DepositVO extends ProductVO {
     private String depositJoinDeny;
     private String depositEtcNote;
 
-    private List<DOptionVO> dOptionVO;
+    private List<DOptionVO> dOption;
 }
