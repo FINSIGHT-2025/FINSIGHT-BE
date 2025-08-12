@@ -1,6 +1,7 @@
 package com.finsight.backend.dto.response;
 
-import com.finsight.backend.vo.NewsVO;
+import com.finsight.backend.domain.enumerate.NewsSentiment;
+import com.finsight.backend.domain.vo.news.NewsVO;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,7 +18,7 @@ public class NewsResponseDTO {
     private LocalDateTime newsPublishedAt;
 
     private Double newsScore;
-    private NewsVO.NewsSentiment newsSentiment;
+    private NewsSentiment newsSentiment;
 
     public static NewsResponseDTO from(NewsVO vo){
         return NewsResponseDTO.builder()

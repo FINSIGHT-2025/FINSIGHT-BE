@@ -1,6 +1,6 @@
 package com.finsight.backend.scheduler;
 
-import com.finsight.backend.init.InitJobState;
+import com.finsight.backend.batch.init.InitJobState;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;

@@ -1,7 +1,7 @@
 package com.finsight.backend.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.finsight.backend.detailhodings.dto.DetailHoldingsResponseDto;
+import com.finsight.backend.tmpdetailhodings.dto.DetailHoldingsResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

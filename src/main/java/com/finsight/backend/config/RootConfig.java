@@ -1,8 +1,8 @@
 package com.finsight.backend.config;
 
-import com.finsight.backend.mapper.KeywordProductMapper;
-import com.finsight.backend.mapper.NewsKeywordMapper;
-import com.finsight.backend.recommend.NewsClickRecommender;
+import com.finsight.backend.repository.mapper.KeywordProductMapper;
+import com.finsight.backend.repository.mapper.NewsKeywordMapper;
+import com.finsight.backend.tmprecommend.NewsClickRecommender;
 import com.finsight.backend.service.UserViewLogger;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -48,7 +48,7 @@ import java.util.Properties;
 )
 @PropertySource({"classpath:/application.properties"})
 //지정된 패키지 내의 모든 매퍼 인터페이스를 자동으로 스캔하고, MyBatis의 매퍼로 등록
-@MapperScan(basePackages = {"com.finsight.backend.mapper"} )
+@MapperScan(basePackages = {"com.finsight.backend.repository.mapper"} )
 @EnableTransactionManagement //<tx:annotation-driven transaction-manager="transactionManager"/>
 public class RootConfig {
     @Value("${jdbc.driver}")

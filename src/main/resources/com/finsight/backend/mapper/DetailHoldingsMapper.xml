@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.finsight.backend.mapper.DetailHoldingsMapper">
+<mapper namespace="com.finsight.backend.repository.mapper.DetailHoldingsMapper">
 
-    <select id="selectHoldingsByUserIdAndProductCode" resultType="com.finsight.backend.detailhodings.dto.DetailHoldingsResponseDto">
+    <select id="selectHoldingsByUserIdAndProductCode" resultType="com.finsight.backend.tmpdetailhodings.dto.DetailHoldingsResponseDto">
         SELECT
             holdings_id,
             product_category,
@@ -14,7 +14,7 @@
           AND product_code = #{productCode}
     </select>
 
-    <select id="selectHistoriesByHoldingsId" resultType="com.finsight.backend.detailhodings.vo.DetailHistoryVO">
+    <select id="selectHistoriesByHoldingsId" resultType="com.finsight.backend.tmpdetailhodings.vo.DetailHistoryVO">
         SELECT
             history_id,
             holdings_id,

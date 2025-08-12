@@ -1,6 +1,6 @@
 package com.finsight.backend.security;
 
-import com.finsight.backend.enumerate.ErrorCode;
+import com.finsight.backend.common.exception.ErrorCode;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;

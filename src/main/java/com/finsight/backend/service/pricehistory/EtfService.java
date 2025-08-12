@@ -1,8 +1,8 @@
 package com.finsight.backend.service.pricehistory;
 
 import com.finsight.backend.dto.response.EtfPriceHistoryDto;
-import com.finsight.backend.tradeserverwebsocket.service.EtfPriceService;
-import com.finsight.backend.vo.pricehistory.PricePoint;
+import com.finsight.backend.tmptradeserverwebsocket.service.EtfPriceService;
+import com.finsight.backend.domain.vo.product.PricePointVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,7 @@ public class EtfService {
     private final EtfPriceService etfPriceService;
 
     public List<EtfPriceHistoryDto> getThreeMonthsEtfNav(String productCode) {
-        List<PricePoint> points = etfPriceService.getThreeMonthsPriceHistory("etf_nav", productCode, "etf_code");
+        List<PricePointVO> points = etfPriceService.getThreeMonthsPriceHistory("etf_nav", productCode, "etf_code");
         System.out.println("Fetched points count: " + points.size());  // 디버깅용
         return points.stream()
                 .map(p -> EtfPriceHistoryDto.builder()

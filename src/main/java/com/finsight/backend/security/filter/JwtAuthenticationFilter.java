@@ -1,11 +1,11 @@
 package com.finsight.backend.security.filter;
 
-import com.finsight.backend.enumerate.ErrorCode;
+import com.finsight.backend.common.exception.ErrorCode;
 import com.finsight.backend.security.JwtAuthenticationProvider;
 import com.finsight.backend.security.JwtAuthenticationToken;
 import com.finsight.backend.security.info.JwtUserInfo;
-import com.finsight.backend.util.HeaderUtil;
-import com.finsight.backend.util.JwtUtil;
+import com.finsight.backend.common.util.HeaderUtil;
+import com.finsight.backend.common.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

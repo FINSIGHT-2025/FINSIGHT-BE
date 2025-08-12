@@ -2,8 +2,8 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.finsight.backend.mapper.FundMapper">
-    <resultMap id="fundResultMap" type="Fund">
+<mapper namespace="com.finsight.backend.repository.mapper.FundMapper">
+    <resultMap id="fundResultMap" type="FundVO">
 
         <id property="productCode" column="product_code"/>
         <result property="productName" column="product_name" />
@@ -25,13 +25,13 @@
         <result property="fundFeeFrontEndLoad" column="fund_fee_front_end_load" />
         <result property="fundEstablishedDate" column="fund_established_date" />
 
-        <collection property="fAssetAllocation" ofType="FAssetAllocation" column="f_asset_allocation_id" javaType="ArrayList">
+        <collection property="fAssetAllocation" ofType="FAssetAllocationVO" column="f_asset_allocation_id" javaType="ArrayList">
             <id property="fAssetAllocationId" column="f_asset_allocation_id" />
             <result property="fAssetAllocationType" column="f_asset_allocation_type"/>
             <result property="fAssetAllocationPer" column="f_asset_allocation_per"/>
             <result property="fAssetAllocationValuation" column="f_asset_allocation_valuation"/>
         </collection>
-        <collection property="fStockHoldings" ofType="FStockHoldings" column="f_stock_holdings_id" javaType="ArrayList">
+        <collection property="fStockHoldings" ofType="FStockHoldingsVO" column="f_stock_holdings_id" javaType="ArrayList">
             <id property="fStockHoldingsId" column="f_stock_holdings_id"/>
             <result property="fStockHoldingsName" column="f_stock_holdings_name"/>
             <result property="fStockHoldingsCountry" column="f_stock_holdings_country"/>

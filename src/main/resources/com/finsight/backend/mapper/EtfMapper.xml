@@ -2,8 +2,8 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.finsight.backend.mapper.EtfMapper">
-    <resultMap id="etfResultMap" type="Etf">
+<mapper namespace="com.finsight.backend.repository.mapper.EtfMapper">
+    <resultMap id="etfResultMap" type="EtfVO">
         <!-- 상속받은 Product 필드 -->
         <id property="productCode" column="product_code"/>
         <result property="productName" column="product_name"/>
@@ -26,19 +26,19 @@
         <result property="etfMinTradingUnit" column="etf_min_trading_unit" />
         <result property="etfTaxType" column="etf_tax_type" />
 
-        <collection property="eAssetAllocation" ofType="EAssetAllocation" column="e_asset_allocation_id" javaType="ArrayList">
+        <collection property="eAssetAllocation" ofType="EAssetAllocationVO" column="e_asset_allocation_id" javaType="ArrayList">
             <id property="eAssetAllocationId" column="e_asset_allocation_id" />
             <result property="eAssetAllocationType" column="e_asset_allocation_type"/>
             <result property="eAssetAllocationPer" column="e_asset_allocation_per"/>
             <result property="eAssetAllocationValuation" column="e_asset_allocation_valuation"/>
         </collection>
-        <collection property="eEquityRatio" ofType="EEquityRatio" column="e_equity_ratio_id" javaType="ArrayList">
+        <collection property="eEquityRatio" ofType="EEquityRatioVO" column="e_equity_ratio_id" javaType="ArrayList">
             <id property="eEquityRatioId" column="e_equity_ratio_id" />
             <result property="eEquityRatioName" column="e_equity_ratio_name"/>
             <result property="eEquityRatioCountry" column="e_equity_ratio_country"/>
             <result property="eEquityRatioPer" column="e_equity_ratio_per"/>
         </collection>
-        <collection property="eConstituentStocks" ofType="EConstituentStocks" column="e_constituent_stocks_id" javaType="ArrayList">
+        <collection property="eConstituentStocks" ofType="EConstituentStocksVO" column="e_constituent_stocks_id" javaType="ArrayList">
             <id property="eConstituentStocksId" column="e_constituent_stocks_id" />
             <result property="eConstituentStocksName" column="e_constituent_stocks_name"/>
             <result property="eConstituentPer" column="e_constituent_per"/>

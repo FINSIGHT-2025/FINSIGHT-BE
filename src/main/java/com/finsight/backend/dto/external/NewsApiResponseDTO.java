@@ -1,12 +1,14 @@
 package com.finsight.backend.dto.external;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.finsight.backend.vo.KeywordVO;
-import com.finsight.backend.vo.NewsVO;
+import com.finsight.backend.domain.enumerate.NewsSentiment;
+import com.finsight.backend.domain.vo.news.KeywordVO;
+import com.finsight.backend.domain.vo.news.NewsVO;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -75,36 +77,40 @@ public class NewsApiResponseDTO {
                 publishedAtDateTime = LocalDateTime.parse(this.publishedAt);
             }
 
-            NewsVO.NewsSentiment sentiment;
+            NewsSentiment sentiment;
             if (this.sentimentScore > 0.25) {
-                sentiment = NewsVO.NewsSentiment.positive;
+                sentiment = NewsSentiment.POSITIVE;
             } else if (this.sentimentScore < -0.25) {
-                sentiment = NewsVO.NewsSentiment.negative;
+                sentiment = NewsSentiment.NEGATIVE;
             } else {
-                sentiment = NewsVO.NewsSentiment.neutral;
+                sentiment = NewsSentiment.NEUTRAL;
             }
 
             List<KeywordVO> keywordVOList = null;
-            if(this.keywords != null){
+            if (this.keywords != null) {
                 keywordVOList = this.keywords.stream()
-                        .map(k -> KeywordVO.builder().keyword(k).build())
-                        .toList();
+                        .map(k -> {
+                            KeywordVO vo = new KeywordVO();
+                            vo.setKeyword(k);
+                            return vo;
+                        })
+                        .collect(Collectors.toList());
             }
 
             List<String> productCodes = List.of(productCode);
 
-            return NewsVO.builder()
-                    .newsId(this.id)
-                    .newsTitle(this.title)
-                    .newsPublisher(this.publisher)
-                    .newsSummary(this.summary)
-                    .newsContentUrl(this.contentUrl)
-                    .newsPublishedAt(publishedAtDateTime)
-                    .newsScore(this.score != null ? this.score : 0.0)
-                    .newsSentiment(sentiment)
-                    .keywords(keywordVOList)
-                    .productCodes(productCodes)
-                    .build();
+            return new NewsVO(
+                    this.id,
+                    this.title,
+                    this.summary,
+                    this.contentUrl,
+                    publishedAtDateTime,
+                    this.score != null ? this.score : 0.0,
+                    sentiment,
+                    this.publisher,
+                    keywordVOList,
+                    productCodes
+            );
         }
     }
 

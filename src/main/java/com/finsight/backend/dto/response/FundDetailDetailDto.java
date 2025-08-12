@@ -1,17 +1,16 @@
 package com.finsight.backend.dto.response;
 
-import com.finsight.backend.enumerate.ProductCountry;
-import com.finsight.backend.enumerate.ProductType;
-import com.finsight.backend.vo.FAssetAllocation;
-import com.finsight.backend.vo.FStockHoldings;
-import com.finsight.backend.vo.Fund;
+import com.finsight.backend.domain.enumerate.ProductCountry;
+import com.finsight.backend.domain.enumerate.ProductType;
+import com.finsight.backend.domain.vo.product.FAssetAllocationVO;
+import com.finsight.backend.domain.vo.product.FStockHoldingsVO;
+import com.finsight.backend.domain.vo.product.FundVO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @NoArgsConstructor
@@ -30,15 +29,15 @@ public class FundDetailDetailDto extends ProductDetailDto {
     private String fundReportCollectiveInvestmentTermsUrl;
     private String fundReportInvestmentProspectusUrl;
     private String fundReportSimplidfiedProspectusUrl;
-    private List<FAssetAllocation> fAssetAllocation;
-    private List<FStockHoldings> fStockHoldings;
+    private List<FAssetAllocationVO> fAssetAllocation;
+    private List<FStockHoldingsVO> fStockHoldings;
     private String fundFeeFrontEndLoad;
     private String fundEstablishedDate;
     private List<NewsResponseDTO> fundNewsResponse;
     
     private FundPriceSummaryDto fundPriceSummaryDto;
 
-    public static FundDetailDetailDto fundVoToFundDetailDto(Fund fund, List<NewsResponseDTO> fundNewsResponse, FundPriceSummaryDto fundPriceSummary){
+    public static FundDetailDetailDto fundVoToFundDetailDto(FundVO fund, List<NewsResponseDTO> fundNewsResponse, FundPriceSummaryDto fundPriceSummary){
         return FundDetailDetailDto.builder()
                 .productCode(fund.getProductCode())
                 .productName(fund.getProductName())

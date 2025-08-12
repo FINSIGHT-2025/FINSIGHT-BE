@@ -2,15 +2,14 @@ package com.finsight.backend.service.handler;
 
 import com.finsight.backend.dto.NewsSentimentDto;
 import com.finsight.backend.dto.response.*;
-import com.finsight.backend.mapper.DetailHoldingsMapper;
-import com.finsight.backend.mapper.HoldingsMapper;
-import com.finsight.backend.mapper.NewsMapper;
-import com.finsight.backend.vo.Etf;
-import com.finsight.backend.vo.NewsVO;
+import com.finsight.backend.repository.mapper.DetailHoldingsMapper;
+import com.finsight.backend.repository.mapper.HoldingsMapper;
+import com.finsight.backend.repository.mapper.NewsMapper;
+import com.finsight.backend.domain.vo.product.EtfVO;
+import com.finsight.backend.domain.vo.news.NewsVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -18,17 +17,17 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class EtfDtoHandler implements ProductDtoHandler<Etf>{
+public class EtfDtoHandler implements ProductDtoHandler<EtfVO>{
     private final NewsMapper newsMapper;
     private final HoldingsMapper holdingsMapper;
     private final DetailHoldingsMapper detailHoldingsMapper;
     @Override
-    public Class<Etf> getProductType() {
-        return Etf.class;
+    public Class<EtfVO> getProductType() {
+        return EtfVO.class;
     }
 
     @Override
-    public ProductDetailDto toDetailDto(Etf product) {
+    public ProductDetailDto toDetailDto(EtfVO product) {
         List<NewsVO> newsByProductCode = newsMapper.findNewsByProductCode(product.getProductCode());
         List<NewsResponseDTO> newsResponseDTOList = newsByProductCode.stream()
                 .map(NewsResponseDTO::from)
@@ -37,9 +36,9 @@ public class EtfDtoHandler implements ProductDtoHandler<Etf>{
     }
 
     @Override
-    public List<ProductByFilterDto> toFilterDto(List<Etf> product, String userId, String sort) {
+    public List<ProductByFilterDto> toFilterDto(List<EtfVO> product, String userId, String sort) {
         return product.stream()
-                .map((Etf etf) -> EtfByFilterDto.etfVoToEtfByFilterDto(etf,
+                .map((EtfVO etf) -> EtfByFilterDto.etfVoToEtfByFilterDto(etf,
                         newsSentimentPer(newsMapper.findNewsSentimentByProductCode(etf.getProductCode())),
                         holdingsMapper.existProductByUserIdAndProductCode(userId, etf.getProductCode()),
                         detailHoldingsMapper.isProductWatched(userId, etf.getProductCode())
