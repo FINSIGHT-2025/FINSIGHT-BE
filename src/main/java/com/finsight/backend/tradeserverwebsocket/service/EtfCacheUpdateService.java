@@ -26,8 +26,8 @@ public class EtfCacheUpdateService {
 
         // 3개월 전 가격 조회
         Instant threeMonthsAgo = LocalDate.now(KST).minusMonths(3).atStartOfDay(KST).toInstant();
-        Instant threeMonthsAgoRangeEnd = threeMonthsAgo.plusSeconds(86400 * 30); // 3일 후 <- 30일로 잠시 고정
-        Instant threeMonthsAgoRangeStart = threeMonthsAgo.minusSeconds(86400 * 3); // 3일 전
+        Instant threeMonthsAgoRangeEnd = threeMonthsAgo.plusSeconds(86400 * 15); // 3일 후 <- 15일로 잠시 고정
+        Instant threeMonthsAgoRangeStart = threeMonthsAgo.minusSeconds(86400 * 15); // 3일 전
         double price3M = historicalPriceService.queryLatestNavInRange(etfCode, threeMonthsAgoRangeStart, threeMonthsAgoRangeEnd, "etf_nav", "etf_nav");
 
         /*

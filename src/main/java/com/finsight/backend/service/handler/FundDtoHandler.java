@@ -54,7 +54,7 @@ public class FundDtoHandler implements ProductDtoHandler<Fund> {
                         newsSentimentPer(newsMapper.findNewsSentimentByProductCode(fund.getProductCode())),
                         holdingsMapper.existProductByUserIdAndProductCode(userId, fund.getProductCode()),
                         detailHoldingsMapper.isProductWatched(userId, fund.getProductCode()),
-                        etfPriceService.getPercentChangeFrom3MonthsAgo("fund_aum", fund.getProductCode()),
+                        etfPriceService.getPercentChangeFrom3MonthsAgo("fund_nav", fund.getProductCode()),
                         etfPriceService.getCurrent("fund_aum", fund.getProductCode()))
                 )
                 .toList();

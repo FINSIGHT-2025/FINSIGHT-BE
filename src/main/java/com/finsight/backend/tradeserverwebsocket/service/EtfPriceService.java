@@ -6,6 +6,7 @@ import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.QueryApi;
 import com.influxdb.query.FluxTable;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -13,17 +14,19 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
 /*
- - 현재 값 조회: getCurrent(measurement, productCode)
- (fund_aum, K1234)
- - 전일 대비 변화량(값): getPriceChangeFromYesterday(measurement, productCode)
- - 전일 대비 변화량(퍼센트): getPercentChangeFromYesterday(measurement, productCode)
- - 3개월 수익률(퍼센트): getPercentChangeFrom3MonthsAgo(measurement, productCode)
-*/
-
+- getCurrent(measurement, productCode): 가장 최근(어제 기준)의 일별 가격을 조회합니다.
+   ex) getCurrent("fund_nav", "K12335")
+ - getChangeFromYesterday(measurement, productCode): 전일 대비 가격 변동액을 조회합니다. (어제 가격 - 그저께 가격)
+ - getPercentChangeFromYesterday(measurement, productCode): 전일 대비 가격 변동률(%)을 조회합니다.
+ - getPercentChangeFrom3MonthsAgo(measurement, productCode): 3개월 전 대비 수익률(%)을 조회합니다.
+ - getThreeMonthsPriceHistory(measurement, productCode, tagName): 최근 3개월간의 일별 가격 내역을 조회합니다.
+ */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EtfPriceService {
@@ -31,56 +34,52 @@ public class EtfPriceService {
     private final InfluxDBClient influxDBClient;
     private final InfluxDBConfig influxDBConfig;
 
-    Instant yesterDay = LocalDate.now().minusDays(1)
-            .atStartOfDay(ZoneId.of("Asia/Seoul"))
-            .toInstant();
+    // 기준이 되는 시간대
+    private static final ZoneId SEOUL_ZONE_ID = ZoneId.of("Asia/Seoul");
 
     public double getCurrent(String measurement, String productCode) {
-        double value = querySingleValue(measurement, measurement, productCode, yesterDay);
-        return round(value);
+        Instant yesterday = LocalDate.now(SEOUL_ZONE_ID).minusDays(1).atStartOfDay(SEOUL_ZONE_ID).toInstant();
+        return findLatestValueWithFallback(measurement, measurement, productCode, yesterday);
     }
 
     public double getChangeFromYesterday(String measurement, String productCode) {
-        Instant today = yesterDay;
-        Instant yesterday = today.minusSeconds(86400);
+        Instant todayTarget = LocalDate.now(SEOUL_ZONE_ID).minusDays(1).atStartOfDay(SEOUL_ZONE_ID).toInstant();
+        Instant yesterdayTarget = todayTarget.minus(1, ChronoUnit.DAYS);
 
-        double todayValue = querySingleValue(measurement, measurement, productCode, today);
-        double yesterdayValue = querySingleValue(measurement, measurement, productCode, yesterday);
+        double todayValue = findLatestValueWithFallback(measurement, measurement, productCode, todayTarget);
+        double yesterdayValue = findLatestValueWithFallback(measurement, measurement, productCode, yesterdayTarget);
 
+        if (todayValue == 0.0 || yesterdayValue == 0.0) {
+            return 0.0;
+        }
         return round(todayValue - yesterdayValue);
     }
 
     public double getPercentChangeFromYesterday(String measurement, String productCode) {
-        Instant today = yesterDay;
-        Instant yesterday = today.minusSeconds(86400);
+        Instant todayTarget = LocalDate.now(SEOUL_ZONE_ID).minusDays(1).atStartOfDay(SEOUL_ZONE_ID).toInstant();
+        Instant yesterdayTarget = todayTarget.minus(1, ChronoUnit.DAYS);
 
-        double todayValue = querySingleValue(measurement, measurement, productCode, today);
-        double yesterdayValue = querySingleValue(measurement, measurement, productCode, yesterday);
+        double todayValue = findLatestValueWithFallback(measurement, measurement, productCode, todayTarget);
+        double yesterdayValue = findLatestValueWithFallback(measurement, measurement, productCode, yesterdayTarget);
 
-        if (yesterdayValue != 0) {
-            return round((todayValue - yesterdayValue) / yesterdayValue * 100);
-        }
-        return 0.0;
+        return calculatePercentChange(todayValue, yesterdayValue);
     }
 
     public double getPercentChangeFrom3MonthsAgo(String measurement, String productCode) {
-        Instant today = yesterDay;
-        Instant threeMonthsAgo = today.minusSeconds(60L * 60 * 24 * 90);
+        Instant todayTarget = LocalDate.now(SEOUL_ZONE_ID).minusDays(1).atStartOfDay(SEOUL_ZONE_ID).toInstant();
+        Instant threeMonthsAgoTarget = todayTarget.minus(90, ChronoUnit.DAYS);
 
-        double todayValue = querySingleValue(measurement, measurement, productCode, today);
-        double pastValue = querySingleValue(measurement, measurement, productCode, threeMonthsAgo);
+        double todayValue = findLatestValueWithFallback(measurement, measurement, productCode, todayTarget);
+        double pastValue = findLatestValueWithFallback(measurement, measurement, productCode, threeMonthsAgoTarget);
 
-        if (pastValue != 0) {
-            return round((todayValue - pastValue) / pastValue * 100);
-        }
-        return 0.0;
+        return calculatePercentChange(todayValue, pastValue);
     }
 
     public List<PricePoint> getThreeMonthsPriceHistory(String measurementAndField, String productCode, String tagName) {
         QueryApi queryApi = influxDBClient.getQueryApi();
 
-        Instant now = yesterDay; // 기준일을 동일하게 유지
-        Instant start = now.minusSeconds(60L * 60 * 24 * 90);
+        Instant now = LocalDate.now(SEOUL_ZONE_ID).minusDays(1).atStartOfDay(SEOUL_ZONE_ID).toInstant();
+        Instant start = now.minus(90, ChronoUnit.DAYS);
 
         String flux = String.format(
                 "from(bucket: \"%s\") " +
@@ -96,23 +95,39 @@ public class EtfPriceService {
                 measurementAndField
         );
 
-        System.out.println("Flux query: " + flux);
         List<FluxTable> tables = queryApi.query(flux);
         List<PricePoint> result = new ArrayList<>();
 
         for (FluxTable table : tables) {
             table.getRecords().forEach(record -> {
                 Instant time = record.getTime();
-                Double rawValue = ((Number) record.getValue()).doubleValue();
-                Double roundedValue = round(rawValue);
-                result.add(new PricePoint(time, roundedValue));
+                Object value = record.getValue();
+                if (value instanceof Number) {
+                    result.add(new PricePoint(time, round(((Number) value).doubleValue())));
+                }
             });
         }
-
         return result;
     }
 
-    private double querySingleValue(String measurement, String field, String productCode, Instant targetTime) {
+    private double findLatestValueWithFallback(String measurement, String field, String productCode, Instant targetTime) {
+        // 1단계: 먼저 정확히 그날 하루(24시간) 범위 내에서만 조회를 시도합니다.
+        Instant narrowStartTime = targetTime;
+        Instant narrowStopTime = targetTime.plus(1, ChronoUnit.DAYS);
+        double value = executeFluxQuery(measurement, field, productCode, narrowStartTime, narrowStopTime);
+
+        // 2단계: 1단계에서 데이터를 찾지 못했다면(결과가 0.0이면) 범위를 넓혀서 다시 조회합니다.
+        if (value == 0.0) {
+            log.warn("[Fallback] ProductCode: '{}', TargetDate: '{}'의 데이터를 찾지 못해 검색 범위를 확장합니다.", productCode, targetTime.toString());
+            Instant wideStartTime = targetTime.minus(7, ChronoUnit.DAYS);
+            Instant wideStopTime = targetTime.plus(7, ChronoUnit.DAYS);
+            value = executeFluxQuery(measurement, field, productCode, wideStartTime, wideStopTime);
+        }
+
+        return value;
+    }
+
+    private double executeFluxQuery(String measurement, String field, String productCode, Instant startTime, Instant stopTime) {
         QueryApi queryApi = influxDBClient.getQueryApi();
 
         String flux = String.format(
@@ -122,8 +137,8 @@ public class EtfPriceService {
                         "|> sort(columns: [\"_time\"], desc: true) " +
                         "|> limit(n: 1)",
                 influxDBConfig.getInfluxBucket(),
-                targetTime.minusSeconds(3600).toString(),
-                targetTime.plusSeconds(3600).toString(),
+                startTime.toString(),
+                stopTime.toString(),
                 measurement,
                 productCode,
                 field
@@ -134,14 +149,20 @@ public class EtfPriceService {
         return tables.stream()
                 .flatMap(t -> t.getRecords().stream())
                 .map(record -> record.getValueByKey("_value"))
-                .filter(Double.class::isInstance)
-                .map(Double.class::cast)
+                .filter(Number.class::isInstance)
+                .map(value -> ((Number) value).doubleValue())
                 .findFirst()
-                .map(this::round)
                 .orElse(0.0);
     }
 
+    private double calculatePercentChange(double currentValue, double pastValue) {
+        if (pastValue != 0) {
+            return round((currentValue - pastValue) / pastValue * 100);
+        }
+        return 0.0;
+    }
+
     private double round(double value) {
-        return new BigDecimal(value).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        return new BigDecimal(String.valueOf(value)).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 }
