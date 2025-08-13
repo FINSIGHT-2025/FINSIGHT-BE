@@ -11,7 +11,7 @@ public class NewsProductSelector {
     public List<NewsProductVO> recommendTop3(List<NewsProductVO> candidates) {
         // 앞에서 3개 자르기
         return candidates.stream()
-                .limit(3)
+                .limit(10)
                 .collect(Collectors.toList());
 
         /*
