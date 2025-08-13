@@ -1,5 +1,6 @@
 package com.finsight.backend.domain.enumerate;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +20,12 @@ public enum InvestmentProfileType implements BaseEnum {
     @Override
     public String toString() { return dbValue; }
 
+    @JsonCreator
     public static InvestmentProfileType fromDbValue(String dbValue) {
+        if (dbValue == null) {
+            return null;
+        }
+
         for (InvestmentProfileType type : values()) {
             if (type.dbValue.equalsIgnoreCase(dbValue)) {
                 return type;
