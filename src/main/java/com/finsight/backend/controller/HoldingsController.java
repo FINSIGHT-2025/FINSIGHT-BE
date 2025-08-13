@@ -229,4 +229,24 @@ public class HoldingsController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
     }
+    
+    // 보유내역 전체 조회 (새로운 엔드포인트)
+    @GetMapping("/details")
+    public ResponseEntity<?> getHoldingsDetails(HttpServletRequest request) {
+        try {
+            String userId = jwtUtil.extractUserIdFromRequest(request);
+            
+            var holdingsResponse = holdingsService.getHoldingsByUserId(userId);
+            return new ResponseEntity<>(holdingsResponse, HttpStatus.OK);
+
+        } catch (Exception e) {
+            System.err.println("[에러] 보유내역 조회 중 Exception 발생: " + e.getMessage());
+
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+    }
+    
+
 }

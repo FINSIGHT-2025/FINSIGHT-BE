@@ -1,8 +1,11 @@
 package com.finsight.backend.repository.mapper;
 
 import com.finsight.backend.domain.vo.user.HoldingsVO;
+import com.finsight.backend.dto.response.HoldingDetailDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 @Mapper
 public interface HoldingsMapper {
@@ -28,6 +31,10 @@ public interface HoldingsMapper {
 
     // userOwns 사용
     Boolean existProductByUserIdAndProductCode(@Param("userId") String userId, @Param("productCode") String productCode);
-
+    
+    // 상품 타입별 보유내역 조회
+    List<HoldingDetailDto> selectFundHoldingsByUserId(String userId);
+    List<HoldingDetailDto> selectEtfHoldingsByUserId(String userId);
+    List<HoldingDetailDto> selectDepositHoldingsByUserId(String userId);
 }
 
