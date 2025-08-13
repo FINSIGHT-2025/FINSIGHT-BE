@@ -1,6 +1,6 @@
 package com.finsight.backend.dto.response.search;
 
-import com.finsight.backend.dto.NewsSentimentDto;
+import com.finsight.backend.dto.response.NewsSentimentDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +16,7 @@ public class SearchFundResponseDTO {
     private Double productRateOfReturn;
     private Integer fundScale;
     private Integer productRiskGrade;
-    private NewsSentimentDto newsSentiment;
+    private NewsSentimentDTO newsSentiment;
     private boolean userOwns;
     private boolean userWatches;
     private boolean isPopularInUserGroup;
