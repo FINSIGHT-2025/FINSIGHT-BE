@@ -18,4 +18,13 @@ public enum InvestmentProfileType implements BaseEnum {
 
     @Override
     public String toString() { return dbValue; }
+
+    public static InvestmentProfileType fromDbValue(String dbValue) {
+        for (InvestmentProfileType type : values()) {
+            if (type.dbValue.equalsIgnoreCase(dbValue)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unknown dbValue: " + dbValue);
+    }
 }
