@@ -1,13 +1,13 @@
 package com.finsight.backend.service.news;
 
+import com.finsight.backend.domain.vo.product.EtfVO;
 import com.finsight.backend.dto.external.NewsApiResponseDTO;
+import com.finsight.backend.repository.mapper.EtfMapper;
 import com.finsight.backend.repository.mapper.FundMapper;
-import com.finsight.backend.repository.mapper.NewsMapper;
 import com.finsight.backend.service.fetcher.AssetType;
 import com.finsight.backend.service.fetcher.NewsFetcher;
 import com.finsight.backend.domain.vo.product.FStockHoldingsVO;
 import com.finsight.backend.domain.vo.product.FundVO;
-import com.finsight.backend.domain.vo.TempEtfVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +23,11 @@ import java.util.Map;
 public class NewsCoreService {
     private final NewsSaveService newsSaveService;
     private final Map<AssetType, NewsFetcher> fetcherMap;
-    private final NewsMapper newsMapper;
     private final FundMapper fundMapper;
+    private final EtfMapper etfMapper;
 
-    public NewsCoreService(List<NewsFetcher> fetchers, NewsSaveService newsSaveService, NewsMapper newsMapper, FundMapper fundMapper){
+    public NewsCoreService(List<NewsFetcher> fetchers, NewsSaveService newsSaveService, FundMapper fundMapper, EtfMapper etfMapper){
         this.newsSaveService = newsSaveService;
-        this.newsMapper = newsMapper;
         this.fundMapper = fundMapper;
 
         Map<AssetType, NewsFetcher> map = new EnumMap<>(AssetType.class);
@@ -36,6 +35,7 @@ public class NewsCoreService {
             map.put(fetcher.supports(), fetcher);
         }
         this.fetcherMap = map;
+        this.etfMapper = etfMapper;
     }
 
     /*
@@ -43,18 +43,18 @@ public class NewsCoreService {
      *  모든 자산(ETF, Fund)에 대한 뉴스 처리 작업
      */
     public void processAllAssets(){
-        List<TempEtfVO> etfs = newsMapper.selectAllEtfs();
+        List<EtfVO> etfs = etfMapper.findEtfListByFilter(null, null, null);
         List<FundVO> funds = fundMapper.selectAllFundStock();
 
         processEtfsInternal(etfs);
         processFundsInternal(funds);
     }
 
-    private void processEtfsInternal(List<TempEtfVO> etfs){
+    private void processEtfsInternal(List<EtfVO> etfs){
         NewsFetcher etfFetcher = findFetcher(AssetType.ETF);
         log.info("Starting ETF news processing for {} items.", etfs.size());
 
-        for(TempEtfVO etf : etfs){
+        for(EtfVO etf : etfs){
             try {
                 etfFetcher.fetch(etf.getProductCode())
                         .doOnSuccess(response -> {
