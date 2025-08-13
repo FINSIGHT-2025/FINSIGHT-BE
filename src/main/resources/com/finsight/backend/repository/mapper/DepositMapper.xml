@@ -20,7 +20,7 @@
         <result property="depositEtcNote" column="deposit_etc_note"/>
 
         <!-- DOption 리스트 매핑 -->
-        <collection property="dOption" ofType="DOptionVO" column="d_option_id" javaType="ArrayList">
+        <collection property="dOptionVO" ofType="DOptionVO" column="d_option_id" javaType="ArrayList">
             <id property="dOptionId" column="d_option_id"/>
             <result property="dOptionDclsMonth" column="d_option_dcls_month"/>
             <result property="dOptionFinCoNo" column="d_option_fin_co_no"/>

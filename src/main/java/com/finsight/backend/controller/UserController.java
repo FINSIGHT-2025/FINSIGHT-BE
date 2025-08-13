@@ -6,6 +6,7 @@ import com.finsight.backend.dto.response.ApiResponse;
 import com.finsight.backend.dto.response.LoginResponseWithToken;
 import com.finsight.backend.dto.response.TokenInfoDto;
 import com.finsight.backend.common.exception.ErrorCode;
+import com.finsight.backend.service.AuthService;
 import com.finsight.backend.service.EmailService;
 import com.finsight.backend.service.UserService;
 import com.finsight.backend.common.util.HeaderUtil;
@@ -35,224 +36,84 @@ import static com.finsight.backend.common.exception.ErrorCode.NOT_FOUND_USER;
 @Slf4j
 @RequestMapping("/users")
 public class UserController {
-    private final UserService UserService;
-    private final JwtUtil jwtUtil;
+    private final AuthService authService;
     private final EmailService emailService;
     private final UserService userService;
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request) {
-        String token = jwtUtil.resolveToken(request);
-        
-        return ResponseEntity.ok("로그아웃 완료");
+        authService.isValidToken(request);
+        return ResponseEntity.ok().build();
     }
 
-
-    // user123 / securepassword123!
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginForm loginForm){
-        Optional<UserVO> optionalUser = UserService.findUser(loginForm);
+        UserVO user = userService.findUser(loginForm);
 
-        if(optionalUser.isEmpty()){
-            log.warn("[UserController] NOT_FOUND_USER : {}", loginForm.getUserId());
-            return ResponseEntity
-                    .status(NOT_FOUND_USER.getHttpStatus())
-                    .body(NOT_FOUND_USER.getMessage());
-        }
-        UserVO user = optionalUser.get();
-        String accessToken = jwtUtil.generateAccessToken(
+        String accessToken = authService.generateAccessToken(
                 new TokenInfoDto(
                         user.getUserId(),
                         user.getUserName()
                 )
         );
+
         return ResponseEntity.ok(new LoginResponseWithToken(user.getUserEmail(), user.getUserRole(), accessToken));
     }
     @PostMapping("")
     public ResponseEntity<?> signUp(@Valid @RequestBody SignupForm signupForm) {
-
-        // 이메일 인증 여부 확인
-        if (!emailService.isEmailVerified(signupForm.getEmail())) {
-            log.warn("[UserController] NOT_AUTH_EMAIL : {}", signupForm.getEmail());
-            return ResponseEntity.status(ErrorCode.NOT_AUTH_EMAIL.getHttpStatus()).body(
-                    ErrorCode.NOT_AUTH_EMAIL.getMessage()
-            );
-        }
-
-        boolean success = UserService.registerUser(signupForm);
-
-        if (success) {
-            emailService.removeVerifiedEmail(signupForm.getEmail());  // ✅ 인증 상태 초기화
-            return (ResponseEntity<?>) ResponseEntity.ok();
-        } else {
-            return ResponseEntity.status(ErrorCode.DUPLICATE_USER.getHttpStatus()).body(
-                    ErrorCode.DUPLICATE_USER.getMessage()
-            );
-        }
+        emailService.isEmailVerified(signupForm.getEmail());
+        userService.registerUser(signupForm);
+        return ResponseEntity.ok().build();
     }
 
 
     // ✅ 2. 아이디 / 닉네임 / 이메일 중복 확인 (GET /users?userid= or nickname= or email=)
     @GetMapping("")
     public ResponseEntity<?> checkDuplicates(
-            @RequestParam(required = false) String userid
+            @RequestParam(name = "userid") String userId
     ) {
-        if (userid != null) {
-            return ResponseEntity.ok(UserService.checkUserId(userid));
-        } else {
-            return ResponseEntity.badRequest().body(
-                    new ApiResponse<>(Boolean.FALSE, "/", "잘못된 URL 접근입니다.")
-            );
-        }
+        userService.checkUserId(userId);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/token")
-    public ResponseEntity<?> generateToken(HttpServletRequest request) throws ServletException, IOException {
-
-        Optional<String> token = HeaderUtil.refineHeader(request, "Authorization", "Bearer ");
-
-        if(token.isEmpty()){
-            log.warn("[User.generateToken] NOT_FOUND_TOKEN");
-            return ResponseEntity.status(ErrorCode.NOT_FOUND_TOKEN.getHttpStatus()).body(
-                    ErrorCode.NOT_FOUND_TOKEN.getMessage()
-            );
-        }
-
-        try{
-            log.info("[User.generateToken] Success Generate Token");
-            Claims claims = jwtUtil.validateToken(token.get());
-            TokenInfoDto dto = new TokenInfoDto(
-                    claims.get("userId", String.class),
-                    claims.get("username", String.class)
-            );
-            String newAccessToken = jwtUtil.generateAccessToken(dto);
-            return ResponseEntity.ok(newAccessToken);
-        } catch (ExpiredJwtException e){
-            log.warn("[User.generateToken] EXPIRED_TOKEN_ERROR");
-            return ResponseEntity.status(ErrorCode.EXPIRED_TOKEN_ERROR.getHttpStatus()).body(
-                    ErrorCode.EXPIRED_TOKEN_ERROR.getMessage()
-            );
-        } catch (JwtException e){
-            log.warn("[User.generateToken] NOT_TOKEN_INVALID");
-            return ResponseEntity.status(ErrorCode.NOT_TOKEN_INVALID.getHttpStatus()).body(
-                    ErrorCode.NOT_TOKEN_INVALID.getMessage()
-            );
-        }
+    public ResponseEntity<?> generateToken(HttpServletRequest request) {
+        String newAccessToken = authService.reGenerateAccessToken(request);
+        return ResponseEntity.ok(newAccessToken);
     }
     @GetMapping("/me")
     public ResponseEntity<?> getMyInfo(HttpServletRequest request) {
-        Optional<String> token = HeaderUtil.refineHeader(request, "Authorization", "Bearer ");
-        if (token.isEmpty()) {
-            return ResponseEntity.status(ErrorCode.NOT_FOUND_TOKEN.getHttpStatus())
-                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_FOUND_TOKEN.getMessage()));
-        }
+        String userId = authService.isValidToken(request);
+        UserVO user = userService.findByUserId(userId);
+        Map<String, Object> responseData = Map.of(
+                "userId", user.getUserId(),
+                "userName", user.getUserName(),
+                "userRole", user.getUserRole()
+        );
 
-        try {
-            Claims claims = jwtUtil.validateToken(token.get());
-            String userId = claims.get("userId", String.class);
-
-            Optional<UserVO> userOptional = UserService.findByUserId(userId);
-            if (userOptional.isEmpty()) {
-                return ResponseEntity.status(NOT_FOUND_USER.getHttpStatus())
-                        .body(new ApiResponse<>(false, null, NOT_FOUND_USER.getMessage()));
-            }
-
-            UserVO user = userOptional.get();
-            Map<String, Object> responseData = Map.of(
-                    "userId", user.getUserId(),
-                    "userName", user.getUserName(),
-                    "userRole", user.getUserRole()
-            );
-
-            return ResponseEntity.ok(new ApiResponse<>(true, responseData, null));
-
-        } catch (ExpiredJwtException e) {
-            return ResponseEntity.status(ErrorCode.EXPIRED_TOKEN_ERROR.getHttpStatus())
-                    .body(new ApiResponse<>(false, null, ErrorCode.EXPIRED_TOKEN_ERROR.getMessage()));
-        } catch (JwtException e) {
-            return ResponseEntity.status(ErrorCode.NOT_TOKEN_INVALID.getHttpStatus())
-                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_TOKEN_INVALID.getMessage()));
-        }
+        return ResponseEntity.ok(responseData);
     }
     // ✅ 마이페이지에 개인정보 GET 호출하기
     @GetMapping("/info")
     @ResponseBody
     public ResponseEntity<?> getUsersInfo(HttpServletRequest request) {
-        Optional<String> token = HeaderUtil.refineHeader(request, "Authorization", "Bearer ");
-        if (token.isEmpty()) {
-            return ResponseEntity.status(ErrorCode.NOT_FOUND_TOKEN.getHttpStatus())
-                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_FOUND_TOKEN.getMessage()));
-        }
-        try {
-            Claims claims = jwtUtil.validateToken(token.get());
-            String userId = claims.get("userId", String.class);
-
-            Optional<UserVO> userOptional = UserService.findByUserId(userId);
-            if (userOptional.isEmpty()) {
-                return ResponseEntity.status(NOT_FOUND_USER.getHttpStatus())
-                        .body(new ApiResponse<>(false, null, NOT_FOUND_USER.getMessage()));
-            }
-
-            UserVO user = userOptional.get();
-            Map<String, Object> responseData = Map.of(
-                    "userId", user.getUserId(),
-                    "userName", user.getUserName(),
-                    "userEmail", user.getUserEmail(),
-                    "userBirthday", user.getUserBirthday(),
-                    "userCreatedAt", user.getUserCreatedAt()
-            );
-
-            return ResponseEntity.ok(new ApiResponse<>(true, responseData, null));
-
-        } catch (ExpiredJwtException e) {
-            return ResponseEntity.status(ErrorCode.EXPIRED_TOKEN_ERROR.getHttpStatus())
-                    .body(new ApiResponse<>(false, null, ErrorCode.EXPIRED_TOKEN_ERROR.getMessage()));
-        } catch (JwtException e) {
-            return ResponseEntity.status(ErrorCode.NOT_TOKEN_INVALID.getHttpStatus())
-                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_TOKEN_INVALID.getMessage()));
-        }
+        String userId = authService.isValidToken(request);
+        UserVO user = userService.findByUserId(userId);
+        Map<String, Object> responseData = Map.of(
+                "userId", user.getUserId(),
+                "userName", user.getUserName(),
+                "userEmail", user.getUserEmail(),
+                "userBirthday", user.getUserBirthday(),
+                "userCreatedAt", user.getUserCreatedAt()
+        );
+        return ResponseEntity.ok(responseData);
     }
 
     @DeleteMapping("")
     public ResponseEntity<?> deleteUser(HttpServletRequest request) {
-        Optional<String> token = HeaderUtil.refineHeader(request, "Authorization", "Bearer ");
-
-        if (token.isEmpty()) {
-            log.warn("[User.deleteUser] NOT_FOUND_TOKEN");
-            return ResponseEntity.status(ErrorCode.NOT_FOUND_TOKEN.getHttpStatus())
-                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_FOUND_TOKEN.getMessage()));
-        }
-
-        try {
-            Claims claims = jwtUtil.validateToken(token.get());
-            String userId = claims.get("userId", String.class);
-
-            Optional<UserVO> userOptional = userService.findByUserId(userId);
-            if (userOptional.isEmpty()) {
-                log.warn("[User.deleteUser] NOT_FOUND_USER : {}", userId);
-                return ResponseEntity.status(NOT_FOUND_USER.getHttpStatus())
-                        .body(new ApiResponse<>(false, null, NOT_FOUND_USER.getMessage()));
-            }
-
-            userService.deleteUser(userId);
-            log.info("[User.deleteUser] SUCCESS : {}", userId);
-            return ResponseEntity.ok(new ApiResponse<>(true, null, "회원 탈퇴가 완료되었습니다."));
-
-        } catch (ExpiredJwtException e) {
-            log.warn("[User.deleteUser] EXPIRED_TOKEN");
-            return ResponseEntity.status(ErrorCode.EXPIRED_TOKEN_ERROR.getHttpStatus())
-                    .body(new ApiResponse<>(false, null, ErrorCode.EXPIRED_TOKEN_ERROR.getMessage()));
-
-        } catch (JwtException e) {
-            log.warn("[User.deleteUser] INVALID_TOKEN");
-            return ResponseEntity.status(ErrorCode.NOT_TOKEN_INVALID.getHttpStatus())
-                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_TOKEN_INVALID.getMessage()));
-
-        } catch (Exception e) {
-            log.error("[User.deleteUser] 탈퇴 중 서버 오류", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false, null, "회원 탈퇴 중 오류가 발생했습니다."));
-        }
+        String userId = authService.isValidToken(request);
+        userService.deleteUser(userId);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/info")
@@ -260,40 +121,12 @@ public class UserController {
             @RequestBody Map<String, String> updateData,
             HttpServletRequest request
     ) {
-        Optional<String> token = HeaderUtil.refineHeader(request, "Authorization", "Bearer ");
-        if (token.isEmpty()) {
-            return ResponseEntity.status(ErrorCode.NOT_FOUND_TOKEN.getHttpStatus())
-                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_FOUND_TOKEN.getMessage()));
-        }
+        String userId = authService.isValidToken(request);
+        String newEmail = updateData.get("email");
+        String newPassword = updateData.get("password");
+        userService.updateUserInfo(userId, newPassword, newEmail);
 
-        try {
-            Claims claims = jwtUtil.validateToken(token.get());
-            String userId = claims.get("userId", String.class);
-
-            String newEmail = updateData.get("email");
-            String newPassword = updateData.get("password");
-
-            userService.updateUserInfo(userId, newPassword, newEmail);
-
-            return ResponseEntity.ok(new ApiResponse<>(true, null, "회원 정보가 수정되었습니다."));
-
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(ErrorCode.NOT_AUTH_EMAIL.getHttpStatus())
-                    .body(new ApiResponse<>(false, null, e.getMessage()));
-
-        } catch (ExpiredJwtException e) {
-            return ResponseEntity.status(ErrorCode.EXPIRED_TOKEN_ERROR.getHttpStatus())
-                    .body(new ApiResponse<>(false, null, ErrorCode.EXPIRED_TOKEN_ERROR.getMessage()));
-
-        } catch (JwtException e) {
-            return ResponseEntity.status(ErrorCode.NOT_TOKEN_INVALID.getHttpStatus())
-                    .body(new ApiResponse<>(false, null, ErrorCode.NOT_TOKEN_INVALID.getMessage()));
-
-        } catch (Exception e) {
-            log.error("[User.updateUserInfo] 서버 오류", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(false, null, "회원 정보 수정 중 오류가 발생했습니다."));
-        }
+        return ResponseEntity.ok().build();
     }
 
 

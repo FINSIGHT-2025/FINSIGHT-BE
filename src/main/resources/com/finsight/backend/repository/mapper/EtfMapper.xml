@@ -98,7 +98,7 @@
         <result property="etfMinTradingUnit" column="etf_min_trading_unit" />
         <result property="etfTaxType" column="etf_tax_type" />
 
-        <association property="newsSentiment" javaType="NewsSentiment">
+        <association property="newsSentiment" javaType="NewsSentimentDTO">
             <result property="positive" column="positive_count"/>
             <result property="neutral" column="neutral_count"/>
             <result property="negative" column="negative_count"/>

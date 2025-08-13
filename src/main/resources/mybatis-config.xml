@@ -9,7 +9,8 @@
 <!--        <setting name="aggressiveLazyLoading" value="false" />-->
     </settings>
     <typeAliases>
-        <package name="com.finsight.backend.domain.vo"/>
+
+        <package name="com.finsight.backend.domain"/>
         <package name="com.finsight.backend.dto"/>
     </typeAliases>
     <typeHandlers>

@@ -23,6 +23,7 @@ public enum ErrorCode {
     EXPIRED_TOKEN_ERROR(2003, HttpStatus.UNAUTHORIZED, "만료된 토큰입니다"),
     TOKEN_UNSUPPORTED_ERROR(2004, HttpStatus.UNAUTHORIZED, "지원하지 않는 토큰입니다."),
     TOKEN_UNKNOWN_ERROR(2005, HttpStatus.UNAUTHORIZED, "알수 없는 토큰입니다."),
+    TOKEN_GENERATE_ERROR(2006, HttpStatus.INTERNAL_SERVER_ERROR, "토큰 생성에 실패했습니다."),
     ;
 
 //    ACCESS_DENIED_ERROR(4001, HttpStatus.FORBIDDEN, "접근 권한이 없습니다.");  권한 존재가 없기 때문에 노필요
