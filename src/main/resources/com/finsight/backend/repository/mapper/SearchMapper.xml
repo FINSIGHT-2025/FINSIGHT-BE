@@ -25,7 +25,7 @@
         WHERE product_name LIKE CONCAT('%', #{word}, '%')
     </select>
 
-    <select id="findDepositsByWord" parameterType="string" resultType="com.finsight.backend.dto.response.search.SearchDepositResponseDTO">
+    <select id="findDepositsByWordPaged" parameterType="map" resultType="com.finsight.backend.dto.response.search.SearchDepositResponseDTO">
         SELECT
             d.product_code         AS productCode,
             d.product_name         AS productName,
@@ -41,10 +41,12 @@
                 ON d.product_code = do.product_code
                     AND do.d_option_save_trm = 12
         WHERE d.product_name LIKE CONCAT('%', #{word}, '%')
+        ORDER BY d.product_name ASC
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
 
-    <select id="findFundsByWord" parameterType="map" resultType="com.finsight.backend.dto.response.search.SearchFundResponseDTO">
+    <select id="findFundsByWordPaged" parameterType="map" resultType="com.finsight.backend.dto.response.search.SearchFundResponseDTO">
         WITH sentiments AS (
             SELECT
                 np.product_code,
@@ -74,11 +76,12 @@
             FALSE                AS isPopularInUserGroup -- TODO
         FROM fund f
             LEFT JOIN sentiments s ON s.product_code = f.product_code
-        WHERE f.product_name LIKE CONCAT('%', #{word}, '%');
+        WHERE f.product_name LIKE CONCAT('%', #{word}, '%')
+        ORDER BY f.product_name ASC
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
-
-    <select id="findEtfsByWord" parameterType="string" resultType="com.finsight.backend.dto.response.search.SearchEtfResponseDTO">
+    <select id="findEtfsByWordPaged" parameterType="map" resultType="com.finsight.backend.dto.response.search.SearchEtfResponseDTO">
         WITH sentiments AS (
             SELECT
                 np.product_code,
@@ -106,7 +109,8 @@
             FALSE                AS isPopularInUserGroup    -- TODO
         FROM etf e
             LEFT JOIN sentiments s ON s.product_code = e.product_code
-        WHERE e.product_name LIKE CONCAT('%', #{word}, '%');
+        WHERE e.product_name LIKE CONCAT('%', #{word}, '%')
+        ORDER BY e.product_name ASC
+        LIMIT #{limit} OFFSET #{offset}
     </select>
-
 </mapper>

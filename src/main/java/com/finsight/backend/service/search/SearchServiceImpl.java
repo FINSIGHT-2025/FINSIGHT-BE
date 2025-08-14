@@ -1,9 +1,6 @@
 package com.finsight.backend.service.search;
 
-import com.finsight.backend.dto.response.search.SearchDepositResponseDTO;
-import com.finsight.backend.dto.response.search.SearchEtfResponseDTO;
-import com.finsight.backend.dto.response.search.SearchFundResponseDTO;
-import com.finsight.backend.dto.response.search.SearchSuggestionResponseDTO;
+import com.finsight.backend.dto.response.search.*;
 import com.finsight.backend.repository.mapper.SearchMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,46 +10,52 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class SearchServiceImpl implements SearchService{
+public class SearchServiceImpl implements SearchService {
 
     private final SearchMapper searchMapper;
 
     @Override
     public List<SearchSuggestionResponseDTO> getSuggestions(String word) {
         List<SearchSuggestionResponseDTO> result = new ArrayList<>();
-
         result.addAll(searchMapper.findDepositNameByWord(word));
         result.addAll(searchMapper.findFundNameByWord(word));
         result.addAll(searchMapper.findEtfNameByWord(word));
-
         return result;
     }
 
     @Override
-    public List<SearchDepositResponseDTO> getDeposits(String word) {
-        List<SearchDepositResponseDTO> result = new ArrayList<>();
+    public SearchPageResponseDTO<SearchDepositResponseDTO> getDeposits(String word, int page, int size) {
+        int offset = page * size;
+        int limit = size + 1;
+        List<SearchDepositResponseDTO> rows = searchMapper.findDepositsByWordPaged(word, limit, offset);
 
-        result.addAll(searchMapper.findDepositsByWord(word));
+        boolean hasNext = rows.size() > size;
+        if (hasNext) rows = rows.subList(0, size);
 
-        return result;
+        return new SearchPageResponseDTO<>(rows, page, size, hasNext, null);
     }
 
     @Override
-    public List<SearchFundResponseDTO> getFunds(String word) {
-        List<SearchFundResponseDTO> result = new ArrayList<>();
+    public SearchPageResponseDTO<SearchFundResponseDTO> getFunds(String word, int page, int size) {
+        int offset = page * size;
+        int limit = size + 1;
+        List<SearchFundResponseDTO> rows = searchMapper.findFundsByWordPaged(word, limit, offset);
 
-        result.addAll(searchMapper.findFundsByWord(word));
+        boolean hasNext = rows.size() > size;
+        if (hasNext) rows = rows.subList(0, size);
 
-        return result;
+        return new SearchPageResponseDTO<>(rows, page, size, hasNext, null);
     }
 
     @Override
-    public List<SearchEtfResponseDTO> getEtfs(String word) {
-        List<SearchEtfResponseDTO> result = new ArrayList<>();
+    public SearchPageResponseDTO<SearchEtfResponseDTO> getEtfs(String word, int page, int size) {
+        int offset = page * size;
+        int limit = size + 1;
+        List<SearchEtfResponseDTO> rows = searchMapper.findEtfsByWordPaged(word, limit, offset);
 
-        result.addAll(searchMapper.findEtfsByWord(word));
+        boolean hasNext = rows.size() > size;
+        if (hasNext) rows = rows.subList(0, size);
 
-        return result;
-
+        return new SearchPageResponseDTO<>(rows, page, size, hasNext, null);
     }
 }

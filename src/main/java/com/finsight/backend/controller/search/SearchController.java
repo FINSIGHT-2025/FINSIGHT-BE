@@ -1,9 +1,6 @@
 package com.finsight.backend.controller.search;
 
-import com.finsight.backend.dto.response.search.SearchDepositResponseDTO;
-import com.finsight.backend.dto.response.search.SearchEtfResponseDTO;
-import com.finsight.backend.dto.response.search.SearchFundResponseDTO;
-import com.finsight.backend.dto.response.search.SearchSuggestionResponseDTO;
+import com.finsight.backend.dto.response.search.*;
 import com.finsight.backend.service.search.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -18,18 +15,30 @@ public class SearchController {
     private final SearchService searchService;
 
     @GetMapping(params = "category=deposit")
-    public List<SearchDepositResponseDTO> getDeposits(@RequestParam("word") String word) {
-        return searchService.getDeposits(word);
+    public SearchPageResponseDTO<SearchDepositResponseDTO> getDeposits(
+            @RequestParam(value = "word") String word,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "4") int size
+    ) {
+        return searchService.getDeposits(word, page, size);
     }
 
     @GetMapping(params = "category=fund")
-    public List<SearchFundResponseDTO> getFunds(@RequestParam("word") String word) {
-        return searchService.getFunds(word);
+    public SearchPageResponseDTO<SearchFundResponseDTO> getFunds(
+            @RequestParam(value = "word") String word,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "4") int size
+    ) {
+        return searchService.getFunds(word, page, size);
     }
 
     @GetMapping(params = "category=etf")
-    public List<SearchEtfResponseDTO> getEtfs(@RequestParam("word") String word) {
-        return searchService.getEtfs(word);
+    public SearchPageResponseDTO<SearchEtfResponseDTO> getEtfs(
+            @RequestParam(value = "word") String word,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "4") int size
+    ) {
+        return searchService.getEtfs(word, page, size);
     }
 
     @GetMapping("/suggestions")
