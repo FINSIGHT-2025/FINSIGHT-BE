@@ -75,8 +75,11 @@ public class EtfPriceService {
         return calculatePercentChange(todayValue, pastValue);
     }
 
-    public List<PricePointVO> getThreeMonthsPriceHistory(String measurementAndField, String productCode, String tagName) {
+    public List<PricePointVO> getThreeMonthsPriceHistory(String measurementAndField, String productCode) {
         QueryApi queryApi = influxDBClient.getQueryApi();
+
+        // measurement에 따라 tag key 자동 선택
+        String productCodeTag = measurementAndField.contains("etf") ? "etf_code" : "fund_code";
 
         Instant now = LocalDate.now(SEOUL_ZONE_ID).minusDays(1).atStartOfDay(SEOUL_ZONE_ID).toInstant();
         Instant start = now.minus(90, ChronoUnit.DAYS);
@@ -90,7 +93,7 @@ public class EtfPriceService {
                 start.toString(),
                 now.toString(),
                 measurementAndField,
-                tagName,
+                productCodeTag,
                 productCode,
                 measurementAndField
         );
@@ -109,6 +112,7 @@ public class EtfPriceService {
         }
         return result;
     }
+
 
     private double findLatestValueWithFallback(String measurement, String field, String productCode, Instant targetTime) {
         // 1단계: 먼저 정확히 그날 하루(24시간) 범위 내에서만 조회를 시도합니다.
@@ -130,16 +134,20 @@ public class EtfPriceService {
     private double executeFluxQuery(String measurement, String field, String productCode, Instant startTime, Instant stopTime) {
         QueryApi queryApi = influxDBClient.getQueryApi();
 
+        // measurement에 따라 tag key 결정
+        String productCodeTag = measurement.contains("etf") ? "etf_code" : "fund_code";
+
         String flux = String.format(
                 "from(bucket: \"%s\") " +
                         "|> range(start: %s, stop: %s) " +
-                        "|> filter(fn: (r) => r._measurement == \"%s\" and r.fund_code == \"%s\" and r._field == \"%s\") " +
+                        "|> filter(fn: (r) => r._measurement == \"%s\" and r.%s == \"%s\" and r._field == \"%s\") " +
                         "|> sort(columns: [\"_time\"], desc: true) " +
                         "|> limit(n: 1)",
                 influxDBConfig.getInfluxBucket(),
                 startTime.toString(),
                 stopTime.toString(),
                 measurement,
+                productCodeTag,
                 productCode,
                 field
         );
@@ -154,6 +162,7 @@ public class EtfPriceService {
                 .findFirst()
                 .orElse(0.0);
     }
+
 
     private double calculatePercentChange(double currentValue, double pastValue) {
         if (pastValue != 0) {
