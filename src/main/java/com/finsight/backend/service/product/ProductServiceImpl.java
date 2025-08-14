@@ -1,12 +1,13 @@
-package com.finsight.backend.service;
+package com.finsight.backend.service.product;
 
+import com.finsight.backend.common.exception.product.CustomNotFoundProduct;
 import com.finsight.backend.tmpdetailhodings.vo.DetailHistoryVO;
 import com.finsight.backend.tmpdetailhodings.dto.DetailHoldingsResponseDto;
 import com.finsight.backend.dto.response.ProductByFilterDto;
 import com.finsight.backend.dto.response.ProductDetailDto;
 import com.finsight.backend.repository.mapper.DetailHoldingsMapper;
-import com.finsight.backend.service.handler.ProductDtoHandler;
-import com.finsight.backend.service.handler.ProductVoHandler;
+import com.finsight.backend.service.product.handler.ProductDtoHandler;
+import com.finsight.backend.service.product.handler.ProductVoHandler;
 import com.finsight.backend.domain.vo.product.ProductVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,12 +35,12 @@ public class ProductServiceImpl implements ProductService{
                 .filter(handler -> handler.getProductType().equals(expectedType))
                 .findFirst()
                 .map(handler -> expectedType.cast(handler.findProduct(productCode)))
-                .orElseThrow(() -> new IllegalArgumentException("해당 vo 핸들러 없음 : " + expectedType));
+                .orElseThrow(CustomNotFoundProduct::new);
 
         ProductDtoHandler<? extends ProductVO> matchedVoHandler = dtoHandlers.stream()
                 .filter(handler -> handler.getProductType().equals(expectedType))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("해당 dto 핸들러 없음 : " + expectedType));
+                .orElseThrow(CustomNotFoundProduct::new);
 
         @SuppressWarnings("unchecked")
         ProductDtoHandler<T> dtoHandler = (ProductDtoHandler<T>) matchedVoHandler;
@@ -75,7 +76,7 @@ public class ProductServiceImpl implements ProductService{
         ProductVoHandler<T> matchedVoHandler = (ProductVoHandler<T>) voHandlers.stream()
                 .filter(handler -> handler.getProductType().equals(expectedType))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("해당 vo 핸들러 없음 : " + expectedType));
+                .orElseThrow(CustomNotFoundProduct::new);
 
         List<T> productList = matchedVoHandler.findProductListByFilter(sort, country, type, isMatched, userId);
 
@@ -84,7 +85,7 @@ public class ProductServiceImpl implements ProductService{
         ProductDtoHandler<T> productDtoHandler =  (ProductDtoHandler<T>) dtoHandlers.stream()
                 .filter(handler -> handler.getProductType().equals(expectedType))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("해당 dto 핸들러 없음 : " + expectedType));
+                .orElseThrow(CustomNotFoundProduct::new);
 
         return productDtoHandler.toFilterDto(productList, userId, sort);
     }

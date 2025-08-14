@@ -1,5 +1,7 @@
-package com.finsight.backend.service.handler;
+package com.finsight.backend.service.product.handler;
 
+import com.finsight.backend.domain.vo.product.EtfVO;
+import com.finsight.backend.domain.vo.user.HoldingsVO;
 import com.finsight.backend.dto.NewsSentimentTotalDto;
 import com.finsight.backend.dto.response.*;
 import com.finsight.backend.repository.mapper.DetailHoldingsMapper;
@@ -45,18 +47,23 @@ public class FundDtoHandler implements ProductDtoHandler<FundVO> {
                 .percentChangeFromYesterday(etfPriceService.getPercentChangeFromYesterday("fund_nav", product.getProductCode()))
                 .percentChangeFrom3MonthsAgo(etfPriceService.getPercentChangeFrom3MonthsAgo("fund_nav", product.getProductCode()))
                 .build();
-        return FundDetailDetailDto.fundVoToFundDetailDto(product, newsResponseDTOList, fundPriceSummary);
+        return FundDetailDto.fundVoToFundDetailDto(product, newsResponseDTOList, fundPriceSummary);
     }
 
     @Override
     public List<ProductByFilterDto> toFilterDto(List<FundVO> product, String userId, String sort) {
         List<FundByFilterDto> fundByFilterDtoList = product.stream()
-                .map((FundVO fund) -> FundByFilterDto.fundVoToFundByFilterDto(fund,
-                        newsSentimentPer(newsMapper.findNewsSentimentByProductCode(fund.getProductCode())),
-                        holdingsMapper.existProductByUserIdAndProductCode(userId, fund.getProductCode()),
-                        detailHoldingsMapper.isProductWatched(userId, fund.getProductCode()),
-                        etfPriceService.getPercentChangeFrom3MonthsAgo("fund_aum", fund.getProductCode()),
-                        etfPriceService.getCurrent("fund_aum", fund.getProductCode()))
+                .map((FundVO fund) -> {
+                    HoldingsVO holdingDeposit = holdingsMapper.findByUserAndProduct(userId, fund.getProductCode());
+
+                    Boolean userOwn = holdingDeposit == null || holdingDeposit.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
+                    return FundByFilterDto.fundVoToFundByFilterDto(fund,
+                                    newsSentimentPer(newsMapper.findNewsSentimentByProductCode(fund.getProductCode())),
+                                    userOwn,
+                                    detailHoldingsMapper.isProductWatched(userId, fund.getProductCode()),
+                                    etfPriceService.getPercentChangeFrom3MonthsAgo("fund_aum", fund.getProductCode()),
+                                    etfPriceService.getCurrent("fund_aum", fund.getProductCode()));
+                        }
                 )
                 .toList();
         SORT_HANDLERS = Map.of(
@@ -86,5 +93,15 @@ public class FundDtoHandler implements ProductDtoHandler<FundVO> {
                 .negative(getPercent.apply("negative"))
                 .neutral(getPercent.apply("neutral"))
                 .build();
+    }
+    public FundFromNews toFundFromNews(FundVO fundVO, String userId){
+        return FundFromNews.fundVoToFundFromNews(
+                fundVO,
+                newsSentimentPer(newsMapper.findNewsSentimentByProductCode(fundVO.getProductCode())),
+                holdingsMapper.existProductByUserIdAndProductCode(userId, fundVO.getProductCode()),
+                detailHoldingsMapper.isProductWatched(userId, fundVO.getProductCode()),
+                etfPriceService.getPercentChangeFrom3MonthsAgo("fund_aum", fundVO.getProductCode()),
+                etfPriceService.getCurrent("fund_aum", fundVO.getProductCode())
+        );
     }
 }

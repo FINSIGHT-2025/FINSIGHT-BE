@@ -1,5 +1,7 @@
-package com.finsight.backend.service.handler;
+package com.finsight.backend.service.product.handler;
 
+import com.finsight.backend.common.exception.product.CustomNotFoundProduct;
+import com.finsight.backend.domain.vo.user.HoldingsVO;
 import com.finsight.backend.dto.response.DepositByFilterDto;
 import com.finsight.backend.dto.response.DepositDetailDto;
 import com.finsight.backend.dto.response.ProductByFilterDto;
@@ -36,12 +38,15 @@ public class DepositDtoHandler implements ProductDtoHandler<DepositVO>{
                 .map(deposit -> {
                     DOptionVO option = deposit.getDOption().stream()
                             .findFirst()
-                            .orElseThrow(() -> new IllegalStateException("DOption이 비어있습니다: " + deposit.getProductCode()));
+                            .orElseThrow(null);
+                    HoldingsVO holdingDeposit = holdingsMapper.findByUserAndProduct(userId, deposit.getProductCode());
+
+                    Boolean userOwn = holdingDeposit == null || holdingDeposit.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
                     return DepositByFilterDto.depositVoToDepositByFilterDto(
                             deposit,
                             option.getDOptionIntrRate(),
                             option.getDOptionIntrRate2(),
-                            holdingsMapper.existProductByUserIdAndProductCode(userId, deposit.getProductCode()),
+                            userOwn,
                             detailHoldingsMapper.isProductWatched(userId, deposit.getProductCode())
                     );
                 })
