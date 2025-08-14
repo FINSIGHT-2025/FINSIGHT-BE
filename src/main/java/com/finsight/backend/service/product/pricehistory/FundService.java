@@ -19,8 +19,8 @@ public class FundService {
 
     public List<FundPriceHistoryDto> getFundPriceHistory(String fundCode) {
         // fund_nav와 fund_aum을 각각 조회
-        List<PricePointVO> navList = etfPriceService.getThreeMonthsPriceHistory("fund_nav", fundCode, "fund_code");
-        List<PricePointVO> aumList = etfPriceService.getThreeMonthsPriceHistory("fund_aum", fundCode, "fund_code");
+        List<PricePointVO> navList = etfPriceService.getThreeMonthsPriceHistory("fund_nav", fundCode);
+        List<PricePointVO> aumList = etfPriceService.getThreeMonthsPriceHistory("fund_aum", fundCode);
 
         // 두 리스트가 날짜 기준으로 동일하다고 가정하고 인덱스 기준으로 DTO 생성
         int size = Math.min(navList.size(), aumList.size());

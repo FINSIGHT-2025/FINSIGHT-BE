@@ -17,7 +17,7 @@ public class EtfService {
     private final EtfPriceService etfPriceService;
 
     public List<EtfPriceHistoryDto> getThreeMonthsEtfNav(String productCode) {
-        List<PricePointVO> points = etfPriceService.getThreeMonthsPriceHistory("etf_nav", productCode, "etf_code");
+        List<PricePointVO> points = etfPriceService.getThreeMonthsPriceHistory("etf_nav", productCode);
         System.out.println("Fetched points count: " + points.size());  // 디버깅용
         return points.stream()
                 .map(p -> EtfPriceHistoryDto.builder()
