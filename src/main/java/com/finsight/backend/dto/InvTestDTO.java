@@ -15,5 +15,4 @@ import lombok.NoArgsConstructor;
 @Builder // 빌더 패턴 자동 생성
 public class InvTestDTO {
     private InvestmentProfileType investmentProfileType;
-//    private investmentProfileUpdatedAt investmentProfileUpdatedAt;
 }

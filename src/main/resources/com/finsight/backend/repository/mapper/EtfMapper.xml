@@ -83,6 +83,11 @@
         WHERE product_name LIKE CONCAT('%', #{word}, '%')
     </select>
 
+    <select id="selectAllEtfs" resultType="EtfVO">
+        SELECT product_code
+        FROM Etf
+    </select>
+
 
 
 

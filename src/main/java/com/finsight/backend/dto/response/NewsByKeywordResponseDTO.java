@@ -12,5 +12,6 @@ import java.util.List;
 public class NewsByKeywordResponseDTO {
 
     private List<NewsResponseDTO> newsList;
-    private List<Object> productList; // 키워드에 해당되는 상품 목록
+    private List<EtfFromNews> etfList; // 키워드에 해당되는 상품 목록
+    private List<FundFromNews> fundList;
 }

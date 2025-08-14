@@ -1,5 +1,7 @@
-package com.finsight.backend.service.handler;
+package com.finsight.backend.service.product.handler;
 
+import com.finsight.backend.common.exception.product.CustomNotFoundProduct;
+import com.finsight.backend.domain.vo.user.HoldingsVO;
 import com.finsight.backend.dto.response.DepositByFilterDto;
 import com.finsight.backend.dto.response.DepositDetailDto;
 import com.finsight.backend.dto.response.ProductByFilterDto;
@@ -27,30 +29,38 @@ public class DepositDtoHandler implements ProductDtoHandler<DepositVO>{
 
     @Override
     public ProductDetailDto toDetailDto(DepositVO product) {
-        DOptionVO option = product.getDOptionVO().stream()
+        List<DOptionVO> options = product.getDOption();
+        if (options == null || options.isEmpty()) {
+            throw new IllegalStateException("DOption이 비어있습니다: " + product.getProductCode());
+        }
+
+        DOptionVO option = options.stream()
                 .filter(o -> "12".equals(o.getDOptionSaveTrm()))
                 .findFirst()
-                .orElse(product.getDOptionVO().stream()
-                        .findFirst()
-                        .orElseThrow(() -> new IllegalStateException("DOption이 비어있습니다: " + product.getProductCode())));
-        return DepositDetailDto.depositVoToDepositDetailDto(product, option.getDOptionIntrRate(), option.getDOptionIntrRate2());
+                .orElse(options.get(0));
+
+        return DepositDetailDto.depositVoToDepositDetailDto(
+                product,
+                option.getDOptionIntrRate(),
+                option.getDOptionIntrRate2()
+        );
     }
 
     @Override
     public List<ProductByFilterDto> toFilterDto(List<DepositVO> product, String userId, String sort) {
         return product.stream()
                 .map(deposit -> {
-                    DOptionVO option = deposit.getDOptionVO().stream()
-                            .filter(o -> "12".equals(o.getDOptionSaveTrm()))
+                    DOptionVO option = deposit.getDOption().stream()
                             .findFirst()
-                            .orElse(deposit.getDOptionVO().stream()
-                                    .findFirst()
-                                    .orElseThrow(() -> new IllegalStateException("DOption이 비어있습니다: " + deposit.getProductCode())));
+                            .orElseThrow(null);
+                    HoldingsVO holdingDeposit = holdingsMapper.findByUserAndProduct(userId, deposit.getProductCode());
+
+                    Boolean userOwn = holdingDeposit == null || holdingDeposit.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
                     return DepositByFilterDto.depositVoToDepositByFilterDto(
                             deposit,
                             option.getDOptionIntrRate(),
                             option.getDOptionIntrRate2(),
-                            holdingsMapper.existProductByUserIdAndProductCode(userId, deposit.getProductCode()),
+                            userOwn,
                             detailHoldingsMapper.isProductWatched(userId, deposit.getProductCode())
                     );
                 })

@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class FundDetailDetailDto extends ProductDetailDto {
+public class FundDetailDto extends ProductDetailDto {
     private ProductCountry fundCountry;
     private ProductType fundType;
     private Boolean fundDelistingStatus;
@@ -37,8 +37,8 @@ public class FundDetailDetailDto extends ProductDetailDto {
     
     private FundPriceSummaryDto fundPriceSummaryDto;
 
-    public static FundDetailDetailDto fundVoToFundDetailDto(FundVO fund, List<NewsResponseDTO> fundNewsResponse, FundPriceSummaryDto fundPriceSummary){
-        return FundDetailDetailDto.builder()
+    public static FundDetailDto fundVoToFundDetailDto(FundVO fund, List<NewsResponseDTO> fundNewsResponse, FundPriceSummaryDto fundPriceSummary){
+        return FundDetailDto.builder()
                 .productCode(fund.getProductCode())
                 .productName(fund.getProductName())
                 .productCompanyName(fund.getProductCompanyName())

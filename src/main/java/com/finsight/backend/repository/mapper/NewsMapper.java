@@ -1,10 +1,10 @@
 package com.finsight.backend.repository.mapper;
 
-import com.finsight.backend.domain.vo.TempEtfVO;
-import com.finsight.backend.domain.vo.TempFundVO;
 import com.finsight.backend.domain.vo.news.KeywordVO;
 import com.finsight.backend.domain.vo.news.NewsProductVO;
 import com.finsight.backend.domain.vo.news.NewsVO;
+import com.finsight.backend.domain.vo.product.EtfVO;
+import com.finsight.backend.domain.vo.product.FundVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -35,12 +35,6 @@ public interface NewsMapper {
     List<NewsVO> findNewsByProductCode(String productCode); // 상품 코드로 뉴스 목록 조회
 
     List<NewsProductVO> findProductInfoByKeywordId(Long keywordId);
-
-
-//    임시 Fund mapper
-    List<TempFundVO> selectAllFunds();
-
-    List<TempEtfVO> selectAllEtfs();
 
     List<String> findNewsSentimentByProductCode(String productCode);
 

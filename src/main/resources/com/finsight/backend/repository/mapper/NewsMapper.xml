@@ -104,20 +104,11 @@
                 JOIN
             news_product np ON n.news_id = np.news_id
         WHERE
-            np.product_code = #{productCode}
+            np.product_code = #{productCode} and n.news_published_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
         ORDER BY
             n.news_published_at DESC
     </select>
 
-    <!--     임시 : fund mapper    -->
-    <select id="selectAllFunds" resultType="TempFundVO">
-        SELECT product_code
-        FROM Fund
-    </select>
-    <select id="selectAllEtfs" resultType="TempEtfVO">
-        SELECT product_code
-        FROM Etf
-    </select>
     <select id="existsNewsTitle" resultType="java.lang.Boolean">
         SELECT COUNT(*)
         FROM news
@@ -127,7 +118,7 @@
     <select id="findNewsSentimentByProductCode" resultType="java.lang.String">
         select news_sentiment
         from news_product np
-                 left join news n on np.news_id = n.news_id
-        where np.product_code = #{productCode};
+                join news n on np.news_id = n.news_id
+        where np.product_code = #{productCode} and n.news_published_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
     </select>
 </mapper>

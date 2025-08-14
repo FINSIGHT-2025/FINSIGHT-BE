@@ -1,4 +1,4 @@
-package com.finsight.backend.service.handler;
+package com.finsight.backend.service.product.handler;
 
 import com.finsight.backend.dto.response.ProductByFilterDto;
 import com.finsight.backend.dto.response.ProductDetailDto;
