@@ -6,7 +6,7 @@ import com.finsight.backend.domain.enumerate.ProductType;
 import com.finsight.backend.domain.vo.product.FundVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import com.finsight.backend.dto.response.SearchSuggestionResponseDTO;
+import com.finsight.backend.dto.response.search.SearchSuggestionResponseDTO;
 
 import java.util.List;
 @Mapper
@@ -16,9 +16,6 @@ public interface FundMapper {
                                       @Param("productType")ProductType productType,
                                       @Param("productRiskGrade") Integer[] productRiskGrade);
 
-    List<SearchSuggestionResponseDTO> findFundNameByWord(String word);
-
     List<FundVO> selectAllFundStock();
-
     NewsFundDTO findFundByProductCode(String productCode);
 }
