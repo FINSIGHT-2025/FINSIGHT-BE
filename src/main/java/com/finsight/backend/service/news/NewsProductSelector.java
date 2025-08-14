@@ -1,32 +1,51 @@
 package com.finsight.backend.service.news;
 
 import com.finsight.backend.domain.vo.news.NewsProductVO;
+import com.finsight.backend.tmptradeserverwebsocket.service.EtfPriceService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
+@RequiredArgsConstructor
 public class NewsProductSelector {
-    public List<NewsProductVO> recommendTop3(List<NewsProductVO> candidates) {
-        // 앞에서 3개 자르기
-        return candidates.stream()
-                .limit(10)
+    private final EtfPriceService etfPriceService;
+
+    public List<NewsProductVO> recommendTopProduct(List<NewsProductVO> candidates) {
+        // ETF와 FUND를 나눠서 각각 5개씩 가져오기
+        List<NewsProductVO> topEtfs = candidates.stream()
+                .filter(vo -> "etf".equalsIgnoreCase(vo.getNewsProductCategory()))
+                .sorted(Comparator.comparingDouble(this::getChangeRate).reversed())
+                .limit(5)
                 .collect(Collectors.toList());
 
-        /*
-        // [개인화 로직]
-        // 사용자 정보를 기반으로 점수를 매겨 정렬 후 3개 선택
-        return candidates.stream()
-                .sorted((p1, p2) -> calculateScore(p2, user) - calculateScore(p1, user))
-                .limit(3)
+        List<NewsProductVO> topFunds = candidates.stream()
+                .filter(vo -> "fund".equalsIgnoreCase(vo.getNewsProductCategory()))
+                .sorted(Comparator.comparingDouble(this::getChangeRate).reversed())
+                .limit(5)
                 .collect(Collectors.toList());
-        */
+
+        // ETF 5개 + FUND 5개 합치기
+        return Stream.concat(topEtfs.stream(), topFunds.stream())
+                .collect(Collectors.toList());
     }
 
-    // 개인화 점수 계산 로직
-    private int calculateScore(NewsProductVO product) {
-        // 개인화 점수 계산 로직 ...
-        return 0;
+    /**
+     * EtfPriceService를 사용해 전일 대비 변동률 가져오기
+     */
+    private double getChangeRate(NewsProductVO vo) {
+        try {
+            String measurement = vo.getNewsProductCategory().equalsIgnoreCase("ETF")
+                    ? "etf_price"   // 실제 measurement 이름
+                    : "fund_nav";   // 실제 measurement 이름
+
+            return etfPriceService.getPercentChangeFromYesterday(measurement, vo.getProductCode());
+        } catch (Exception e) {
+            return Double.NEGATIVE_INFINITY; // 오류 시 정렬에서 뒤로 밀리도록
+        }
     }
 }
