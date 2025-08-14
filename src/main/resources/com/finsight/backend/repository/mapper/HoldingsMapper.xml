@@ -364,24 +364,38 @@
     <!-- 예금 보유내역 조회 -->
     <select id="selectDepositHoldingsByUserId" parameterType="string" resultType="com.finsight.backend.dto.response.HoldingDetailDto">
         SELECT 
+            Holdings.holdings_id as holdingsId,
             Holdings.product_code as productCode,
+            Holdings.product_category as productCategory,
+            Holdings.holdings_total_price as currentValuation,
+            Holdings.holdings_total_quantity as currentHoldings,
+            Holdings.holdings_status as holdingsStatus,
+            History.history_trade_date as tradeDate,
+            History.history_amount as tradeAmount,
+            History.history_quantity as tradeQuantity,
+            History.contract_months as contractMonths,
             Deposit.product_name as productName,
             Deposit.product_company_name as productCompanyName,
             '국내' as productCountry,
             '예금' as productType,
-            Holdings.holdings_total_price as currentHoldings,
-            Holdings.holdings_total_price as currentValuation,
-            NULL as previousDayPrice,
             DATE_ADD(History.history_trade_date, INTERVAL History.contract_months MONTH) as maturityDate,
             CASE WHEN Watch.watchlist_id IS NOT NULL THEN true ELSE false END as isWatched
         FROM Holdings
+        INNER JOIN (
+            SELECT 
+                holdings_id,
+                MAX(history_trade_date) as max_trade_date
+            FROM History 
+            GROUP BY holdings_id
+        ) latest ON Holdings.holdings_id = latest.holdings_id
+        INNER JOIN History ON Holdings.holdings_id = History.holdings_id 
+            AND History.history_trade_date = latest.max_trade_date
         JOIN Deposit ON Holdings.product_code = Deposit.product_code
-        JOIN History ON Holdings.holdings_id = History.holdings_id
         LEFT JOIN Watch ON Holdings.user_id = Watch.user_id AND Holdings.product_code = Watch.product_code
-        WHERE Holdings.user_id = #{userId}
-        AND Holdings.product_category = 'deposit'
-        AND Holdings.holdings_status = 'holding'
-        ORDER BY Holdings.holdings_total_price DESC
+        WHERE Holdings.user_id = #{userId} 
+            AND Holdings.product_category = 'deposit'
+            AND Holdings.holdings_status != 'terminated'
+        ORDER BY Holdings.holdings_id
     </select>
     
 </mapper>

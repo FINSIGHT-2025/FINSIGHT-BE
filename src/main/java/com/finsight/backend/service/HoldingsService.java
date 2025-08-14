@@ -274,4 +274,14 @@ public class HoldingsService {
         return Math.round(total * 100.0) / 100.0;
     }
 
+    // 예금 상품별 개별 보유내역 조회 (holdingsID당 가장 최근 history)
+    public List<HoldingDetailDto> getDepositHoldingsByUserId(String userId) {
+        return holdingsMapper.selectDepositHoldingsByUserId(userId);
+    }
+
+    // 예금 상품별 개별 보유내역 조회 (컨트롤러용)
+    public List<HoldingDetailDto> getDepositDetailsByUserId(String userId) {
+        return getDepositHoldingsByUserId(userId);
+    }
+
 }

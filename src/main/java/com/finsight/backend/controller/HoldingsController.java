@@ -6,6 +6,7 @@ import com.finsight.backend.service.HoldingsService;
 import com.finsight.backend.service.TradeService;
 import com.finsight.backend.common.util.HeaderUtil;
 import com.finsight.backend.common.util.JwtUtil;
+import com.finsight.backend.dto.response.HoldingDetailDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/holdings")
@@ -66,15 +68,17 @@ public class HoldingsController {
                 throw new InvTestException("유효하지 않거나 만료된 토큰입니다.", HttpStatus.FORBIDDEN);
             }
 
-            Double depositPrice = holdingsService.getDepositPriceByUserId(userId);
-            if (depositPrice == null) {
+            List<HoldingDetailDto> depositDetails = holdingsService.getDepositDetailsByUserId(userId);
+            if (depositDetails == null || depositDetails.isEmpty()) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("message", "사용자의 예금 보유 정보를 찾을 수 없습니다.");
                 return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
             }
 
             Map<String, Object> successResponse = new HashMap<>();
-            successResponse.put("depositPrice", depositPrice);
+            successResponse.put("depositDetails", depositDetails);
+            successResponse.put("totalCount", depositDetails.size());
+            successResponse.put("message", "예금 보유내역 조회 성공");
             return new ResponseEntity<>(successResponse, HttpStatus.OK);
 
         } catch (Exception e) {
