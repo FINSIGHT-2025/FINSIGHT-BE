@@ -61,7 +61,7 @@ public class FundDtoHandler implements ProductDtoHandler<FundVO> {
                                     newsSentimentPer(newsMapper.findNewsSentimentByProductCode(fund.getProductCode())),
                                     userOwn,
                                     detailHoldingsMapper.isProductWatched(userId, fund.getProductCode()),
-                                    etfPriceService.getPercentChangeFrom3MonthsAgo("fund_aum", fund.getProductCode()),
+                                    etfPriceService.getPercentChangeFrom3MonthsAgo("fund_nav", fund.getProductCode()),
                                     etfPriceService.getCurrent("fund_aum", fund.getProductCode()));
                 }).toList();
         SORT_HANDLERS = Map.of(
@@ -98,7 +98,7 @@ public class FundDtoHandler implements ProductDtoHandler<FundVO> {
                 newsSentimentPer(newsMapper.findNewsSentimentByProductCode(fundVO.getProductCode())),
                 holdingsMapper.existProductByUserIdAndProductCode(userId, fundVO.getProductCode()),
                 detailHoldingsMapper.isProductWatched(userId, fundVO.getProductCode()),
-                etfPriceService.getPercentChangeFrom3MonthsAgo("fund_aum", fundVO.getProductCode()),
+                etfPriceService.getPercentChangeFrom3MonthsAgo("fund_nav", fundVO.getProductCode()),
                 etfPriceService.getCurrent("fund_aum", fundVO.getProductCode())
         );
     }
