@@ -4,7 +4,6 @@ import com.finsight.backend.dto.request.TradeRequest;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -14,7 +13,7 @@ public class HoldingsVO {
     private String userId;
     private String productCode;
     private String productCategory;
-    private BigDecimal holdingsTotalPrice;
+    private Double holdingsTotalPrice;
     private Integer holdingsTotalQuantity;
     private String holdingsStatus; // holding, zero, terminated, expired
 

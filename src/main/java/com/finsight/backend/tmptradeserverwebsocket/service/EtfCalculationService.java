@@ -4,9 +4,6 @@ import com.finsight.backend.tmptradeserverwebsocket.dto.ProductWebSocketDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-
 @Service
 @RequiredArgsConstructor
 public class EtfCalculationService {
@@ -46,14 +43,9 @@ public class EtfCalculationService {
     private double calculateReturnRate(double current, double base) {
         if (base <= 0) return 0.0;
 
-        BigDecimal currentPrice = BigDecimal.valueOf(current);
-        BigDecimal basePrice = BigDecimal.valueOf(base);
-
-        BigDecimal rate = currentPrice.subtract(basePrice)
-                .divide(basePrice, 10, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(100));
-
-        return rate.setScale(2, RoundingMode.HALF_UP).doubleValue(); // 소수점 둘째 자리까지 반올림
+        double rate = (current - base) / base * 100;
+        
+        // 소수점 둘째 자리까지 반올림
+        return Math.round(rate * 100.0) / 100.0;
     }
-
 }

@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.math.BigDecimal;
 
 @Slf4j
 @Service
@@ -31,11 +30,11 @@ public class TradeService {
             holdingsMapper.insert(holdings);
         } else {
             int newQty = holdings.getHoldingsTotalQuantity() + (isBuy ? req.getQuantity() : -req.getQuantity());
-            BigDecimal newAmt;
+            Double newAmt;
             if (isBuy) {
-                newAmt = holdings.getHoldingsTotalPrice().add(req.getAmount());
+                newAmt = Math.round((holdings.getHoldingsTotalPrice() + req.getAmount()) * 100.0) / 100.0;
             } else {
-                newAmt = holdings.getHoldingsTotalPrice().subtract(req.getAmount());
+                newAmt = Math.round((holdings.getHoldingsTotalPrice() - req.getAmount()) * 100.0) / 100.0;
             }
 
             // 판매 시에만 보유 수량 체크 (보유하지 않은 상품은 판매 불가)

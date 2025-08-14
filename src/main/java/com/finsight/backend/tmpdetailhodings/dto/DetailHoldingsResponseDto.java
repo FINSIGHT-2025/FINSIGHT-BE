@@ -2,7 +2,6 @@ package com.finsight.backend.tmpdetailhodings.dto;
 
 import com.finsight.backend.tmpdetailhodings.vo.DetailHistoryVO;
 import lombok.*;
-import java.math.BigDecimal;
 
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -18,7 +17,7 @@ public class DetailHoldingsResponseDto {
 
     private String productCategory;
 
-    private BigDecimal holdingsTotalPrice;
+    private Double holdingsTotalPrice;
 
     private int holdingsTotalQuantity;
 

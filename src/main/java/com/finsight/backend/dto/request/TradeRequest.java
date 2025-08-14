@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -15,7 +14,7 @@ public class TradeRequest {
     private String productCode;
     private String productCategory; // deposit, fund, etf
     private int quantity;
-    private BigDecimal amount;
+    private Double amount;
     private Integer contractMonths; // 약정 개월 수
 }
 

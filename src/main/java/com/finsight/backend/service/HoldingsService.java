@@ -230,7 +230,7 @@ public class HoldingsService {
             }
         }
         
-        return total;
+        return Math.round(total * 100.0) / 100.0;
     }
     
     // 예금 보유금액 계산
@@ -241,7 +241,7 @@ public class HoldingsService {
                 total += holding.getCurrentValuation();
             }
         }
-        return total;
+        return Math.round(total * 100.0) / 100.0;
     }
     
     // 펀드 중 국내 투자상품 보유금액 계산
@@ -256,7 +256,7 @@ public class HoldingsService {
             }
         }
         
-        return total;
+        return Math.round(total * 100.0) / 100.0;
     }
     
     // 펀드 중 해외 투자상품 보유금액 계산
@@ -271,7 +271,7 @@ public class HoldingsService {
             }
         }
         
-        return total;
+        return Math.round(total * 100.0) / 100.0;
     }
 
 }

@@ -30,14 +30,13 @@ public class EtfCacheUpdateService {
         Instant threeMonthsAgoRangeStart = threeMonthsAgo.minusSeconds(86400 * 15); // 3일 전
         double price3M = historicalPriceService.queryLatestNavInRange(etfCode, threeMonthsAgoRangeStart, threeMonthsAgoRangeEnd, "etf_nav", "etf_nav");
 
-        /*
-        if (pricePrevDay == 0.0) {
-            log.warn("[과거 데이터 조회 실패] etfCode: '{}'의 전일 종가(pricePrevDay)를 DB에서 찾을 수 없습니다. 데이터 적재 상태를 확인해주세요.", etfCode);
+        // 과거 데이터 업데이트 로깅
+        if (pricePrevDay > 0.0) {
+            log.info("[과거 데이터 업데이트] etfCode: '{}'의 전일 종가: {}", etfCode, pricePrevDay);
         }
-        if (price3M == 0.0) {
-            log.warn("[과거 데이터 조회 실패] etfCode: '{}'의 3개월 전 가격(price3MonthsAgo)을 DB에서 찾을 수 없습니다. 데이터 적재 상태를 확인해주세요.", etfCode);
+        if (price3M > 0.0) {
+            log.info("[과거 데이터 업데이트] etfCode: '{}'의 3개월 전 가격: {}", etfCode, price3M);
         }
-        */
 
         EtfCache.EtfSnapshot snapshot = etfCache.get(etfCode);
 

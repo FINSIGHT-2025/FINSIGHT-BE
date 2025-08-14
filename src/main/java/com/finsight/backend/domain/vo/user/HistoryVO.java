@@ -1,7 +1,6 @@
 package com.finsight.backend.domain.vo.user;
 
 import com.finsight.backend.dto.request.TradeRequest;
-import java.math.BigDecimal;
 
 public class HistoryVO {
     private Long historyId; // UUID or sequence 관리 가능
@@ -9,7 +8,7 @@ public class HistoryVO {
     private String historyTradeType; // buy, sell, deposit
     private String historyTradeDate; // 거래일
     private int historyQuantity;
-    private BigDecimal historyAmount;
+    private Double historyAmount;
     private Integer contractMonths; // 약정 개월 수
 
     public HistoryVO() {}
@@ -56,11 +55,11 @@ public class HistoryVO {
         this.historyQuantity = historyQuantity;
     }
 
-    public BigDecimal getHistoryAmount() {
+    public Double getHistoryAmount() {
         return historyAmount;
     }
 
-    public void setHistoryAmount(BigDecimal historyAmount) {
+    public void setHistoryAmount(Double historyAmount) {
         this.historyAmount = historyAmount;
     }
 
@@ -76,7 +75,7 @@ public class HistoryVO {
         return contractMonths;
     }
 
-    public void setContractMonths(Integer contractMonths) {
+    public void setHistoryContractMonths(Integer contractMonths) {
         this.contractMonths = contractMonths;
     }
 }

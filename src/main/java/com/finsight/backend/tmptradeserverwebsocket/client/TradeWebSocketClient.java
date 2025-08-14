@@ -56,8 +56,6 @@ public class TradeWebSocketClient {
                             log.info("[시세 서버] 과거 ETF 데이터 비동기 저장 시작");
                             tradeServerService.fetchAndSaveHistoricalData();
                             historicalDataFetched = true;
-                            Thread.sleep(30000);
-                            etfCacheScheduler.updateAllEtfHistoricalPrices();
                         }
 
                         while (session.isOpen()) {
