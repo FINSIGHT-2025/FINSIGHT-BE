@@ -17,7 +17,7 @@ public class DetailHoldingsResponseDto {
 
     private String productCategory;
 
-    private double holdingsTotalPrice;
+    private Double holdingsTotalPrice;
 
     private int holdingsTotalQuantity;
 

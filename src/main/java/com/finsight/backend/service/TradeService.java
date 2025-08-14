@@ -5,18 +5,18 @@ import com.finsight.backend.repository.mapper.HistoryMapper;
 import com.finsight.backend.repository.mapper.HoldingsMapper;
 import com.finsight.backend.domain.vo.user.HistoryVO;
 import com.finsight.backend.domain.vo.user.HoldingsVO;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class TradeService {
 
-    @Autowired
-    private HoldingsMapper holdingsMapper;
-
-    @Autowired
-    private HistoryMapper historyMapper;
+    private final HoldingsMapper holdingsMapper;
+    private final HistoryMapper historyMapper;
 
     @Transactional
     public void processTrade(TradeRequest req, String tradeType) {
@@ -30,9 +30,17 @@ public class TradeService {
             holdingsMapper.insert(holdings);
         } else {
             int newQty = holdings.getHoldingsTotalQuantity() + (isBuy ? req.getQuantity() : -req.getQuantity());
-            long newAmt = holdings.getHoldingsTotalPrice() + (isBuy ? req.getAmount() : -req.getAmount());
+            Double newAmt;
+            if (isBuy) {
+                newAmt = Math.round((holdings.getHoldingsTotalPrice() + req.getAmount()) * 100.0) / 100.0;
+            } else {
+                newAmt = Math.round((holdings.getHoldingsTotalPrice() - req.getAmount()) * 100.0) / 100.0;
+            }
 
-            if (newQty < 0 || newAmt < 0) throw new IllegalStateException("보유 수량 또는 금액 부족");
+            // 판매 시에만 보유 수량 체크 (보유하지 않은 상품은 판매 불가)
+            if (!isBuy && holdings.getHoldingsTotalQuantity() < req.getQuantity()) {
+                throw new IllegalStateException("보유 수량이 부족합니다. 보유: " + holdings.getHoldingsTotalQuantity() + ", 판매요청: " + req.getQuantity());
+            }
 
             holdings.setHoldingsTotalQuantity(newQty);
             holdings.setHoldingsTotalPrice(newAmt);
@@ -41,8 +49,12 @@ public class TradeService {
             holdingsMapper.update(holdings);
         }
 
+        // History 테이블에 거래 내역 저장 (contractMonths 포함)
         HistoryVO history = new HistoryVO(req, holdings.getHoldingsId(), tradeType);
         historyMapper.insert(history);
+        
+        log.info("거래 처리 완료: userId={}, productCode={}, tradeType={}, quantity={}, amount={}, contractMonths={}", 
+                req.getUserId(), req.getProductCode(), tradeType, req.getQuantity(), req.getAmount(), req.getContractMonths());
     }
 }
 

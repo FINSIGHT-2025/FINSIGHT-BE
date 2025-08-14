@@ -5,8 +5,8 @@
 <mapper namespace="com.finsight.backend.repository.mapper.HistoryMapper">
 
     <insert id="insert" parameterType="com.finsight.backend.domain.vo.user.HistoryVO">
-        INSERT INTO History (holdings_id, history_trade_type, history_quantity, history_amount)
-        VALUES (#{holdingsId}, #{historyTradeType}, #{historyQuantity}, #{historyAmount})
+        INSERT INTO History (holdings_id, history_trade_type, history_trade_date, history_quantity, history_amount, contract_months)
+        VALUES (#{holdingsId}, #{historyTradeType}, #{historyTradeDate}, #{historyQuantity}, #{historyAmount}, #{contractMonths})
     </insert>
 
 </mapper>

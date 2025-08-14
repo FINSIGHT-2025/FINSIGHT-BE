@@ -1,7 +1,6 @@
 package com.finsight.backend.tmpdetailhodings.vo;
 
 import lombok.Data;
-
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -16,5 +15,5 @@ public class DetailHistoryVO {
     private LocalDateTime historyTradeDate;
 
     private int historyQuantity;
-    private Long historyAmount;
+    private Double historyAmount;
 }

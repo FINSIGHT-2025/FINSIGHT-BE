@@ -29,7 +29,21 @@ public class DepositDtoHandler implements ProductDtoHandler<DepositVO>{
 
     @Override
     public ProductDetailDto toDetailDto(DepositVO product) {
-        return DepositDetailDto.depositVoToDepositDetailDto(product);
+        List<DOptionVO> options = product.getDOption();
+        if (options == null || options.isEmpty()) {
+            throw new IllegalStateException("DOption이 비어있습니다: " + product.getProductCode());
+        }
+
+        DOptionVO option = options.stream()
+                .filter(o -> "12".equals(o.getDOptionSaveTrm()))
+                .findFirst()
+                .orElse(options.get(0));
+
+        return DepositDetailDto.depositVoToDepositDetailDto(
+                product,
+                option.getDOptionIntrRate(),
+                option.getDOptionIntrRate2()
+        );
     }
 
     @Override

@@ -13,7 +13,7 @@ public class HoldingsVO {
     private String userId;
     private String productCode;
     private String productCategory;
-    private Long holdingsTotalPrice;
+    private Double holdingsTotalPrice;
     private Integer holdingsTotalQuantity;
     private String holdingsStatus; // holding, zero, terminated, expired
 

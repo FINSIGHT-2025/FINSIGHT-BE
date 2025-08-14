@@ -14,6 +14,7 @@ public class TradeRequest {
     private String productCode;
     private String productCategory; // deposit, fund, etf
     private int quantity;
-    private long amount;
+    private Double amount;
+    private Integer contractMonths; // 약정 개월 수
 }
 

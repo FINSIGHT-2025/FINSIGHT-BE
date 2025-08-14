@@ -6,6 +6,7 @@ import com.finsight.backend.service.HoldingsService;
 import com.finsight.backend.service.TradeService;
 import com.finsight.backend.common.util.HeaderUtil;
 import com.finsight.backend.common.util.JwtUtil;
+import com.finsight.backend.dto.response.HoldingDetailDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/holdings")
@@ -66,15 +68,17 @@ public class HoldingsController {
                 throw new InvTestException("유효하지 않거나 만료된 토큰입니다.", HttpStatus.FORBIDDEN);
             }
 
-            Double depositPrice = holdingsService.getDepositPriceByUserId(userId);
-            if (depositPrice == null) {
+            List<HoldingDetailDto> depositDetails = holdingsService.getDepositDetailsByUserId(userId);
+            if (depositDetails == null || depositDetails.isEmpty()) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("message", "사용자의 예금 보유 정보를 찾을 수 없습니다.");
                 return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
             }
 
             Map<String, Object> successResponse = new HashMap<>();
-            successResponse.put("depositPrice", depositPrice);
+            successResponse.put("depositDetails", depositDetails);
+            successResponse.put("totalCount", depositDetails.size());
+            successResponse.put("message", "예금 보유내역 조회 성공");
             return new ResponseEntity<>(successResponse, HttpStatus.OK);
 
         } catch (Exception e) {
@@ -177,22 +181,9 @@ public class HoldingsController {
     }
 
     @GetMapping("")
-    public ResponseEntity<?> getHoldingsList(HttpServletRequest request) {
+    public ResponseEntity<?> getHoldingsList(HttpServletRequest http) {
         try {
-            String accessToken = HeaderUtil.refineHeader(request, "Authorization", "Bearer ")
-                    .orElseThrow(() -> new InvTestException("인증 토큰이 필요합니다.", HttpStatus.UNAUTHORIZED));
-
-            String userId;
-            try {
-                Claims claims = jwtUtil.validateToken(accessToken);
-                userId = claims.get("userId", String.class);
-                if (userId == null) {
-                    throw new JwtException("토큰에 사용자 ID 정보가 없습니다.");
-                }
-            } catch (JwtException e) {
-                System.err.println("[에러] JWT 검증 실패 (GET): " + e.getMessage());
-                throw new InvTestException("유효하지 않거나 만료된 토큰입니다.", HttpStatus.FORBIDDEN);
-            }
+            String userId = jwtUtil.extractUserIdFromRequest(http);
 
             Double depositByUserId =  holdingsService.getDepositByUserId(userId);
             if (depositByUserId == null) {
@@ -213,7 +204,6 @@ public class HoldingsController {
                 return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
             }
 
-            //
             Map<String, Object> successResponse = new HashMap<>();
             successResponse.put("depositByUserId", depositByUserId);
             successResponse.put("domesticByUserId", domesticByUserId);
@@ -229,4 +219,24 @@ public class HoldingsController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
     }
+    
+    // 보유내역 전체 조회 (새로운 엔드포인트)
+    @GetMapping("/details")
+    public ResponseEntity<?> getHoldingsDetails(HttpServletRequest request) {
+        try {
+            String userId = jwtUtil.extractUserIdFromRequest(request);
+            
+            var holdingsResponse = holdingsService.getHoldingsByUserId(userId);
+            return new ResponseEntity<>(holdingsResponse, HttpStatus.OK);
+
+        } catch (Exception e) {
+            System.err.println("[에러] 보유내역 조회 중 Exception 발생: " + e.getMessage());
+
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+    }
+    
+
 }

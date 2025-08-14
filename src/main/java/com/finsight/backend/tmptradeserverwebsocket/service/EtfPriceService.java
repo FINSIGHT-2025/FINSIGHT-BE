@@ -9,8 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -52,7 +51,7 @@ public class EtfPriceService {
         if (todayValue == 0.0 || yesterdayValue == 0.0) {
             return 0.0;
         }
-        return round(todayValue - yesterdayValue);
+        return Math.round((todayValue - yesterdayValue) * 100.0) / 100.0;
     }
 
     public double getPercentChangeFromYesterday(String measurement, String productCode) {
@@ -106,7 +105,7 @@ public class EtfPriceService {
                 Instant time = record.getTime();
                 Object value = record.getValue();
                 if (value instanceof Number) {
-                    result.add(new PricePointVO(time, round(((Number) value).doubleValue())));
+                    result.add(new PricePointVO(time, Math.round(((Number) value).doubleValue() * 100.0) / 100.0));
                 }
             });
         }
@@ -166,12 +165,8 @@ public class EtfPriceService {
 
     private double calculatePercentChange(double currentValue, double pastValue) {
         if (pastValue != 0) {
-            return round((currentValue - pastValue) / pastValue * 100);
+            return Math.round(((currentValue - pastValue) / pastValue * 100) * 100.0) / 100.0;
         }
         return 0.0;
-    }
-
-    private double round(double value) {
-        return new BigDecimal(String.valueOf(value)).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 }

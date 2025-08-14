@@ -142,8 +142,8 @@
     <select id="selectDepositPriceByUserId" parameterType="string" resultType="double">
         SELECT
             CASE
-                WHEN his.history_amount = 0 THEN 0
-                ELSE (h.holdings_total_price / his.history_amount) * 100
+                WHEN his.history_amount = 0 OR his.history_amount IS NULL THEN 0
+                ELSE ROUND((h.holdings_total_price / his.history_amount) * 100, 2)
             END AS depositPrice
         FROM Holdings AS h
             INNER JOIN History as his ON h.holdings_id = his.holdings_id
@@ -295,4 +295,107 @@
         )
     </select>
 
+    <!-- === 보유내역 상세 조회 ==============================================================-->
+    <!-- 펀드 보유내역 조회 -->
+    <select id="selectFundHoldingsByUserId" parameterType="string" resultType="com.finsight.backend.dto.response.HoldingDetailDto">
+        SELECT 
+            Holdings.product_code as productCode,
+            Fund.product_name as productName,
+            Fund.product_company_name as productCompanyName,
+            CASE 
+                WHEN Fund.fund_country = 'domestic' THEN '국내'
+                WHEN Fund.fund_country = 'foreign' THEN '해외'
+                ELSE '기타'
+            END as productCountry,
+            CASE 
+                WHEN Fund.fund_type = 'equity' THEN '주식형'
+                WHEN Fund.fund_type = 'bond' THEN '채권형'
+                WHEN Fund.fund_type = 'mixed' THEN '혼합형'
+                ELSE '기타'
+            END as productType,
+            Holdings.holdings_total_quantity as currentHoldings,
+            Holdings.holdings_total_price as currentValuation,
+            NULL as previousDayPrice,
+            NULL as maturityDate,
+            CASE WHEN Watch.watchlist_id IS NOT NULL THEN true ELSE false END as isWatched
+        FROM Holdings
+        JOIN Fund ON Holdings.product_code = Fund.product_code
+        LEFT JOIN Watch ON Holdings.user_id = Watch.user_id AND Holdings.product_code = Watch.product_code
+        WHERE Holdings.user_id = #{userId}
+        AND Holdings.product_category = 'fund'
+        AND Holdings.holdings_status = 'holding'
+        ORDER BY Holdings.holdings_total_price DESC
+    </select>
+    
+    <!-- ETF 보유내역 조회 -->
+    <select id="selectEtfHoldingsByUserId" parameterType="string" resultType="com.finsight.backend.dto.response.HoldingDetailDto">
+        SELECT 
+            Holdings.product_code as productCode,
+            Etf.product_name as productName,
+            Etf.product_company_name as productCompanyName,
+            CASE 
+                WHEN Etf.etf_country = 'domestic' THEN '국내'
+                WHEN Etf.etf_country = 'foreign' THEN '해외'
+                ELSE '기타'
+            END as productCountry,
+            CASE 
+                WHEN Etf.etf_type = 'equity' THEN '주식형'
+                WHEN Etf.etf_type = 'bond' THEN '채권형'
+                WHEN Etf.etf_type = 'mixed' THEN '혼합형'
+                ELSE '기타'
+            END as productType,
+            Holdings.holdings_total_quantity as currentHoldings,
+            Holdings.holdings_total_price as currentValuation,
+            CASE 
+                WHEN Holdings.holdings_total_quantity = 0 OR Holdings.holdings_total_quantity IS NULL THEN NULL
+                ELSE ROUND(Holdings.holdings_total_price / Holdings.holdings_total_quantity, 2)
+            END as previousDayPrice,
+            NULL as maturityDate,
+            CASE WHEN Watch.watchlist_id IS NOT NULL THEN true ELSE false END as isWatched
+        FROM Holdings
+        JOIN Etf ON Holdings.product_code = Etf.product_code
+        LEFT JOIN Watch ON Holdings.user_id = Watch.user_id AND Holdings.product_code = Watch.product_code
+        WHERE Holdings.user_id = #{userId}
+        AND Holdings.product_category = 'etf'
+        AND Holdings.holdings_status = 'holding'
+        ORDER BY Holdings.holdings_total_price DESC
+    </select>
+    
+    <!-- 예금 보유내역 조회 -->
+    <select id="selectDepositHoldingsByUserId" parameterType="string" resultType="com.finsight.backend.dto.response.HoldingDetailDto">
+        SELECT 
+            Holdings.holdings_id as holdingsId,
+            Holdings.product_code as productCode,
+            Holdings.product_category as productCategory,
+            Holdings.holdings_total_price as currentValuation,
+            Holdings.holdings_total_quantity as currentHoldings,
+            Holdings.holdings_status as holdingsStatus,
+            History.history_trade_date as tradeDate,
+            History.history_amount as tradeAmount,
+            History.history_quantity as tradeQuantity,
+            History.contract_months as contractMonths,
+            Deposit.product_name as productName,
+            Deposit.product_company_name as productCompanyName,
+            '국내' as productCountry,
+            '예금' as productType,
+            DATE_ADD(History.history_trade_date, INTERVAL History.contract_months MONTH) as maturityDate,
+            CASE WHEN Watch.watchlist_id IS NOT NULL THEN true ELSE false END as isWatched
+        FROM Holdings
+        INNER JOIN (
+            SELECT 
+                holdings_id,
+                MAX(history_trade_date) as max_trade_date
+            FROM History 
+            GROUP BY holdings_id
+        ) latest ON Holdings.holdings_id = latest.holdings_id
+        INNER JOIN History ON Holdings.holdings_id = History.holdings_id 
+            AND History.history_trade_date = latest.max_trade_date
+        JOIN Deposit ON Holdings.product_code = Deposit.product_code
+        LEFT JOIN Watch ON Holdings.user_id = Watch.user_id AND Holdings.product_code = Watch.product_code
+        WHERE Holdings.user_id = #{userId} 
+            AND Holdings.product_category = 'deposit'
+            AND Holdings.holdings_status NOT IN ('terminated', 'zero')
+        ORDER BY Holdings.holdings_id
+    </select>
+    
 </mapper>

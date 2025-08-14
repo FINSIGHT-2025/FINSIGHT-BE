@@ -3,6 +3,7 @@ package com.finsight.backend.config;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finsight.backend.service.InfluxWriteService;
+import com.finsight.backend.tmptradeserverwebsocket.service.scheduler.EtfCacheScheduler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -30,18 +31,21 @@ public class BatchConfig {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
-    private InfluxWriteService influxWriteService;
-    private WebClient webClient;
+    private final InfluxWriteService influxWriteService;
+    private final WebClient webClient;
+    private final EtfCacheScheduler etfCacheScheduler;
 
     public BatchConfig(JobBuilderFactory jobBuilderFactory,
                        StepBuilderFactory stepBuilderFactory,
                        InfluxWriteService influxWriteService,
-                       WebClient webClient) {
+                       WebClient webClient,
+                       EtfCacheScheduler etfCacheScheduler) {
 
         this.jobBuilderFactory = jobBuilderFactory;
         this.stepBuilderFactory = stepBuilderFactory;
         this.influxWriteService = influxWriteService;
         this.webClient = webClient;
+        this.etfCacheScheduler = etfCacheScheduler;
     }
 
     @Value("${tradedata.url}")
@@ -163,6 +167,16 @@ public class BatchConfig {
                     }
 
                     log.info("✅ 과거 etf_nav 저장 완료: {}건", etfList.size());
+                    
+                    // etf_nav 배치 완료 후 EtfCache 과거 데이터 업데이트
+                    try {
+                        log.info("EtfCache 과거 데이터 업데이트 시작...");
+                        etfCacheScheduler.updateAllEtfHistoricalPrices();
+                        log.info("EtfCache 과거 데이터 업데이트 완료");
+                    } catch (Exception e) {
+                        log.error("❌ EtfCache 과거 데이터 업데이트 실패", e);
+                    }
+                    
                     return RepeatStatus.FINISHED;
                 }).build();
     }
