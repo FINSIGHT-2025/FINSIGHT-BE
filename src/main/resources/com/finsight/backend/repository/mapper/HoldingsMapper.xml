@@ -394,7 +394,7 @@
         LEFT JOIN Watch ON Holdings.user_id = Watch.user_id AND Holdings.product_code = Watch.product_code
         WHERE Holdings.user_id = #{userId} 
             AND Holdings.product_category = 'deposit'
-            AND Holdings.holdings_status != 'terminated'
+            AND Holdings.holdings_status NOT IN ('terminated', 'zero')
         ORDER BY Holdings.holdings_id
     </select>
     

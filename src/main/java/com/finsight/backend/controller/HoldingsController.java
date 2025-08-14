@@ -181,22 +181,9 @@ public class HoldingsController {
     }
 
     @GetMapping("")
-    public ResponseEntity<?> getHoldingsList(HttpServletRequest request) {
+    public ResponseEntity<?> getHoldingsList(HttpServletRequest http) {
         try {
-            String accessToken = HeaderUtil.refineHeader(request, "Authorization", "Bearer ")
-                    .orElseThrow(() -> new InvTestException("인증 토큰이 필요합니다.", HttpStatus.UNAUTHORIZED));
-
-            String userId;
-            try {
-                Claims claims = jwtUtil.validateToken(accessToken);
-                userId = claims.get("userId", String.class);
-                if (userId == null) {
-                    throw new JwtException("토큰에 사용자 ID 정보가 없습니다.");
-                }
-            } catch (JwtException e) {
-                System.err.println("[에러] JWT 검증 실패 (GET): " + e.getMessage());
-                throw new InvTestException("유효하지 않거나 만료된 토큰입니다.", HttpStatus.FORBIDDEN);
-            }
+            String userId = jwtUtil.extractUserIdFromRequest(http);
 
             Double depositByUserId =  holdingsService.getDepositByUserId(userId);
             if (depositByUserId == null) {
@@ -217,7 +204,6 @@ public class HoldingsController {
                 return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
             }
 
-            //
             Map<String, Object> successResponse = new HashMap<>();
             successResponse.put("depositByUserId", depositByUserId);
             successResponse.put("domesticByUserId", domesticByUserId);
