@@ -4,12 +4,13 @@ import com.finsight.backend.config.CorsConfig;
 import com.finsight.backend.config.MongoConfig;
 import com.finsight.backend.config.RootConfig;
 import com.finsight.backend.dto.response.DepositDetailDto;
-import com.finsight.backend.dto.response.EtfDetailDetailDto;
-import com.finsight.backend.dto.response.FundDetailDetailDto;
+import com.finsight.backend.dto.response.EtfDetailDto;
+import com.finsight.backend.dto.response.FundDetailDto;
 import com.finsight.backend.dto.response.ProductDetailDto;
 import com.finsight.backend.domain.vo.product.DepositVO;
 import com.finsight.backend.domain.vo.product.EtfVO;
 import com.finsight.backend.domain.vo.product.FundVO;
+import com.finsight.backend.service.product.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -38,8 +39,8 @@ class ProductServiceImplTest {
         ProductDetailDto fundDto = productService.findProduct("K55301BB5738", FundVO.class, userId);
 
         Assertions.assertInstanceOf(DepositDetailDto.class, depositDto);
-        Assertions.assertInstanceOf(EtfDetailDetailDto.class, etfDto);
-        Assertions.assertInstanceOf(FundDetailDetailDto.class, fundDto);
+        Assertions.assertInstanceOf(EtfDetailDto.class, etfDto);
+        Assertions.assertInstanceOf(FundDetailDto.class, fundDto);
 
         Assertions.assertEquals("1", depositDto.getProductCode());
         Assertions.assertEquals("292190", etfDto.getProductCode());

@@ -35,7 +35,7 @@ class DepositVOMapperTest {
         Assertions.assertNotNull(deposit);
         Assertions.assertEquals("1", deposit.getProductCode());
 
-        List<DOptionVO> options = deposit.getDOptionVO();
+        List<DOptionVO> options = deposit.getDOption();
         Assertions.assertNotNull(options);
 
         for (DOptionVO option : options) {
@@ -48,7 +48,7 @@ class DepositVOMapperTest {
         List<DepositVO> depositList = depositMapper.findDepositListOrderByIntrRate();
         Assertions.assertNotNull(depositList);
         for (DepositVO deposit : depositList) {
-            for (DOptionVO option : deposit.getDOptionVO()) {
+            for (DOptionVO option : deposit.getDOption()) {
                 log.info("[findDepositListOrderByIntrRate] {} -> DOption : {}",deposit.getProductCode(), option);
             }
         }
@@ -59,7 +59,7 @@ class DepositVOMapperTest {
         List<DepositVO> depositList = depositMapper.findDepositListOrderByIntrRate2();
         Assertions.assertNotNull(depositList);
         for (DepositVO deposit : depositList) {
-            for (DOptionVO option : deposit.getDOptionVO()) {
+            for (DOptionVO option : deposit.getDOption()) {
                 log.info("[findDepositListOrderByIntrRate] {} -> DOption : {}",deposit.getProductCode(), option);
             }
         }

@@ -1,4 +1,4 @@
-package com.finsight.backend.service;
+package com.finsight.backend.service.product;
 
 import com.finsight.backend.dto.response.ProductByFilterDto;
 import com.finsight.backend.dto.response.ProductDetailDto;

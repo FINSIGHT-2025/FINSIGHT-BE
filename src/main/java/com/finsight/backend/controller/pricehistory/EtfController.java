@@ -1,7 +1,7 @@
 package com.finsight.backend.controller.pricehistory;
 
 import com.finsight.backend.dto.response.EtfPriceHistoryDto;
-import com.finsight.backend.service.pricehistory.EtfService;
+import com.finsight.backend.service.product.pricehistory.EtfService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

@@ -4,6 +4,7 @@ import com.finsight.backend.dto.response.KeywordResponseDTO;
 import com.finsight.backend.dto.response.NewsByKeywordResponseDTO;
 import com.finsight.backend.dto.response.NewsResponseDTO;
 import com.finsight.backend.security.info.UserPrincipal;
+import com.finsight.backend.service.AuthService;
 import com.finsight.backend.service.news.NewsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Slf4j
@@ -27,6 +29,7 @@ import java.util.List;
 public class NewsController {
 
     private final NewsService newsService;
+    private final AuthService authService;
     /**
      * 1. 뉴스 키워드 목록 조회
      */
@@ -42,10 +45,12 @@ public class NewsController {
      */
     @GetMapping("/keyword/{keywordId}")
     public ResponseEntity<NewsByKeywordResponseDTO> getNewsAndProductsByKeyword(
-            @PathVariable Long keywordId
+            @PathVariable Long keywordId,
+            HttpServletRequest request
     ) {
+        String userId = authService.isValidToken(request);
         // 3. Long 타입의 id를 서비스로 전달
-        NewsByKeywordResponseDTO response = newsService.getNewsByKeywordId(keywordId);
+        NewsByKeywordResponseDTO response = newsService.getNewsByKeywordId(keywordId, userId);
         return ResponseEntity.ok(response);
     }
 

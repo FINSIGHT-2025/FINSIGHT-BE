@@ -1,4 +1,4 @@
-package com.finsight.backend.service.handler;
+package com.finsight.backend.service.product.handler;
 
 import com.finsight.backend.domain.enumerate.ProductCountry;
 import com.finsight.backend.domain.enumerate.ProductType;

@@ -1,5 +1,7 @@
 package com.finsight.backend.service.news;
 
+import com.finsight.backend.domain.vo.product.EtfVO;
+import com.finsight.backend.domain.vo.product.FundVO;
 import com.finsight.backend.dto.response.*;
 import com.finsight.backend.repository.mapper.EtfMapper;
 import com.finsight.backend.repository.mapper.FundMapper;
@@ -7,6 +9,8 @@ import com.finsight.backend.repository.mapper.NewsMapper;
 import com.finsight.backend.domain.vo.news.KeywordVO;
 import com.finsight.backend.domain.vo.news.NewsProductVO;
 import com.finsight.backend.domain.vo.news.NewsVO;
+import com.finsight.backend.service.product.handler.EtfDtoHandler;
+import com.finsight.backend.service.product.handler.FundDtoHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +26,8 @@ public class NewsService {
     private final NewsMapper newsMapper;
     private final EtfMapper etfMapper;
     private final FundMapper fundMapper;
+    private final EtfDtoHandler etfDtoHandler;
+    private final FundDtoHandler fundDtoHandler;
 
     public List<KeywordResponseDTO> getTopKeywords() {
         List<KeywordVO> topKeywords = newsMapper.findTopKeywords();
@@ -46,7 +52,7 @@ public class NewsService {
                 })
                 .collect(Collectors.toList());
     }
-    public NewsByKeywordResponseDTO getNewsByKeywordId(Long keywordId) {
+    public NewsByKeywordResponseDTO getNewsByKeywordId(Long keywordId, String userId) {
         // 키워드 ID로 뉴스 목록(VO)을 바로 조회
         List<NewsVO> newsVOs = newsMapper.findNewsByKeywordId(keywordId);
 
@@ -59,25 +65,28 @@ public class NewsService {
         List<NewsProductVO> top3Products = newsProductSelector.recommendTop3(candidateProducts);
 
         /* 수정 필요 */
-        List<Object> productDetails = new ArrayList<>();
+        List<EtfFromNews> etfFromNewsList = new ArrayList<>();
+        List<FundFromNews> fundFromNewsList = new ArrayList<>();
         for (NewsProductVO info : top3Products) {
             String category = info.getNewsProductCategory();
             String code = info.getProductCode();
 
             if ("etf".equalsIgnoreCase(category)) {
-                NewsEtfDTO etf = etfMapper.findEtfByProductCode(code);
-                if (etf != null) {
-                    productDetails.add(etf);
+                EtfVO etfVO = etfMapper.findEtfByCode(code);
+                EtfFromNews etfFromNews = etfDtoHandler.toEtfFromNews(etfVO, userId);
+                if (etfFromNews != null) {
+                    etfFromNewsList.add(etfFromNews);
                 }
             } else if ("fund".equalsIgnoreCase(category)) {
-                NewsFundDTO fund = fundMapper.findFundByProductCode(code);
-                if (fund != null) {
-                    productDetails.add(fund);
+                FundVO fundVO = fundMapper.findFundByCode(code);
+                FundFromNews fundFromNews = fundDtoHandler.toFundFromNews(fundVO, userId);
+                if (fundFromNews != null) {
+                    fundFromNewsList.add(fundFromNews);
                 }
             }
         }
 
-        return new NewsByKeywordResponseDTO(newsDtos, productDetails);
+        return new NewsByKeywordResponseDTO(newsDtos, etfFromNewsList, fundFromNewsList);
         /* ============== */
     }
 

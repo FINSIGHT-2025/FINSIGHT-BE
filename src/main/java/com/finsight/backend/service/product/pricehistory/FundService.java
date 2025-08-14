@@ -1,4 +1,4 @@
-package com.finsight.backend.service.pricehistory;
+package com.finsight.backend.service.product.pricehistory;
 
 import com.finsight.backend.dto.response.FundPriceHistoryDto;
 import com.finsight.backend.tmptradeserverwebsocket.service.EtfPriceService;
