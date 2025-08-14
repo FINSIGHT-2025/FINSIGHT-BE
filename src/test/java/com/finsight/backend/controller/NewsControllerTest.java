@@ -57,8 +57,9 @@ class NewsServiceTest {
     @DisplayName("키워드 ID로 뉴스 목록 조회")
     void getNewsByKeywordId_Test() {
         Long keywordId = 2L;
+        String userId = "gfdsa9497";
 
-        NewsByKeywordResponseDTO result = newsService.getNewsByKeywordId(keywordId);
+        NewsByKeywordResponseDTO result = newsService.getNewsByKeywordId(keywordId, userId);
 
         System.out.printf("--- News for Keyword ID: %d ---%n", keywordId);
         result.getNewsList().forEach(news -> {

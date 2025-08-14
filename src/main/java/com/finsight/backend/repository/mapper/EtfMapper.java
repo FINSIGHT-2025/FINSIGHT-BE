@@ -15,8 +15,5 @@ public interface EtfMapper {
                                     @Param("productType")ProductType productType,
                                     @Param("productRiskGrade")Integer[] productRiskGrade);
 
-
-
-
     NewsEtfDTO findEtfByProductCode(String productCode);
 }

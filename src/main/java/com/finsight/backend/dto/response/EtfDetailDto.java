@@ -18,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class EtfDetailDetailDto extends ProductDetailDto {
+public class EtfDetailDto extends ProductDetailDto {
     private ProductCountry etfCountry;
     private ProductType etfType;
     private Boolean etfDelistingStatus;
@@ -38,8 +38,8 @@ public class EtfDetailDetailDto extends ProductDetailDto {
     private String etfTaxType;
     private List<NewsResponseDTO> etfNewsResponse;
 
-    public static EtfDetailDetailDto etfVoToEtfDetailDto(EtfVO etf, List<NewsResponseDTO> etfNewsResponse){
-        return EtfDetailDetailDto.builder()
+    public static EtfDetailDto etfVoToEtfDetailDto(EtfVO etf, List<NewsResponseDTO> etfNewsResponse){
+        return EtfDetailDto.builder()
                 .productCode(etf.getProductCode())
                 .productName(etf.getProductName())
                 .productCompanyName(etf.getProductCompanyName())

@@ -1,11 +1,13 @@
-package com.finsight.backend.service.handler;
+package com.finsight.backend.service.product.handler;
 
+import com.finsight.backend.common.exception.others.CustomNotValidPathException;
 import com.finsight.backend.domain.enumerate.ProductCountry;
 import com.finsight.backend.domain.enumerate.ProductType;
 import com.finsight.backend.repository.mapper.EtfMapper;
 import com.finsight.backend.repository.mapper.InvTestMapper;
 import com.finsight.backend.common.util.InvUtil;
 import com.finsight.backend.domain.vo.product.EtfVO;
+import com.finsight.backend.tmptradeserverwebsocket.service.EtfPriceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -46,24 +48,8 @@ public class EtfVoHandler implements ProductVoHandler<EtfVO> {
         Integer[] riskGradeRange = invUtil.riskGradeRange(invType);
         Integer[] all = new Integer[]{1, 2, 3, 4, 5, 6};
 
-        if(sort.equals("volume")){
-            // 펀드 규모 정렬해서 리턴
-            return isMatched ?
-                    etfMapper.findEtfListByFilter(productCountry, productType, riskGradeRange) :
-                    etfMapper.findEtfListByFilter(productCountry, productType, all);
-        }
-        if(sort.equals("rate_of_return")){
-            // 수익률 정렬해서 리턴
-            return isMatched ?
-                    etfMapper.findEtfListByFilter(productCountry, productType, riskGradeRange) :
-                    etfMapper.findEtfListByFilter(productCountry, productType, all);
-        }
-        if(sort.equals("view_count")){
-            // 조회수 정렬해서 리턴
-            return isMatched ?
-                    etfMapper.findEtfListByFilter(productCountry, productType, riskGradeRange) :
-                    etfMapper.findEtfListByFilter(productCountry, productType, all);
-        }
-        throw new RuntimeException("Invalid sort parameter: " + sort);
+        return isMatched ?
+                etfMapper.findEtfListByFilter(productCountry, productType, riskGradeRange) :
+                etfMapper.findEtfListByFilter(productCountry, productType, all);
     }
 }

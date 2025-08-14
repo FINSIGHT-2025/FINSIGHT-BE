@@ -4,7 +4,7 @@ package com.finsight.backend.controller;
 import com.finsight.backend.dto.response.ProductByFilterDto;
 import com.finsight.backend.dto.response.ProductDetailDto;
 import com.finsight.backend.common.exception.ErrorCode;
-import com.finsight.backend.service.ProductService;
+import com.finsight.backend.service.product.ProductService;
 import com.finsight.backend.common.adapter.ProductAdapter;
 import com.finsight.backend.common.util.JwtUtil;
 import com.finsight.backend.domain.vo.product.ProductVO;
