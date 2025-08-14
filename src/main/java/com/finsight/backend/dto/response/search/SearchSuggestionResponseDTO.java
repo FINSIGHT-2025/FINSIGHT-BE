@@ -1,4 +1,4 @@
-package com.finsight.backend.dto.response;
+package com.finsight.backend.dto.response.search;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

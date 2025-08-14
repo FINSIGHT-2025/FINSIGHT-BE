@@ -75,22 +75,6 @@
         ORDER BY product_code
     </select>
 
-    <select id="findEtfNameByWord" parameterType="string" resultType="com.finsight.backend.dto.response.SearchSuggestionResponseDTO">
-        SELECT product_code AS productCode,
-                product_name AS productName,
-                'etf' AS type
-        FROM etf
-        WHERE product_name LIKE CONCAT('%', #{word}, '%')
-    </select>
-
-    <select id="selectAllEtfs" resultType="EtfVO">
-        SELECT product_code
-        FROM Etf
-    </select>
-
-
-
-
     <!-- 임시 : 뉴스에서 사용할 mapper -->
     <resultMap id="EtfWithSentiment" type="NewsEtfDTO">
         <id property="productCode" column="product_code"/>

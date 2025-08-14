@@ -76,15 +76,6 @@
                             WHERE ranked.rn &lt;= 2) fsh ON f.product_code = fsh.product_code;
     </select>
 
-    <select id="findFundNameByWord" parameterType="string" resultType="com.finsight.backend.dto.response.SearchSuggestionResponseDTO">
-        SELECT product_code AS productCode,
-                product_name AS productName,
-                'fund' AS type
-        FROM fund
-        WHERE product_name LIKE CONCAT('%', #{word}, '%')
-    </select>
-
-
     <!-- 임시 : 뉴스 Fund -->
     <resultMap id="FundWithSentiment" type="NewsFundDTO">
         <id property="productCode" column="product_code"/>

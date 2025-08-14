@@ -62,7 +62,7 @@ public class NewsService {
                 .collect(Collectors.toList());
 
         List<NewsProductVO> candidateProducts = newsMapper.findProductInfoByKeywordId(keywordId);
-        List<NewsProductVO> top3Products = newsProductSelector.recommendTop3(candidateProducts);
+        List<NewsProductVO> top3Products = newsProductSelector.recommendTopProduct(candidateProducts);
 
         /* 수정 필요 */
         List<EtfFromNews> etfFromNewsList = new ArrayList<>();
