@@ -63,9 +63,7 @@ public class FundDtoHandler implements ProductDtoHandler<FundVO> {
                                     detailHoldingsMapper.isProductWatched(userId, fund.getProductCode()),
                                     etfPriceService.getPercentChangeFrom3MonthsAgo("fund_aum", fund.getProductCode()),
                                     etfPriceService.getCurrent("fund_aum", fund.getProductCode()));
-                        }
-                )
-                .toList();
+                }).toList();
         SORT_HANDLERS = Map.of(
                 "rate_of_return", () -> fundByFilterDtoList.stream()
                         .sorted(Comparator.comparing(FundByFilterDto::getProductRateOfReturn).reversed())

@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class EtfVolumeDTO {
     private String productCode;
-    private long etfVolume;
+    private Long etfVolume;
     private String timestamp;
 }
