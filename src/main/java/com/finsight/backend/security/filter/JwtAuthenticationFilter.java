@@ -21,6 +21,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 
 @AllArgsConstructor
 @Slf4j
@@ -29,7 +30,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-    private final String[] whiteList = {"/users", "/users/email", "/users/login", "/", "/users/authcode", "/ws-etf/**", "/ws-etf"};
+    private final String[] whiteList = {
+            "/users",
+            "/users/email",
+            "/users/login",
+            "/",
+            "/users/authcode",
+            "/ws-etf/**",
+            "/ws-etf",
+            // ✅ Springdoc 경로
+            "/swagger-ui.html", "/swagger-ui/**",
+            "/v3/api-docs", "/v3/api-docs/**", "/v3/api-docs/swagger-config",
+            "/webjars/**",
+            "/favicon.ico"
+    };
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return Arrays.stream(whiteList).anyMatch(pattern -> pathMatcher.match(pattern, path));
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String uri = request.getRequestURI();

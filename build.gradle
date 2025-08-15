@@ -172,6 +172,13 @@ dependencies {
   implementation 'org.springframework:spring-web:5.3.30'
   // 자바 애노테이션 정의용 API (예: @PostConstruct 등)
   implementation 'javax.annotation:javax.annotation-api:1.3.2'
+
+// MVC 전용 버전 추가
+  implementation 'org.springdoc:springdoc-openapi-ui:1.8.0'
+
+  // ⬇️ 추가
+  implementation 'org.webjars:swagger-ui:5.17.14'
+  implementation 'org.webjars:webjars-locator-core:0.58'
 }
 
 task runTestClass(type: JavaExec) {
