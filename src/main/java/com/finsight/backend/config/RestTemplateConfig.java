@@ -12,7 +12,8 @@ public class RestTemplateConfig {
 
     @Bean
     public RestTemplate restTemplate() {
-        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+        return new RestTemplate();
+        /*HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
 
         // 추천 설정값을 적용한 HttpClient 생성
         CloseableHttpClient httpClient = HttpClientBuilder.create()
@@ -26,6 +27,6 @@ public class RestTemplateConfig {
         factory.setConnectTimeout(5000);            // 연결 시간 초과 (5초)
         factory.setReadTimeout(5000);               // 응답 시간 초과 (5초)
 
-        return new RestTemplate(factory);
+        return new RestTemplate(factory);*/
     }
 }
