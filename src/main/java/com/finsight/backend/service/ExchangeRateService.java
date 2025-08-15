@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -63,6 +64,13 @@ public class ExchangeRateService {
         factory.setReadTimeout(5000);
 
         RestTemplate restTemplate = new RestTemplate(factory);
+        restTemplate.setInterceptors(Collections.singletonList((request, body, execution) -> {
+            HttpHeaders headers = request.getHeaders();
+            headers.add(HttpHeaders.USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            return execution.execute(request, body);
+        }));
+
         return restTemplate;
     }
 
@@ -77,6 +85,7 @@ public class ExchangeRateService {
             log.info("API 세션 초기화를 위한 핸드셰이크 요청을 보냅니다.");
             HttpEntity<String> entity = new HttpEntity<>(new HttpHeaders()); // 헤더 인터셉터가 적용되도록 빈 HttpEntity 사용
             exchangeRestTemplate.exchange(initUri, HttpMethod.GET, entity, String.class);
+            log.info("핸드셰이크 요청 성공. (기존 세션 유효)");
         } catch (Exception e) {
             log.info("핸드셰이크 완료. 세션 쿠키가 발급되었습니다. (예외는 정상 동작)");
         }
@@ -88,8 +97,8 @@ public class ExchangeRateService {
 
         log.info("환율 디버깅 : 계산된 기준일: {}, 이전 영업일: {}", baseDate, previousDate);
 
-        Map<String, ExchangeApiResponseDTO> todayRatesMap = fetchRatesToMap(baseDate);
-        Map<String, ExchangeApiResponseDTO> yestRatesMap = fetchRatesToMap(previousDate);
+        Map<String, ExchangeApiResponseDTO> todayRatesMap = fetchRatesToMap(baseDate, false);
+        Map<String, ExchangeApiResponseDTO> yestRatesMap = fetchRatesToMap(previousDate, false);
 
         log.info("오늘 환율 데이터 {}개, 이전 영업일 환율 데이터 {}개 수신 완료", todayRatesMap.size(), yestRatesMap.size());
 
@@ -128,7 +137,7 @@ public class ExchangeRateService {
         return new ExchangeResponseDTO(baseDate.format(DISPLAY_DATE_FORMAT), result);
     }
 
-    private Map<String, ExchangeApiResponseDTO> fetchRatesToMap(LocalDate date) throws IOException {
+    private Map<String, ExchangeApiResponseDTO> fetchRatesToMap(LocalDate date, boolean isRetry) throws IOException {
         String dateStr = date.format(API_DATE_FORMAT);
         URI uri = UriComponentsBuilder.fromHttpUrl(EXTERNAL_API_URL)
                 .queryParam("authkey", apiKey)
@@ -152,7 +161,15 @@ public class ExchangeRateService {
                     .filter(rate -> TARGET_CURRENCIES.contains(rate.getCurUnit()))
                     .collect(Collectors.toMap(ExchangeApiResponseDTO::getCurUnit, Function.identity(), (r1, r2) -> r1));
         } catch (Exception e) {
-            log.error("{} 날짜의 환율 정보 조회 중 오류 발생. URI: {}", date, uri, e);
+            // <<< [수정] 에러 발생 시, 재시도 안한 경우에만 핸드셰이크 후 재시도
+            if (!isRetry && e instanceof ResourceAccessException) {
+                log.warn("{} 날짜 환율 조회 실패. API 핸드셰이크 후 재시도합니다. 오류: {}", date, e.getMessage());
+                initializeApiSession(); // 핸드셰이크 실행
+                return fetchRatesToMap(date, true); // 재시도 플래그를 true로 하여 딱 한번만 더 시도
+            }
+
+            // 재시도임에도 실패했거나, 다른 종류의 에러일 경우 최종 실패 처리
+            log.error("{} 날짜의 환율 정보 조회 중 최종 오류 발생. URI: {}", date, uri, e);
             return Collections.emptyMap();
         }
     }
