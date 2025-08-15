@@ -9,6 +9,7 @@ import com.finsight.backend.repository.mapper.DetailHoldingsMapper;
 import com.finsight.backend.service.product.handler.ProductDtoHandler;
 import com.finsight.backend.service.product.handler.ProductVoHandler;
 import com.finsight.backend.domain.vo.product.ProductVO;
+import com.finsight.backend.domain.vo.product.DepositVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +53,16 @@ public class ProductServiceImpl implements ProductService{
         if (holdings != null) {
             Long holdingsId = holdings.getHoldingsId();
 
-            List<DetailHistoryVO> histories = detailHoldingsMapper.selectHistoriesByHoldingsId(holdingsId);
+            List<DetailHistoryVO> histories;
+            
+            // Deposit 상품일 경우 buy 타입이면서 가장 최근인 history만 가져오기
+            if (expectedType.equals(DepositVO.class)) {
+                histories = detailHoldingsMapper.selectLatestBuyHistoryByHoldingsId(holdingsId);
+            } else {
+                // 다른 상품들은 모든 history 가져오기
+                histories = detailHoldingsMapper.selectHistoriesByHoldingsId(holdingsId);
+            }
+            
             holdings.setHistory(histories);
 
             Boolean isWatched = detailHoldingsMapper.isProductWatched(userId, productCode);

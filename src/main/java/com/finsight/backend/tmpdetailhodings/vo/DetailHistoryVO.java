@@ -16,4 +16,5 @@ public class DetailHistoryVO {
 
     private int historyQuantity;
     private Double historyAmount;
+    private Integer contractMonths;
 }
