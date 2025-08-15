@@ -5,12 +5,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finsight.backend.dto.external.ExchangeApiResponseDTO;
 import com.finsight.backend.dto.response.ExchangeRateDTO;
 import com.finsight.backend.dto.response.ExchangeResponseDTO;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
@@ -26,19 +36,128 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Value;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ExchangeRateService {
-
-    private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${exchange.api.key}")
     private String apiKey;
 
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private RestTemplate exchangeRestTemplate;
+
+    @PostConstruct
+    public void init() {
+        this.exchangeRestTemplate = createExchangeRestTemplate();
+        initializeApiSession();
+    }
+
+    private RestTemplate createExchangeRestTemplate() {
+        CloseableHttpClient httpClient = HttpClientBuilder.create()
+                .setDefaultCookieStore(new BasicCookieStore())
+                .build();
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
+        factory.setConnectTimeout(5000);
+        factory.setReadTimeout(5000);
+
+        RestTemplate restTemplate = new RestTemplate(factory);
+        return restTemplate;
+    }
+
+    private void initializeApiSession() {
+        // API 키가 주입된 후에 호출되어야 하므로 init() 메소드 내부로 이동
+        URI initUri = UriComponentsBuilder.fromHttpUrl(EXTERNAL_API_URL)
+                .queryParam("authkey", apiKey)
+                .queryParam("searchdate", LocalDate.now().format(API_DATE_FORMAT))
+                .queryParam("data", "AP01")
+                .build(true).toUri();
+        try {
+            log.info("API 세션 초기화를 위한 핸드셰이크 요청을 보냅니다.");
+            HttpEntity<String> entity = new HttpEntity<>(new HttpHeaders()); // 헤더 인터셉터가 적용되도록 빈 HttpEntity 사용
+            exchangeRestTemplate.exchange(initUri, HttpMethod.GET, entity, String.class);
+        } catch (Exception e) {
+            log.info("핸드셰이크 완료. 세션 쿠키가 발급되었습니다. (예외는 정상 동작)");
+        }
+    }
+
+    public ExchangeResponseDTO getProcessedExchangeRates() throws IOException {
+        LocalDate baseDate = getBaseDate();
+        LocalDate previousDate = getPreviousDate(baseDate);
+
+        log.info("환율 디버깅 : 계산된 기준일: {}, 이전 영업일: {}", baseDate, previousDate);
+
+        Map<String, ExchangeApiResponseDTO> todayRatesMap = fetchRatesToMap(baseDate);
+        Map<String, ExchangeApiResponseDTO> yestRatesMap = fetchRatesToMap(previousDate);
+
+        log.info("오늘 환율 데이터 {}개, 이전 영업일 환율 데이터 {}개 수신 완료", todayRatesMap.size(), yestRatesMap.size());
+
+        // ... (이하 로직은 동일)
+        List<ExchangeRateDTO> result = todayRatesMap.values().stream()
+                .map(todayItem -> {
+                    ExchangeApiResponseDTO yestItem = yestRatesMap.get(todayItem.getCurUnit());
+
+                    ExchangeRateDTO.ExchangeRateDTOBuilder builder = ExchangeRateDTO.builder()
+                            .cur_unit(todayItem.getCurUnit())
+                            .cur_nm(todayItem.getCurNm())
+                            .deal_bas_r(todayItem.getDealBasR());
+
+                    if (yestItem != null) {
+                        try {
+                            BigDecimal todayRate = new BigDecimal(todayItem.getDealBasR().replace(",", ""));
+                            BigDecimal yestRate = new BigDecimal(yestItem.getDealBasR().replace(",", ""));
+
+                            if (yestRate.compareTo(BigDecimal.ZERO) != 0) {
+                                BigDecimal diff = todayRate.subtract(yestRate);
+                                BigDecimal percentage = diff.divide(yestRate, 4, BigDecimal.ROUND_HALF_UP).multiply(BigDecimal.valueOf(100));
+
+                                DecimalFormat df = new DecimalFormat("0.00");
+                                builder.diff(df.format(diff));
+                                builder.percentage(df.format(percentage));
+                            }
+                        } catch (NumberFormatException e) {
+                            log.error("[{}] 환율 값 숫자 변환 오류. 오늘: '{}', 어제: '{}'",
+                                    todayItem.getCurUnit(), todayItem.getDealBasR(), yestItem.getDealBasR(), e);
+                        }
+                    }
+                    return builder.build();
+                })
+                .collect(Collectors.toList());
+
+        return new ExchangeResponseDTO(baseDate.format(DISPLAY_DATE_FORMAT), result);
+    }
+
+    private Map<String, ExchangeApiResponseDTO> fetchRatesToMap(LocalDate date) throws IOException {
+        String dateStr = date.format(API_DATE_FORMAT);
+        URI uri = UriComponentsBuilder.fromHttpUrl(EXTERNAL_API_URL)
+                .queryParam("authkey", apiKey)
+                .queryParam("searchdate", dateStr)
+                .queryParam("data", "AP01")
+                .build(true).toUri();
+
+        try {
+            // exchange 메소드 호출 시에도 인터셉터가 적용되므로 빈 HttpEntity를 넘겨줍니다.
+            HttpEntity<String> entity = new HttpEntity<>(new HttpHeaders());
+            ResponseEntity<String> response = exchangeRestTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+            String jsonString = response.getBody();
+
+            if (jsonString == null || jsonString.isEmpty() || jsonString.equals("[]")) {
+                return Collections.emptyMap();
+            }
+
+            List<ExchangeApiResponseDTO> rates = objectMapper.readValue(jsonString, new TypeReference<List<ExchangeApiResponseDTO>>() {});
+
+            return rates.stream()
+                    .filter(rate -> TARGET_CURRENCIES.contains(rate.getCurUnit()))
+                    .collect(Collectors.toMap(ExchangeApiResponseDTO::getCurUnit, Function.identity(), (r1, r2) -> r1));
+        } catch (Exception e) {
+            log.error("{} 날짜의 환율 정보 조회 중 오류 발생. URI: {}", date, uri, e);
+            return Collections.emptyMap();
+        }
+    }
+
+    // ... (날짜 계산 헬퍼 메소드들은 그대로)
     private static final String EXTERNAL_API_URL = "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON";
     private static final Set<String> TARGET_CURRENCIES = Set.of("CNH", "EUR", "JPY(100)", "USD", "THB");
     private static final Set<LocalDate> HOLIDAYS = Set.of(
@@ -51,73 +170,6 @@ public class ExchangeRateService {
     );
     private static final DateTimeFormatter API_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final DateTimeFormatter DISPLAY_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-
-    public ExchangeResponseDTO getProcessedExchangeRates() throws IOException {
-        LocalDate baseDate = getBaseDate();
-        LocalDate previousDate = getPreviousDate(baseDate);
-
-        log.info("환율 디버깅 : 계산된 기준일: {}, 이전 영업일: {}", baseDate, previousDate);
-
-        // 외부 API 데이터를 ExchangeApiResponseDTO로 받음
-        Map<String, ExchangeApiResponseDTO> todayRatesMap = fetchRatesToMap(baseDate);
-        Map<String, ExchangeApiResponseDTO> yestRatesMap = fetchRatesToMap(previousDate);
-
-        log.info("오늘 환율 데이터 {}개, 이전 영업일 환율 데이터 {}개 수신 완료", todayRatesMap.size(), yestRatesMap.size());
-
-        // 최종 클라이언트 응답 데이터인 ExchangeRateDTO 목록 생성
-        List<ExchangeRateDTO> result = todayRatesMap.values().stream()
-                .map(todayItem -> {
-                    ExchangeApiResponseDTO yestItem = yestRatesMap.get(todayItem.getCurUnit());
-
-                    ExchangeRateDTO.ExchangeRateDTOBuilder builder = ExchangeRateDTO.builder()
-                            .cur_unit(todayItem.getCurUnit())
-                            .cur_nm(todayItem.getCurNm())
-                            .deal_bas_r(todayItem.getDealBasR());
-
-                    if (yestItem != null) {
-                        BigDecimal todayRate = new BigDecimal(todayItem.getDealBasR().replace(",", ""));
-                        BigDecimal yestRate = new BigDecimal(yestItem.getDealBasR().replace(",", ""));
-
-                        if (yestRate.compareTo(BigDecimal.ZERO) != 0) {
-                            BigDecimal diff = todayRate.subtract(yestRate);
-                            BigDecimal percentage = diff.divide(yestRate, 4, BigDecimal.ROUND_HALF_UP).multiply(BigDecimal.valueOf(100));
-
-                            DecimalFormat df = new DecimalFormat("0.00");
-                            builder.diff(df.format(diff));
-                            builder.percentage(df.format(percentage));
-                        }
-                    }
-                    return builder.build();
-                })
-                .collect(Collectors.toList());
-
-        // 최종 포장 객체인 ExchangeResponseDTO로 감싸서 반환
-        return new ExchangeResponseDTO(baseDate.format(DISPLAY_DATE_FORMAT), result);
-    }
-
-    private Map<String, ExchangeApiResponseDTO> fetchRatesToMap(LocalDate date) throws IOException {
-        String dateStr = date.format(API_DATE_FORMAT);
-        URI uri = UriComponentsBuilder.fromHttpUrl(EXTERNAL_API_URL)
-                .queryParam("authkey", apiKey)
-                .queryParam("searchdate", dateStr)
-                .queryParam("data", "AP01")
-                .build(true).toUri();
-        log.info("환율 외부 API 호출: {}", uri);
-
-        String jsonString = restTemplate.getForObject(uri, String.class);
-        if (jsonString == null || jsonString.isEmpty() || jsonString.equals("[]")) {
-            return Collections.emptyMap();
-        }
-        log.info("환율 외부 API 응답 ({}): {}", dateStr, jsonString);
-        // 외부 API 응답을 ExchangeApiResponseDTO 리스트로 변환
-        List<ExchangeApiResponseDTO> rates = objectMapper.readValue(jsonString, new TypeReference<List<ExchangeApiResponseDTO>>() {});
-
-        return rates.stream()
-                .filter(rate -> TARGET_CURRENCIES.contains(rate.getCurUnit()))
-                .collect(Collectors.toMap(ExchangeApiResponseDTO::getCurUnit, Function.identity(), (r1, r2) -> r1));
-    }
-
-    // --- 날짜 계산 헬퍼 메소드 (기존과 동일) ---
     private boolean isNonWorkingDay(LocalDate date) {
         DayOfWeek day = date.getDayOfWeek();
         return day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY || HOLIDAYS.contains(date);
