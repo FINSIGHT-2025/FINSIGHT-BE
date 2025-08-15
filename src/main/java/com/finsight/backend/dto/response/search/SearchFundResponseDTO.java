@@ -13,10 +13,7 @@ public class SearchFundResponseDTO {
     private String productCountry;
     private String productType;
     private String productName;
-    private Double productRateOfReturn;
-    private Integer fundScale;
     private Integer productRiskGrade;
-    private NewsSentimentDTO newsSentiment;
     private boolean userOwns;
     private boolean userWatches;
     private boolean isPopularInUserGroup;

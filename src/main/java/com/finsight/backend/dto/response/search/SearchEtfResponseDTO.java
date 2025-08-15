@@ -14,7 +14,6 @@ public class SearchEtfResponseDTO {
     private String productType;
     private String productName;
     private Integer productRiskGrade;
-    private NewsSentimentDTO newsSentiment;
     private boolean userOwns;
     private boolean userWatches;
     private boolean isPopularInUserGroup;
