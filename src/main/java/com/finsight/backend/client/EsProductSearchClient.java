@@ -17,8 +17,8 @@ public class EsProductSearchClient {
 
     private final ElasticsearchClient es;
 
-    @Value("${search.minScore:0.2}") private double minScore;
-    @Value("${search.fuzzinessMinLen:2}") private int fuzzinessMinLen;
+    private static final double MIN_SCORE = 0.2;
+    private static final int FUZZINESS_MIN_LEN = 2;
 
     private String indexFor(String category) {
         return switch (category) {
@@ -30,7 +30,7 @@ public class EsProductSearchClient {
     }
 
     private boolean useFuzzy(String q) {
-        return q != null && q.trim().length() >= fuzzinessMinLen;
+        return q != null && q.trim().length() >= FUZZINESS_MIN_LEN;
     }
 
     public EsPage search(String category, String q, int page, int size) {
@@ -41,7 +41,7 @@ public class EsProductSearchClient {
             SearchResponse<Map> res = es.search(s -> s
                             .index(indexFor(category))
                             .from(from).size(size)
-                            .minScore(minScore)
+                            .minScore(MIN_SCORE)
                             .source(src -> src.filter(f -> f.includes(
                                     "productCode","productName","productRiskGrade","domain",
                                     "productCompanyName",
