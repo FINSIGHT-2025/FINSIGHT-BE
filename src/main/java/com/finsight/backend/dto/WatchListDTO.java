@@ -11,12 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class WatchListDTO {
-    private WatchListId watchListId;
-
-
-    // 찜한 상품 (예금)
-    private String productName;       // 상품명
-    private String dOptionSaveTrm;    // 저축기간
-    private String dOptionIntrRate;   // 기준금리
-    private String dOptionIntrRate2;  // 최고금리
+    private Long watchlistId;
+    private String productCode;
+    private String userId;
+    private String productCategory;
 }
