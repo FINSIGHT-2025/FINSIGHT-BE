@@ -18,6 +18,7 @@ public abstract class ProductDetailDto {
     private String productName;
     private String productCompanyName;
     private Integer productRiskGrade;
+    private Boolean userWatches;
 
     private DetailHoldingsResponseDto holdings;
 }

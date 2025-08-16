@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/watches")
+@RequestMapping("/watch")
 public class WatchController {
     private final WatchService watchService;
     private final AuthService authService;
@@ -26,7 +26,7 @@ public class WatchController {
         String userId = authService.isValidToken(request);
         watchService.insertWatch(watchListDTO, userId);
 
-        return ResponseEntity.ok("찜한 상품 둥록 완료");
+        return ResponseEntity.ok("찜한 상품 등록 완료");
     }
     @DeleteMapping("/{category}/{code}")
     public ResponseEntity<String> deleteWatch(@PathVariable String category,
@@ -42,21 +42,18 @@ public class WatchController {
     @GetMapping("/deposit")
     public ResponseEntity<?> watchDepositListByCategory(HttpServletRequest request){
         String userId = authService.isValidToken(request);
-
         return ResponseEntity.ok(watchService.getWatchDepositListByUserId(userId));
     }
 
     @GetMapping("/fund")
     public ResponseEntity<?> watchFundListByCategory(HttpServletRequest request){
         String userId = authService.isValidToken(request);
-
         return ResponseEntity.ok(watchService.getWatchFundListByUserId(userId));
     }
 
     @GetMapping("/etf")
     public ResponseEntity<?> watchEtfListByCategory(HttpServletRequest request){
         String userId = authService.isValidToken(request);
-
         return ResponseEntity.ok(watchService.getWatchEtfListByUserId(userId));
     }
 

@@ -13,6 +13,7 @@ public abstract class ProductByWatchDto {
     private String productCode;
     private String productName;
     private String productCompanyName;
+    private Boolean userOwns;
     private Boolean isPopularInUserGroup;
     private Integer productRiskGrade;
 }

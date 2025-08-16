@@ -19,6 +19,9 @@ public interface WatchListMapper {
                     @Param("productCode") String productCode,
                     @Param("productCategory") String productCategory);
 
+    boolean checkProductExists(@Param("productCode") String productCode,
+                          @Param("productCategory") String productCategory);
+
     List<DepositVO> findWatchDepositListByUserId(String userId);
     List<FundVO> findWatchFundListByUserId(String userId);
     List<EtfVO> findWatchEtfListByUserId(String userId);

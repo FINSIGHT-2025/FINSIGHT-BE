@@ -2,6 +2,32 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.finsight.backend.repository.mapper.WatchListMapper">
+    <resultMap id="depositResultMap" type="DepositVO">
+        <id property="productCode" column="product_code"/>
+        <result property="productName" column="product_name"/>
+        <result property="productCompanyName" column="product_company_name"/>
+        <result property="productRiskGrade" column="product_risk_grade"/>
+
+        <result property="depositJoinMember" column="deposit_join_member"/>
+        <result property="depositSpclCnd" column="deposit_spcl_cnd"/>
+        <result property="depositMtrtInt" column="deposit_mtrt_int"/>
+        <result property="depositMaxLimit" column="deposit_max_limit"/>
+        <result property="depositJoinWay" column="deposit_join_way"/>
+        <result property="depositJoinDeny" column="deposit_join_deny"/>
+        <result property="depositEtcNote" column="deposit_etc_note"/>
+
+        <collection property="dOption" ofType="DOptionVO" column="d_option_id" javaType="ArrayList">
+            <id property="dOptionId" column="d_option_id"/>
+            <result property="dOptionDclsMonth" column="d_option_dcls_month"/>
+            <result property="dOptionFinCoNo" column="d_option_fin_co_no"/>
+            <result property="dOptionIntrRateType" column="d_option_intr_rate_type"/>
+            <result property="dOptionIntrRateTypeNm" column="d_option_intr_rate_type_nm"/>
+            <result property="dOptionSaveTrm" column="d_option_save_trm"/>
+            <result property="dOptionIntrRate" column="d_option_intr_rate"/>
+            <result property="dOptionIntrRate2" column="d_option_intr_rate2"/>
+        </collection>
+    </resultMap>
+    
     <insert id="insertWatch" parameterType="com.finsight.backend.dto.WatchListDTO">
         INSERT INTO Watch (watchlist_id,
                            product_code,
@@ -20,6 +46,24 @@
         AND product_code = #{productCode}
         AND product_category = #{productCategory}
     </delete>
+    
+    <select id="checkProductExists" resultType="boolean">
+        <choose>
+            <when test="productCategory == 'deposit'">
+                SELECT EXISTS(SELECT 1 FROM Deposit WHERE product_code = #{productCode})
+            </when>
+            <when test="productCategory == 'fund'">
+                SELECT EXISTS(SELECT 1 FROM Fund WHERE product_code = #{productCode})
+            </when>
+            <when test="productCategory == 'etf'">
+                SELECT EXISTS(SELECT 1 FROM Etf WHERE product_code = #{productCode})
+            </when>
+            <otherwise>
+                SELECT FALSE
+            </otherwise>
+        </choose>
+    </select>
+    
     <select id="selectWatchListDepositByUserId"
             parameterType="string"
             resultType="com.finsight.backend.dto.WatchListDTO">
@@ -41,22 +85,26 @@
           AND w.product_category = 'deposit'
     </select>
 
-    <select id="findWatchDepositListByUserId" resultType="DepositVO">
+    <select id="findWatchDepositListByUserId" resultMap="depositResultMap">
         select *
         from watch w
                  left join deposit d on w.product_code = d.product_code
+                 left join D_Option o on w.product_code = o.product_code
         where w.user_id = #{userId}
+          and w.product_category = 'deposit'
     </select>
     <select id="findWatchFundListByUserId" resultType="FundVO">
         select *
         from watch w
                  left join fund f on w.product_code = f.product_code
         where w.user_id = #{userId}
+          and w.product_category = 'fund'
     </select>
     <select id="findWatchEtfListByUserId" resultType="EtfVO">
         select *
         from watch w
                  left join etf e on w.product_code = e.product_code
         where w.user_id = #{userId}
+          and w.product_category = 'etf'
     </select>
 </mapper>

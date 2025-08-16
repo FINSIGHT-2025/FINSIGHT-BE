@@ -1,16 +1,21 @@
 package com.finsight.backend.service;
 
+import com.finsight.backend.common.exception.BusinessException;
+import com.finsight.backend.common.exception.ErrorCode;
+import com.finsight.backend.domain.enumerate.WatchListId;
 import com.finsight.backend.domain.vo.product.*;
-import com.finsight.backend.dto.NewsSentimentTotalDto;
+import com.finsight.backend.domain.vo.user.HoldingsVO;
 import com.finsight.backend.dto.WatchListDTO;
-import com.finsight.backend.dto.response.DepositByWatchDto;
-import com.finsight.backend.dto.response.EtfByWatchDto;
-import com.finsight.backend.dto.response.FundByWatchDto;
-import com.finsight.backend.repository.mapper.NewsMapper;
+import com.finsight.backend.dto.NewsSentimentTotalDto;
+import com.finsight.backend.dto.response.*;
 import com.finsight.backend.repository.mapper.WatchListMapper;
+import com.finsight.backend.repository.mapper.DetailHoldingsMapper;
+import com.finsight.backend.repository.mapper.HoldingsMapper;
+import com.finsight.backend.repository.mapper.NewsMapper;
 import com.finsight.backend.tmptradeserverwebsocket.service.EtfPriceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -21,18 +26,54 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WatchServiceImpl implements WatchService {
     private final WatchListMapper watchListMapper;
-    private final EtfPriceService etfPriceService;
+    private final DetailHoldingsMapper detailHoldingsMapper;
+    private final HoldingsMapper holdingsMapper;
     private final NewsMapper newsMapper;
-
+    private final EtfPriceService etfPriceService;
 
     @Override
-    public int insertWatch(WatchListDTO watchListDTO, String accessToken) {
-        return 0;
+    @Transactional
+    public void insertWatch(WatchListDTO watchListDTO, String userId) {
+        watchListDTO.setUserId(userId);
+        Boolean isWatched = detailHoldingsMapper.isProductWatched(
+            userId, watchListDTO.getProductCode()
+        );
+        if (Boolean.TRUE.equals(isWatched)) {
+            throw new BusinessException(ErrorCode.DUPLICATE_WATCH);
+        }
+        
+        String productCategory = watchListDTO.getProductCategory();
+        boolean productExists = watchListMapper.checkProductExists(
+            watchListDTO.getProductCode(), productCategory
+        );
+        
+        if (!productExists) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_PRODUCT);
+        }
+        
+        try {
+            watchListMapper.insertWatch(watchListDTO);
+        } catch (org.springframework.dao.DuplicateKeyException e) {
+            throw new BusinessException(ErrorCode.DUPLICATE_WATCH);
+        } catch (org.springframework.dao.DataAccessException e) {
+            throw new BusinessException(ErrorCode.WATCH_INSERT_FAIL);
+        }
     }
 
     @Override
-    public <T extends ProductVO> int deleteWatch(Class<T> expectedType, String code, String userId) {
-        return 0;
+    @Transactional
+    public <T extends ProductVO> void deleteWatch(Class<T> expectedType, String code, String userId) {
+        WatchListId category = WatchListId.fromType(expectedType);
+        try {
+            int result = watchListMapper.deleteWatch(userId, code, category.getDbValue());
+            if (result <= 0) {
+                throw new BusinessException(ErrorCode.WATCH_NOT_FOUND);
+            }
+        } catch (org.springframework.dao.DataAccessException e) {
+            throw new BusinessException(ErrorCode.WATCH_DELETE_FAIL);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.WATCH_DELETE_FAIL);
+        }
     }
 
     @Override
@@ -42,10 +83,20 @@ public class WatchServiceImpl implements WatchService {
                 .map(deposit -> {
                     DOptionVO option = deposit.getDOption().stream()
                             .findFirst()
-                            .orElseThrow(null);
-                    return DepositByWatchDto.depositVoToDepositByWatchDto(deposit,
-                            option.getDOptionIntrRate(),
-                            option.getDOptionIntrRate2());
+                            .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_PRODUCT));
+                    HoldingsVO holdingDeposit = holdingsMapper.findByUserAndProduct(userId, deposit.getProductCode());
+                    Boolean userOwn = holdingDeposit == null || holdingDeposit.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
+                    
+                    return DepositByWatchDto.builder()
+                            .productCode(deposit.getProductCode())
+                            .productName(deposit.getProductName())
+                            .productCompanyName(deposit.getProductCompanyName())
+                            .userOwns(userOwn)
+                            .isPopularInUserGroup(Boolean.FALSE)
+                            .productRiskGrade(deposit.getProductRiskGrade())
+                            .depositIntrRate(option.getDOptionIntrRate())
+                            .depositIntrRate2(option.getDOptionIntrRate2())
+                            .build();
                 })
                 .collect(Collectors.toList());
     }
@@ -54,25 +105,57 @@ public class WatchServiceImpl implements WatchService {
     public List<FundByWatchDto> getWatchFundListByUserId(String userId){
         List<FundVO> fundVOList = watchListMapper.findWatchFundListByUserId(userId);
         return fundVOList.stream()
-                .map(fund -> FundByWatchDto.fundVoToFundByWatchDto(fund,
-                        newsSentimentPer(newsMapper.findNewsSentimentByProductCode(fund.getProductCode())),
-                        etfPriceService.getPercentChangeFrom3MonthsAgo("fund_nav", fund.getProductCode()),
-                        etfPriceService.getCurrent("fund_aum", fund.getProductCode()))
-                )
+                .map(fund -> {
+                    HoldingsVO holdingFund = holdingsMapper.findByUserAndProduct(userId, fund.getProductCode());
+                    Boolean userOwn = holdingFund == null || holdingFund.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
+                    NewsSentimentTotalDto newsSentiment = newsSentimentPer(newsMapper.findNewsSentimentByProductCode(fund.getProductCode()));
+                    Double productRateOfReturn = etfPriceService.getPercentChangeFrom3MonthsAgo("fund_nav", fund.getProductCode());
+                    Double fundScale = etfPriceService.getCurrent("fund_aum", fund.getProductCode());
+                    
+                    return FundByWatchDto.builder()
+                            .productCode(fund.getProductCode())
+                            .productCountry(fund.getFundCountry().getDbValue())
+                            .productCompanyName(fund.getProductCompanyName())
+                            .productType(fund.getFundType().getDbValue())
+                            .productName(fund.getProductName())
+                            .userOwns(userOwn)
+                            .isPopularInUserGroup(Boolean.FALSE)
+                            .productRiskGrade(fund.getProductRiskGrade())
+                            .newsSentiment(newsSentiment)
+                            .productRateOfReturn(productRateOfReturn)
+                            .fundScale(fundScale)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
+
     @Override
     public List<EtfByWatchDto> getWatchEtfListByUserId(String userId){
         List<EtfVO> etfVOList = watchListMapper.findWatchEtfListByUserId(userId);
         return etfVOList.stream()
-                .map(etf -> EtfByWatchDto.etfVoToEtfByWatchDto(etf,
-                        newsSentimentPer(newsMapper.findNewsSentimentByProductCode(etf.getProductCode())),
-                        etfPriceService.getCurrent("etf_nav", etf.getProductCode()))
-                )
+                .map(etf -> {
+                    HoldingsVO holdingEtf = holdingsMapper.findByUserAndProduct(userId, etf.getProductCode());
+                    Boolean userOwn = holdingEtf == null || holdingEtf.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
+                    NewsSentimentTotalDto newsSentiment = newsSentimentPer(newsMapper.findNewsSentimentByProductCode(etf.getProductCode()));
+                    Double etfNav = etfPriceService.getCurrent("etf_nav", etf.getProductCode());
+                    
+                    return EtfByWatchDto.builder()
+                            .productCode(etf.getProductCode())
+                            .productCountry(etf.getEtfCountry().getDbValue())
+                            .productCompanyName(etf.getProductCompanyName())
+                            .productType(etf.getEtfType().getDbValue())
+                            .productName(etf.getProductName())
+                            .userOwns(userOwn)
+                            .isPopularInUserGroup(Boolean.FALSE)
+                            .productRiskGrade(etf.getProductRiskGrade())
+                            .newsSentiment(newsSentiment)
+                            .etfNav(etfNav)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
-    public NewsSentimentTotalDto newsSentimentPer(List<String> newsSentimentList){
+    private NewsSentimentTotalDto newsSentimentPer(List<String> newsSentimentList){
         Map<String, Long> sentimentCnt = newsSentimentList.stream()
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 

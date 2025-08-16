@@ -64,10 +64,11 @@ public class ProductServiceImpl implements ProductService{
             }
             
             holdings.setHistory(histories);
-
-            Boolean isWatched = detailHoldingsMapper.isProductWatched(userId, productCode);
-            holdings.setWatched(isWatched);
         }
+
+        // userWatches 설정
+        Boolean userWatches = detailHoldingsMapper.isProductWatched(userId, productCode);
+        dto.setUserWatches(userWatches);
 
         dto.setHoldings(holdings);
 
