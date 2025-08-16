@@ -107,4 +107,16 @@
         where w.user_id = #{userId}
           and w.product_category = 'etf'
     </select>
+
+    <select id="findRecentWatches" resultType="com.finsight.backend.domain.vo.product.WatchVO">
+        SELECT 
+            watchlist_id as watchlistId,
+            user_id as userId,
+            product_code as productCode,
+            product_category as productCategory
+        FROM Watch
+        WHERE user_id = #{userId}
+        ORDER BY watchlist_id DESC
+        LIMIT #{limit}
+    </select>
 </mapper>

@@ -57,4 +57,9 @@ public class WatchController {
         return ResponseEntity.ok(watchService.getWatchEtfListByUserId(userId));
     }
 
+    @GetMapping("/preview")
+    public ResponseEntity<?> getWatchPreview(HttpServletRequest request) {
+        String userId = authService.isValidToken(request);
+        return ResponseEntity.ok(watchService.getWatchPreview(userId));
+    }
 }

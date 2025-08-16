@@ -5,6 +5,7 @@ import com.finsight.backend.common.exception.ErrorCode;
 import com.finsight.backend.domain.enumerate.WatchListId;
 import com.finsight.backend.domain.vo.product.*;
 import com.finsight.backend.domain.vo.user.HoldingsVO;
+import com.finsight.backend.domain.vo.product.WatchVO;
 import com.finsight.backend.dto.WatchListDTO;
 import com.finsight.backend.dto.NewsSentimentTotalDto;
 import com.finsight.backend.dto.response.*;
@@ -169,6 +170,120 @@ public class WatchServiceImpl implements WatchService {
                 .positive(getPercent.apply("positive"))
                 .negative(getPercent.apply("negative"))
                 .neutral(getPercent.apply("neutral"))
+                .build();
+    }
+
+    @Override
+    public WatchPreviewDto getWatchPreview(String userId) {
+        // Watch 테이블에서 최근 10개만 조회
+        List<WatchVO> recentWatches = watchListMapper.findRecentWatches(userId, 10);
+        
+        // 타입별로 분류하여 상세 정보 조회
+        List<DepositByWatchDto> deposits = recentWatches.stream()
+                .filter(watch -> "deposit".equals(watch.getProductCategory()))
+                .map(watch -> {
+                    // 예금 상품 상세 정보 조회
+                    DepositVO deposit = watchListMapper.findWatchDepositListByUserId(userId).stream()
+                            .filter(d -> d.getProductCode().equals(watch.getProductCode()))
+                            .findFirst()
+                            .orElse(null);
+                    
+                    if (deposit != null) {
+                        DOptionVO option = deposit.getDOption().stream()
+                                .findFirst()
+                                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_PRODUCT));
+                        HoldingsVO holdingDeposit = holdingsMapper.findByUserAndProduct(userId, deposit.getProductCode());
+                        Boolean userOwn = holdingDeposit == null || holdingDeposit.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
+                        
+                        return DepositByWatchDto.builder()
+                                .productCode(deposit.getProductCode())
+                                .productName(deposit.getProductName())
+                                .productCompanyName(deposit.getProductCompanyName())
+                                .userOwns(userOwn)
+                                .isPopularInUserGroup(Boolean.FALSE)
+                                .productRiskGrade(deposit.getProductRiskGrade())
+                                .depositIntrRate(option.getDOptionIntrRate())
+                                .depositIntrRate2(option.getDOptionIntrRate2())
+                                .build();
+                    }
+                    return null;
+                })
+                .filter(dto -> dto != null)
+                .collect(Collectors.toList());
+        
+        List<FundByWatchDto> funds = recentWatches.stream()
+                .filter(watch -> "fund".equals(watch.getProductCategory()))
+                .map(watch -> {
+                    // 펀드 상품 상세 정보 조회
+                    FundVO fund = watchListMapper.findWatchFundListByUserId(userId).stream()
+                            .filter(f -> f.getProductCode().equals(watch.getProductCode()))
+                            .findFirst()
+                            .orElse(null);
+                    
+                    if (fund != null) {
+                        HoldingsVO holdingFund = holdingsMapper.findByUserAndProduct(userId, fund.getProductCode());
+                        Boolean userOwn = holdingFund == null || holdingFund.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
+                        NewsSentimentTotalDto newsSentiment = newsSentimentPer(newsMapper.findNewsSentimentByProductCode(fund.getProductCode()));
+                        Double productRateOfReturn = etfPriceService.getPercentChangeFrom3MonthsAgo("fund_nav", fund.getProductCode());
+                        Double fundScale = etfPriceService.getCurrent("fund_aum", fund.getProductCode());
+                        
+                        return FundByWatchDto.builder()
+                                .productCode(fund.getProductCode())
+                                .productCountry(fund.getFundCountry().getDbValue())
+                                .productCompanyName(fund.getProductCompanyName())
+                                .productType(fund.getFundType().getDbValue())
+                                .productName(fund.getProductName())
+                                .userOwns(userOwn)
+                                .isPopularInUserGroup(Boolean.FALSE)
+                                .productRiskGrade(fund.getProductRiskGrade())
+                                .newsSentiment(newsSentiment)
+                                .productRateOfReturn(productRateOfReturn)
+                                .fundScale(fundScale)
+                                .build();
+                    }
+                    return null;
+                })
+                .filter(dto -> dto != null)
+                .collect(Collectors.toList());
+        
+        List<EtfByWatchDto> etfs = recentWatches.stream()
+                .filter(watch -> "etf".equals(watch.getProductCategory()))
+                .map(watch -> {
+                    // ETF 상품 상세 정보 조회
+                    EtfVO etf = watchListMapper.findWatchEtfListByUserId(userId).stream()
+                            .filter(e -> e.getProductCode().equals(watch.getProductCode()))
+                            .findFirst()
+                            .orElse(null);
+                    
+                    if (etf != null) {
+                        HoldingsVO holdingEtf = holdingsMapper.findByUserAndProduct(userId, etf.getProductCode());
+                        Boolean userOwn = holdingEtf == null || holdingEtf.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
+                        NewsSentimentTotalDto newsSentiment = newsSentimentPer(newsMapper.findNewsSentimentByProductCode(etf.getProductCode()));
+                        Double etfNav = etfPriceService.getCurrent("etf_nav", etf.getProductCode());
+                        
+                        return EtfByWatchDto.builder()
+                                .productCode(etf.getProductCode())
+                                .productCountry(etf.getEtfCountry().getDbValue())
+                                .productCompanyName(etf.getProductCompanyName())
+                                .productType(etf.getEtfType().getDbValue())
+                                .productName(etf.getProductName())
+                                .userOwns(userOwn)
+                                .isPopularInUserGroup(Boolean.FALSE)
+                                .productRiskGrade(etf.getProductRiskGrade())
+                                .newsSentiment(newsSentiment)
+                                .etfNav(etfNav)
+                                .build();
+                    }
+                    return null;
+                })
+                .filter(dto -> dto != null)
+                .collect(Collectors.toList());
+        
+        return WatchPreviewDto.builder()
+                .deposits(deposits)
+                .funds(funds)
+                .etfs(etfs)
+                .totalCount(recentWatches.size())
                 .build();
     }
 }

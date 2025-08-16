@@ -14,4 +14,6 @@ public interface WatchService {
     List<DepositByWatchDto> getWatchDepositListByUserId(String userId);
     List<FundByWatchDto> getWatchFundListByUserId(String userId);
     List<EtfByWatchDto> getWatchEtfListByUserId(String userId);
+    
+    WatchPreviewDto getWatchPreview(String userId);
 }
