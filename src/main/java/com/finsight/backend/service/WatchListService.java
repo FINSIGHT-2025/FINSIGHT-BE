@@ -1,28 +1,12 @@
 package com.finsight.backend.service;
 
 import com.finsight.backend.dto.WatchListDTO;
-import com.finsight.backend.repository.mapper.WatchListMapper;
-import com.finsight.backend.common.util.JwtUtil;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
+public interface WatchListService {
+    int insertWatch(WatchListDTO watchListDTO,  String accessToken);
 
-@Service
-@RequiredArgsConstructor
-public class WatchListService {
+    // 찜한 상품 등록
+    int insertWatch(WatchListDTO watchListDTO);
 
-    private final WatchListMapper watchListMapper;
-    private final JwtUtil jwtUtil;
-
-    public List<WatchListDTO> getWatchListDepositByUserId(String userId) {
-        System.out.println("Service: 사용자 ID [" + userId + "]의 찜한상품(예금)을 조회합니다.");
-        return watchListMapper.selectWatchListDepositByUserId(userId);
-    }
+    int deleteWatch(String userId, String productCode, String productCategory);
 }
-/*
-         d.product_name, -- 예금) 상품명
-         o.d_option_save_trm, -- 예금) 저축기간
-         o.d_option_intr_rate, -- 예금) 기준금리
-         o.d_option_intr_rate2 -- 예금) 최고금리
- */
