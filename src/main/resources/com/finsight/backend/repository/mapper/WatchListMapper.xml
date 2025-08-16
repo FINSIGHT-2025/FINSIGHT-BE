@@ -2,13 +2,6 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.finsight.backend.repository.mapper.WatchListMapper">
-    <!--  찜한 상품(예금) 목록  -->
-
-    <!--  찜한 상품(펀드) 목록  -->
-
-    <!--  찜한 상품(ETF) 목록  -->
-
-    <!--  찜한 상품 등록  -->
     <insert id="insertWatch" parameterType="com.finsight.backend.dto.WatchListDTO">
         INSERT INTO Watch (watchlist_id,
                            product_code,
@@ -27,5 +20,43 @@
         AND product_code = #{productCode}
         AND product_category = #{productCategory}
     </delete>
+    <select id="selectWatchListDepositByUserId"
+            parameterType="string"
+            resultType="com.finsight.backend.dto.WatchListDTO">
+        SELECT
+            -- productCode: 'deposit-001',
+            d.product_name       AS productName,       -- 예금) 상품명
+            -- productCompanyName: 'SH 수협은행',
+            -- productRiskGrade: 6,
+            o.d_option_save_trm  AS dOptionSaveTrm,    -- 예금) 저축기간
+            o.d_option_intr_rate AS depositIntrRate,   -- 예금) 기준금리
+            o.d_option_intr_rate2 AS depositIntrRate2,  -- 예금) 최고금리
+            true AS userOwns, -- TODO
+            true AS userWatches, -- TODO
+            true AS isPopularInUserGroup -- TODO
+        FROM Watch w
+                 JOIN Deposit d  ON w.product_code = d.product_code
+                 JOIN D_Option o ON w.product_code = o.product_code
+        WHERE w.user_id = #{userId}
+          AND w.product_category = 'deposit'
+    </select>
 
+    <select id="findWatchDepositListByUserId" resultType="DepositVO">
+        select *
+        from watch w
+                 left join deposit d on w.product_code = d.product_code
+        where w.user_id = #{userId}
+    </select>
+    <select id="findWatchFundListByUserId" resultType="FundVO">
+        select *
+        from watch w
+                 left join fund f on w.product_code = f.product_code
+        where w.user_id = #{userId}
+    </select>
+    <select id="findWatchEtfListByUserId" resultType="EtfVO">
+        select *
+        from watch w
+                 left join etf e on w.product_code = e.product_code
+        where w.user_id = #{userId}
+    </select>
 </mapper>
