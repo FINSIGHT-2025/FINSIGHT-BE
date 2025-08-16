@@ -10,6 +10,9 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 public class EtfPriceHistoryDto {
-    private LocalDate baseDate;
-    private double etfNav;
+    private LocalDate baseDate;        // 기준 날짜
+    private double etfNav;             // ETF NAV
+    private double weeklyReturn;       // 1주 수익률 (%)
+    private double monthlyReturn;      // 1달 수익률 (%)
+    private double quarterlyReturn;    // 3달 수익률 (%)
 }

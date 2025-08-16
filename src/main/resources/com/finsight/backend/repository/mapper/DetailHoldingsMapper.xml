@@ -21,10 +21,27 @@
             history_trade_type,
             history_trade_date,
             history_quantity,
-            history_amount
+            history_amount,
+            contract_months
         FROM history
         WHERE holdings_id = #{holdingsId}
         ORDER BY history_trade_date DESC
+    </select>
+
+    <select id="selectLatestBuyHistoryByHoldingsId" resultType="com.finsight.backend.tmpdetailhodings.vo.DetailHistoryVO">
+        SELECT
+            history_id,
+            holdings_id,
+            history_trade_type,
+            history_trade_date,
+            history_quantity,
+            history_amount,
+            contract_months
+        FROM history
+        WHERE holdings_id = #{holdingsId}
+          AND history_trade_type = 'buy'
+        ORDER BY history_trade_date DESC
+        LIMIT 1
     </select>
 
     <select id="isProductWatched" resultType="Boolean">
