@@ -5,13 +5,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WatchPreviewDto {
-    private List<WatchPreviewItemDto> watchItems;
-    private int totalCount;
+public class WatchPreviewItemDto {
+    private Long watchListId;
+    private String productCategory;
+    private Object detail;
 }
