@@ -83,6 +83,23 @@ public class EtfPriceService {
         Instant now = LocalDate.now(SEOUL_ZONE_ID).minusDays(1).atStartOfDay(SEOUL_ZONE_ID).toInstant();
         Instant start = now.minus(90, ChronoUnit.DAYS);
 
+        // 1단계: 먼저 정확한 90일 범위로 조회 시도
+        List<PricePointVO> result = executeThreeMonthsQuery(measurementAndField, productCode, productCodeTag, start, now);
+        
+        // 2단계: 1단계에서 데이터를 찾지 못했다면 범위를 넓혀서 다시 조회
+        if (result.isEmpty()) {
+            log.warn("[Fallback] ProductCode: '{}', Measurement: '{}'의 3개월 데이터를 찾지 못해 검색 범위를 확장합니다.", productCode, measurementAndField);
+            Instant wideStart = start.minus(7, ChronoUnit.DAYS);
+            Instant wideStop = now.plus(7, ChronoUnit.DAYS);
+            result = executeThreeMonthsQuery(measurementAndField, productCode, productCodeTag, wideStart, wideStop);
+        }
+
+        return result;
+    }
+
+    private List<PricePointVO> executeThreeMonthsQuery(String measurementAndField, String productCode, String productCodeTag, Instant start, Instant stop) {
+        QueryApi queryApi = influxDBClient.getQueryApi();
+
         String flux = String.format(
                 "from(bucket: \"%s\") " +
                         "|> range(start: %s, stop: %s) " +
@@ -90,7 +107,7 @@ public class EtfPriceService {
                         "|> sort(columns: [\"_time\"], desc: false)",
                 influxDBConfig.getInfluxBucket(),
                 start.toString(),
-                now.toString(),
+                stop.toString(),
                 measurementAndField,
                 productCodeTag,
                 productCode,

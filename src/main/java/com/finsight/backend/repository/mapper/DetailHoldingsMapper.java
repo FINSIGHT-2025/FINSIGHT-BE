@@ -15,6 +15,8 @@ public interface DetailHoldingsMapper {
 
     List<DetailHistoryVO> selectHistoriesByHoldingsId(@Param("holdingsId") Long holdingsId);
 
+    List<DetailHistoryVO> selectLatestBuyHistoryByHoldingsId(@Param("holdingsId") Long holdingsId);
+
     Boolean isProductWatched(@Param("userId") String userId,
                              @Param("productCode") String productCode);
 }

@@ -108,14 +108,14 @@ CREATE TABLE `Deposit` (
                            `deposit_etc_note` TEXT NULL COMMENT '기타 유의사항',
                            PRIMARY KEY (`product_code`)
 );
-
 CREATE TABLE `History` (
-                           `history_id` BIGINT NOT NULL COMMENT '기본키',
+                           `history_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '기본키',
                            `holdings_id` BIGINT NOT NULL COMMENT '외래키',
                            `history_trade_type` ENUM('buy', 'sell', 'deposit') NOT NULL COMMENT '거래 유형',
                            `history_trade_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '거래일',
                            `history_quantity` INT NOT NULL DEFAULT 1 COMMENT '투자수량',
-                           `history_amount` BIGINT NOT NULL COMMENT '투자금액',
+                           `history_amount` DECIMAL(15, 2) NOT NULL COMMENT '투자금액',
+                           `contract_months` INT DEFAULT NULL COMMENT '상품 약정기간',
                            PRIMARY KEY (`history_id`),
                            FOREIGN KEY (`holdings_id`) REFERENCES `Holdings`(`holdings_id`) ON DELETE CASCADE
 );
@@ -230,6 +230,14 @@ CREATE TABLE `E_Constituent_Stocks` (
 );
 
 
+-- INDEX
+-- News 테이블: 게시 일시 필터링과 조인 최적화를 위한 인덱스
+CREATE INDEX idx_news_published_at_news_id
+    ON News (news_published_at, news_id);
+
+-- News_Keyword 테이블: 뉴스 ID로 조인 및 키워드별 집계 최적화
+CREATE INDEX idx_news_keyword_news_id_keyword_id
+    ON News_Keyword (news_id, keyword_id);
 
 
 -- Spring Batch 관련
