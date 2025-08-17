@@ -17,11 +17,15 @@ public class FundByWatchDto extends ProductByWatchDto{
     private NewsSentimentTotalDto newsSentiment;
     private Double productRateOfReturn;
     private Double fundScale;
+    private Double currentNav;
+    private Double percentChangeFromYesterday;
 
     public static FundByWatchDto fundVoToFundByWatchDto(FundVO fund,
                                                           NewsSentimentTotalDto newsSentimentDto,
                                                           double productRateOfReturn,
-                                                          double fundScale){
+                                                          double fundScale,
+                                                          double currentNav,
+                                                          double percentChangeFromYesterday){
         return FundByWatchDto.builder()
                 .productCode(fund.getProductCode())
                 .productCountry(fund.getFundCountry().getDbValue())
@@ -33,6 +37,8 @@ public class FundByWatchDto extends ProductByWatchDto{
                 .isPopularInUserGroup(Boolean.FALSE)
                 .productRateOfReturn(productRateOfReturn)
                 .fundScale(fundScale)
+                .currentNav(currentNav)
+                .percentChangeFromYesterday(percentChangeFromYesterday)
                 .build();
     }
 }

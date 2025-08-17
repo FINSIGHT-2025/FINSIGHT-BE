@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -82,22 +83,7 @@ public class WatchServiceImpl implements WatchService {
         List<DepositVO> depositVOList = watchListMapper.findWatchDepositListByUserId(userId);
         return depositVOList.stream()
                 .map(deposit -> {
-                    DOptionVO option = deposit.getDOption().stream()
-                            .findFirst()
-                            .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_PRODUCT));
-                    HoldingsVO holdingDeposit = holdingsMapper.findByUserAndProduct(userId, deposit.getProductCode());
-                    Boolean userOwn = holdingDeposit == null || holdingDeposit.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
-                    
-                    return DepositByWatchDto.builder()
-                            .productCode(deposit.getProductCode())
-                            .productName(deposit.getProductName())
-                            .productCompanyName(deposit.getProductCompanyName())
-                            .userOwns(userOwn)
-                            .isPopularInUserGroup(Boolean.FALSE)
-                            .productRiskGrade(deposit.getProductRiskGrade())
-                            .depositIntrRate(option.getDOptionIntrRate())
-                            .depositIntrRate2(option.getDOptionIntrRate2())
-                            .build();
+                    return getObject(userId, deposit);
                 })
                 .collect(Collectors.toList());
     }
@@ -107,27 +93,35 @@ public class WatchServiceImpl implements WatchService {
         List<FundVO> fundVOList = watchListMapper.findWatchFundListByUserId(userId);
         return fundVOList.stream()
                 .map(fund -> {
-                    HoldingsVO holdingFund = holdingsMapper.findByUserAndProduct(userId, fund.getProductCode());
-                    Boolean userOwn = holdingFund == null || holdingFund.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
-                    NewsSentimentTotalDto newsSentiment = newsSentimentPer(newsMapper.findNewsSentimentByProductCode(fund.getProductCode()));
-                    Double productRateOfReturn = etfPriceService.getPercentChangeFrom3MonthsAgo("fund_nav", fund.getProductCode());
-                    Double fundScale = etfPriceService.getCurrent("fund_aum", fund.getProductCode());
-                    
-                    return FundByWatchDto.builder()
-                            .productCode(fund.getProductCode())
-                            .productCountry(fund.getFundCountry().getDbValue())
-                            .productCompanyName(fund.getProductCompanyName())
-                            .productType(fund.getFundType().getDbValue())
-                            .productName(fund.getProductName())
-                            .userOwns(userOwn)
-                            .isPopularInUserGroup(Boolean.FALSE)
-                            .productRiskGrade(fund.getProductRiskGrade())
-                            .newsSentiment(newsSentiment)
-                            .productRateOfReturn(productRateOfReturn)
-                            .fundScale(fundScale)
-                            .build();
+                    return getObject(userId, fund);
                 })
                 .collect(Collectors.toList());
+    }
+
+    private FundByWatchDto getObject(String userId, FundVO fund) {
+        HoldingsVO holdingFund = holdingsMapper.findByUserAndProduct(userId, fund.getProductCode());
+        Boolean userOwn = holdingFund == null || holdingFund.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
+        NewsSentimentTotalDto newsSentiment = newsSentimentPer(newsMapper.findNewsSentimentByProductCode(fund.getProductCode()));
+        Double productRateOfReturn = etfPriceService.getPercentChangeFrom3MonthsAgo("fund_nav", fund.getProductCode());
+        Double fundScale = etfPriceService.getCurrent("fund_aum", fund.getProductCode());
+        Double currentNav = etfPriceService.getCurrent("fund_nav", fund.getProductCode());
+        Double percentChangeFromYesterday = etfPriceService.getPercentChangeFromYesterday("fund_nav", fund.getProductCode());
+
+        return FundByWatchDto.builder()
+                .productCode(fund.getProductCode())
+                .productCountry(fund.getFundCountry().getDbValue())
+                .productCompanyName(fund.getProductCompanyName())
+                .productType(fund.getFundType().getDbValue())
+                .productName(fund.getProductName())
+                .userOwns(userOwn)
+                .isPopularInUserGroup(Boolean.FALSE)
+                .productRiskGrade(fund.getProductRiskGrade())
+                .newsSentiment(newsSentiment)
+                .productRateOfReturn(productRateOfReturn)
+                .fundScale(fundScale)
+                .currentNav(currentNav)
+                .percentChangeFromYesterday(percentChangeFromYesterday)
+                .build();
     }
 
     @Override
@@ -135,25 +129,29 @@ public class WatchServiceImpl implements WatchService {
         List<EtfVO> etfVOList = watchListMapper.findWatchEtfListByUserId(userId);
         return etfVOList.stream()
                 .map(etf -> {
-                    HoldingsVO holdingEtf = holdingsMapper.findByUserAndProduct(userId, etf.getProductCode());
-                    Boolean userOwn = holdingEtf == null || holdingEtf.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
-                    NewsSentimentTotalDto newsSentiment = newsSentimentPer(newsMapper.findNewsSentimentByProductCode(etf.getProductCode()));
-                    Double etfNav = etfPriceService.getCurrent("etf_nav", etf.getProductCode());
-                    
-                    return EtfByWatchDto.builder()
-                            .productCode(etf.getProductCode())
-                            .productCountry(etf.getEtfCountry().getDbValue())
-                            .productCompanyName(etf.getProductCompanyName())
-                            .productType(etf.getEtfType().getDbValue())
-                            .productName(etf.getProductName())
-                            .userOwns(userOwn)
-                            .isPopularInUserGroup(Boolean.FALSE)
-                            .productRiskGrade(etf.getProductRiskGrade())
-                            .newsSentiment(newsSentiment)
-                            .etfNav(etfNav)
-                            .build();
+                    return getObject(userId, etf);
                 })
                 .collect(Collectors.toList());
+    }
+
+    private EtfByWatchDto getObject(String userId, EtfVO etf) {
+        HoldingsVO holdingEtf = holdingsMapper.findByUserAndProduct(userId, etf.getProductCode());
+        Boolean userOwn = holdingEtf == null || holdingEtf.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
+        NewsSentimentTotalDto newsSentiment = newsSentimentPer(newsMapper.findNewsSentimentByProductCode(etf.getProductCode()));
+        Double etfNav = etfPriceService.getCurrent("etf_nav", etf.getProductCode());
+
+        return EtfByWatchDto.builder()
+                .productCode(etf.getProductCode())
+                .productCountry(etf.getEtfCountry().getDbValue())
+                .productCompanyName(etf.getProductCompanyName())
+                .productType(etf.getEtfType().getDbValue())
+                .productName(etf.getProductName())
+                .userOwns(userOwn)
+                .isPopularInUserGroup(Boolean.FALSE)
+                .productRiskGrade(etf.getProductRiskGrade())
+                .newsSentiment(newsSentiment)
+                .etfNav(etfNav)
+                .build();
     }
 
     private NewsSentimentTotalDto newsSentimentPer(List<String> newsSentimentList){
@@ -189,26 +187,11 @@ public class WatchServiceImpl implements WatchService {
                             .orElse(null);
                     
                     if (deposit != null) {
-                        DOptionVO option = deposit.getDOption().stream()
-                                .findFirst()
-                                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_PRODUCT));
-                        HoldingsVO holdingDeposit = holdingsMapper.findByUserAndProduct(userId, deposit.getProductCode());
-                        Boolean userOwn = holdingDeposit == null || holdingDeposit.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
-                        
-                        return DepositByWatchDto.builder()
-                                .productCode(deposit.getProductCode())
-                                .productName(deposit.getProductName())
-                                .productCompanyName(deposit.getProductCompanyName())
-                                .userOwns(userOwn)
-                                .isPopularInUserGroup(Boolean.FALSE)
-                                .productRiskGrade(deposit.getProductRiskGrade())
-                                .depositIntrRate(option.getDOptionIntrRate())
-                                .depositIntrRate2(option.getDOptionIntrRate2())
-                                .build();
+                        return getObject(userId, deposit);
                     }
                     return null;
                 })
-                .filter(dto -> dto != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         
         List<FundByWatchDto> funds = recentWatches.stream()
@@ -221,25 +204,7 @@ public class WatchServiceImpl implements WatchService {
                             .orElse(null);
                     
                     if (fund != null) {
-                        HoldingsVO holdingFund = holdingsMapper.findByUserAndProduct(userId, fund.getProductCode());
-                        Boolean userOwn = holdingFund == null || holdingFund.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
-                        NewsSentimentTotalDto newsSentiment = newsSentimentPer(newsMapper.findNewsSentimentByProductCode(fund.getProductCode()));
-                        Double productRateOfReturn = etfPriceService.getPercentChangeFrom3MonthsAgo("fund_nav", fund.getProductCode());
-                        Double fundScale = etfPriceService.getCurrent("fund_aum", fund.getProductCode());
-                        
-                        return FundByWatchDto.builder()
-                                .productCode(fund.getProductCode())
-                                .productCountry(fund.getFundCountry().getDbValue())
-                                .productCompanyName(fund.getProductCompanyName())
-                                .productType(fund.getFundType().getDbValue())
-                                .productName(fund.getProductName())
-                                .userOwns(userOwn)
-                                .isPopularInUserGroup(Boolean.FALSE)
-                                .productRiskGrade(fund.getProductRiskGrade())
-                                .newsSentiment(newsSentiment)
-                                .productRateOfReturn(productRateOfReturn)
-                                .fundScale(fundScale)
-                                .build();
+                        return getObject(userId, fund);
                     }
                     return null;
                 })
@@ -256,23 +221,7 @@ public class WatchServiceImpl implements WatchService {
                             .orElse(null);
                     
                     if (etf != null) {
-                        HoldingsVO holdingEtf = holdingsMapper.findByUserAndProduct(userId, etf.getProductCode());
-                        Boolean userOwn = holdingEtf == null || holdingEtf.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
-                        NewsSentimentTotalDto newsSentiment = newsSentimentPer(newsMapper.findNewsSentimentByProductCode(etf.getProductCode()));
-                        Double etfNav = etfPriceService.getCurrent("etf_nav", etf.getProductCode());
-                        
-                        return EtfByWatchDto.builder()
-                                .productCode(etf.getProductCode())
-                                .productCountry(etf.getEtfCountry().getDbValue())
-                                .productCompanyName(etf.getProductCompanyName())
-                                .productType(etf.getEtfType().getDbValue())
-                                .productName(etf.getProductName())
-                                .userOwns(userOwn)
-                                .isPopularInUserGroup(Boolean.FALSE)
-                                .productRiskGrade(etf.getProductRiskGrade())
-                                .newsSentiment(newsSentiment)
-                                .etfNav(etfNav)
-                                .build();
+                        return getObject(userId, etf);
                     }
                     return null;
                 })
@@ -284,6 +233,25 @@ public class WatchServiceImpl implements WatchService {
                 .funds(funds)
                 .etfs(etfs)
                 .totalCount(recentWatches.size())
+                .build();
+    }
+
+    private DepositByWatchDto getObject(String userId, DepositVO deposit) {
+        DOptionVO option = deposit.getDOption().stream()
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_PRODUCT));
+        HoldingsVO holdingDeposit = holdingsMapper.findByUserAndProduct(userId, deposit.getProductCode());
+        Boolean userOwn = holdingDeposit == null || holdingDeposit.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
+
+        return DepositByWatchDto.builder()
+                .productCode(deposit.getProductCode())
+                .productName(deposit.getProductName())
+                .productCompanyName(deposit.getProductCompanyName())
+                .userOwns(userOwn)
+                .isPopularInUserGroup(Boolean.FALSE)
+                .productRiskGrade(deposit.getProductRiskGrade())
+                .depositIntrRate(option.getDOptionIntrRate())
+                .depositIntrRate2(option.getDOptionIntrRate2())
                 .build();
     }
 }
