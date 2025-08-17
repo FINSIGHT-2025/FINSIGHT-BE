@@ -26,9 +26,6 @@ public class DetailHoldingsService {
         
         holdings.setHistory(histories);
 
-        Boolean isWatched = detailHoldingsMapper.isProductWatched(userId, productCode);
-        holdings.setWatched(isWatched);
-
         return holdings;
     }
 }

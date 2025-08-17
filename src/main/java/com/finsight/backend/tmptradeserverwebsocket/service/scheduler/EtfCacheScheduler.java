@@ -14,7 +14,6 @@ public class EtfCacheScheduler {
     private final EtfCodeService etfCodeService;
     private final EtfCacheUpdateService etfCacheUpdateService;
 
-    // ETF 가격와 거래량을 찾아서 EtfCache 업데이트
     @Scheduled(cron = "0 0 1 * * *") // 매일 오전 1시
     public void updateAllEtfHistoricalPrices() {
         List<String> etfCodes = etfCodeService.getAllEtfCodes();

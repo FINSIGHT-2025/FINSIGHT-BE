@@ -11,14 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FundPriceSummaryDto {
-
     private double currentNav;
-
     private double currentAum;
-
     private double changeFromYesterday;
-
     private double percentChangeFromYesterday;
-
     private double percentChangeFrom3MonthsAgo;
 }

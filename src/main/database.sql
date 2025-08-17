@@ -167,8 +167,9 @@ CREATE TABLE `Watch` (
                          `user_id` VARCHAR(255) NOT NULL COMMENT '아이디',
                          `product_category` ENUM('deposit', 'fund', 'etf') NOT NULL COMMENT '카테고리',
                          PRIMARY KEY (`watchlist_id`),
-                         FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`) ON DELETE CASCADE
-    -- `product_code` 역시 다형 참조라 FK 생략
+                         FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`) ON DELETE CASCADE,
+                         UNIQUE KEY `uq_watch` (`user_id`, `product_code`)
+    -- `product_code` 다형 참조라 FK 생략
 );
 
 
