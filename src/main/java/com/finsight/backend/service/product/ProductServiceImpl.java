@@ -70,7 +70,9 @@ public class ProductServiceImpl implements ProductService{
                                                                               String country,
                                                                               String type,
                                                                               String userId,
-                                                                              Boolean isMatched) {
+                                                                              Boolean isMatched,
+                                                                              Integer limit,
+                                                                              Integer offset) {
 
         @SuppressWarnings("unchecked")
         ProductVoHandler<T> matchedVoHandler = (ProductVoHandler<T>) voHandlers.stream()
@@ -78,7 +80,7 @@ public class ProductServiceImpl implements ProductService{
                 .findFirst()
                 .orElseThrow(CustomNotFoundProduct::new);
 
-        List<T> productList = matchedVoHandler.findProductListByFilter(sort, country, type, isMatched, userId);
+        List<T> productList = matchedVoHandler.findProductListByFilter(sort, country, type, isMatched, userId, limit, offset);
 
 
         @SuppressWarnings("unchecked")

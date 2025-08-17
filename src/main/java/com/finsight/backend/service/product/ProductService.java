@@ -14,5 +14,7 @@ public interface ProductService {
                                                                        String country,
                                                                        String type,
                                                                        String userId,
-                                                                       Boolean isMatched);
+                                                                       Boolean isMatched,
+                                                                       Integer limit,
+                                                                       Integer offset);
 }

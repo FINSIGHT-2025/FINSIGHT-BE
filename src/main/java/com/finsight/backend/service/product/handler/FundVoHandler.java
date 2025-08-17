@@ -33,7 +33,9 @@ public class FundVoHandler implements ProductVoHandler<FundVO> {
                                                 String country,
                                                 String type,
                                                 Boolean isMatched,
-                                                String userId) {
+                                                String userId,
+                                                Integer limit,
+                                                Integer offset) {
         ProductCountry productCountry = (country == null || country.isBlank())
                 ? null
                 : ProductCountry.fromDbValue(country);
@@ -48,20 +50,20 @@ public class FundVoHandler implements ProductVoHandler<FundVO> {
         if(sort.equals("fund_scale")){
             // 펀드 규모 정렬해서 리턴
             return isMatched ?
-                    fundMapper.findFundListByFilter(productCountry, productType, riskGradeRange) :
-                    fundMapper.findFundListByFilter(productCountry, productType, all);
+                    fundMapper.findFundListByFilter(productCountry, productType, riskGradeRange, limit, offset) :
+                    fundMapper.findFundListByFilter(productCountry, productType, all, limit, offset);
         }
         if(sort.equals("rate_of_return")){
             // 수익률 정렬해서 리턴
             return isMatched ?
-                    fundMapper.findFundListByFilter(productCountry, productType, riskGradeRange) :
-                    fundMapper.findFundListByFilter(productCountry, productType, all);
+                    fundMapper.findFundListByFilter(productCountry, productType, riskGradeRange, limit, offset) :
+                    fundMapper.findFundListByFilter(productCountry, productType, all, limit, offset);
         }
         if(sort.equals("view_count")){
             // 조회수 정렬해서 리턴
             return isMatched ?
-                    fundMapper.findFundListByFilter(productCountry, productType, riskGradeRange) :
-                    fundMapper.findFundListByFilter(productCountry, productType, all);
+                    fundMapper.findFundListByFilter(productCountry, productType, riskGradeRange, limit, offset) :
+                    fundMapper.findFundListByFilter(productCountry, productType, all, limit, offset);
         }
         throw new RuntimeException("Invalid sort parameter: " + sort);
     }

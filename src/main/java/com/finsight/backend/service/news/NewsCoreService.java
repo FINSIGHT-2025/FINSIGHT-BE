@@ -43,7 +43,7 @@ public class NewsCoreService {
      *  모든 자산(ETF, Fund)에 대한 뉴스 처리 작업
      */
     public void processAllAssets(){
-        List<EtfVO> etfs = etfMapper.findEtfListByFilter(null, null, null);
+        List<EtfVO> etfs = etfMapper.findEtfListByFilter(null, null, null, null, null);
         List<FundVO> funds = fundMapper.selectAllFundStock();
 
         processEtfsInternal(etfs);
