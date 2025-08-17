@@ -18,6 +18,6 @@ public class EtfController {
 
     @GetMapping("/{code}/history")
     public ResponseEntity<List<EtfPriceHistoryDto>> getEtfPriceHistory(@PathVariable("code") String productCode) {
-        return ResponseEntity.ok(etfService.getThreeMonthsEtfNav(productCode));
+        return ResponseEntity.ok(etfService.getTwoMinutesEtfPriceVolumeHistory(productCode));
     }
 }

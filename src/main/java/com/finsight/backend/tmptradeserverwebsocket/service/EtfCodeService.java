@@ -39,16 +39,13 @@ public class EtfCodeService {
                     for (JsonNode codeNode : symbolsNode) {
                         codes.add(codeNode.asText());
                     }
-//                    log.debug("ETF 코드 리스트 수신 성공 - 수량: {}", codes.size());
                 }
                 return codes;
             } else {
-                log.error("ETF 코드 응답 실패 - 상태 코드: {}", response.getStatusCode());
                 return Collections.emptyList();
             }
 
         } catch (Exception e) {
-            log.error("ETF 코드 요청 중 예외 발생", e);
             return Collections.emptyList();
         }
     }

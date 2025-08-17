@@ -48,25 +48,24 @@ public class ProductServiceImpl implements ProductService{
 
         ProductDetailDto dto = dtoHandler.toDetailDto(productVo);
 
-        // holdings 정보
+        // 보유 내역 정보 조회
         DetailHoldingsResponseDto holdings = detailHoldingsMapper.selectHoldingsByUserIdAndProductCode(userId, productCode);
         if (holdings != null) {
             Long holdingsId = holdings.getHoldingsId();
 
             List<DetailHistoryVO> histories;
             
-            // Deposit 상품일 경우 buy 타입이면서 가장 최근인 history만 가져오기
+            // 예금은 구매 내역 1개만, 다른 상품은 전체 내역
             if (expectedType.equals(DepositVO.class)) {
                 histories = detailHoldingsMapper.selectLatestBuyHistoryByHoldingsId(holdingsId);
             } else {
-                // 다른 상품들은 모든 history 가져오기
                 histories = detailHoldingsMapper.selectHistoriesByHoldingsId(holdingsId);
             }
             
             holdings.setHistory(histories);
         }
 
-        // userWatches 설정
+        // 사용자 관심 상품 여부 설정
         Boolean userWatches = detailHoldingsMapper.isProductWatched(userId, productCode);
         dto.setUserWatches(userWatches);
 

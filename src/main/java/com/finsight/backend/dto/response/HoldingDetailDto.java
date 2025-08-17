@@ -18,23 +18,19 @@ public class HoldingDetailDto {
     private String productCategory;
     private String productCountry;
     private String productType;
+    private Boolean isWatched;
 
-    // 보유량
+    // 보유량 및 평가액
     private Integer currentHoldings;
-    
-    // 평가액
     private Double currentValuation;
     
-    // 전일 대비 가격 변동 (Fund/ETF만 해당)
+    // 전일 대비 가격 변동 (Fund/ETF)
     private Double previousDayPrice;
     private Double priceChange;
     private Double priceChangePercent;
     private Double totalPriceChange;
     
-    // 예금 전용 필드
+    // 예금 만기일
     private String maturityDate;
-    
-    // 공통 필드
-    private Boolean isWatched;
 }
 

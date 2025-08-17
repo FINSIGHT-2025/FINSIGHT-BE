@@ -3,16 +3,14 @@ package com.finsight.backend.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-
-import java.time.LocalDate;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class EtfPriceHistoryDto {
-    private LocalDate baseDate;        // 기준 날짜
-    private double etfNav;             // ETF NAV
-    private double weeklyReturn;       // 1주 수익률 (%)
-    private double monthlyReturn;      // 1달 수익률 (%)
-    private double quarterlyReturn;    // 3달 수익률 (%)
+    private Long timestamp;
+    private Double currentPrice;
+    private Long currentVolume;
 }
