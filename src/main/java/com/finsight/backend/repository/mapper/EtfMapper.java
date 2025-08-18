@@ -11,11 +11,18 @@ import java.util.List;
 
 public interface EtfMapper {
     EtfVO findEtfByCode(String productCode);
-    List<EtfVO> findEtfListByFilter(@Param("productCountry")ProductCountry productCountry,
-                                    @Param("productType")ProductType productType,
-                                    @Param("productRiskGrade")Integer[] productRiskGrade,
+    NewsEtfDTO findEtfByProductCode(String productCode);
+    
+    List<EtfVO> findEtfListByInfluxFilter(@Param("sortedProductCodes") List<String> sortedProductCodes,
+                                          @Param("productCountry") ProductCountry productCountry,
+                                          @Param("productType") ProductType productType,
+                                          @Param("productRiskGrade") Integer[] productRiskGrade,
+                                          @Param("limit") Integer limit,
+                                          @Param("offset") Integer offset);
+    
+    List<EtfVO> findEtfListByFilter(@Param("productCountry") ProductCountry productCountry,
+                                    @Param("productType") ProductType productType,
+                                    @Param("productRiskGrade") Integer[] productRiskGrade,
                                     @Param("limit") Integer limit,
                                     @Param("offset") Integer offset);
-
-    NewsEtfDTO findEtfByProductCode(String productCode);
 }

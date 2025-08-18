@@ -13,11 +13,9 @@ import com.finsight.backend.domain.vo.news.NewsVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Component
@@ -28,7 +26,7 @@ public class FundDtoHandler implements ProductDtoHandler<FundVO> {
     private final DetailHoldingsMapper detailHoldingsMapper;
     private final EtfPriceService etfPriceService;
 
-    private static Map<String, Supplier<List<FundByFilterDto>>> SORT_HANDLERS;
+//     private static Map<String, Supplier<List<FundByFilterDto>>> SORT_HANDLERS;
     @Override
     public Class<FundVO> getProductType() {
         return FundVO.class;
@@ -64,15 +62,17 @@ public class FundDtoHandler implements ProductDtoHandler<FundVO> {
                                     etfPriceService.getPercentChangeFrom3MonthsAgo("fund_nav", fund.getProductCode()),
                                     etfPriceService.getCurrent("fund_aum", fund.getProductCode()));
                 }).toList();
-        SORT_HANDLERS = Map.of(
-                "rate_of_return", () -> fundByFilterDtoList.stream()
-                        .sorted(Comparator.comparing(FundByFilterDto::getProductRateOfReturn).reversed())
-                        .toList(),
-                "fund_scale", () -> fundByFilterDtoList.stream()
-                        .sorted(Comparator.comparing(FundByFilterDto::getFundScale).reversed())
-                        .toList()
-        );
-        return SORT_HANDLERS.get(sort).get().stream()
+                // SORT_HANDLERS = Map.of(
+                //         "rate_of_return", () -> fundByFilterDtoList.stream()
+                //                 .sorted(Comparator.comparing(FundByFilterDto::getProductRateOfReturn).reversed())
+                //                 .toList(),
+                //         "fund_scale", () -> fundByFilterDtoList.stream()
+                //                 .sorted(Comparator.comparing(FundByFilterDto::getFundScale).reversed())
+                //                 .toList()
+                // );
+                // return SORT_HANDLERS.get(sort).get().stream()
+        
+        return fundByFilterDtoList.stream()
                 .map(fund -> (ProductByFilterDto) fund)
                 .toList();
     }

@@ -17,6 +17,13 @@ public interface FundMapper {
                                       @Param("productRiskGrade") Integer[] productRiskGrade,
                                       @Param("limit") Integer limit,
                                       @Param("offset") Integer offset);
+    
+    List<FundVO> findFundListByInfluxFilter(@Param("sortedProductCodes") List<String> sortedProductCodes,
+                                            @Param("productCountry") ProductCountry productCountry,
+                                            @Param("productType")ProductType productType,
+                                            @Param("productRiskGrade") Integer[] productRiskGrade,
+                                            @Param("limit") Integer limit,
+                                            @Param("offset") Integer offset);
 
     List<FundVO> selectAllFundStock();
     NewsFundDTO findFundByProductCode(String productCode);

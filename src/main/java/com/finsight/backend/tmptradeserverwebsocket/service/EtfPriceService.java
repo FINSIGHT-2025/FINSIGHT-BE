@@ -6,6 +6,8 @@ import com.finsight.backend.domain.vo.product.PriceVolumePointVO;
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.QueryApi;
 import com.influxdb.query.FluxTable;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,7 +30,9 @@ import java.util.List;
  - getThreeMonthsPriceHistory(measurement, productCode, tagName): 최근 3개월간의 일별 가격 내역을 조회합니다.
  - getTwoMinutesEtfPriceVolumeHistory(productCode): 최근 2분간의 ETF 가격과 거래량 데이터를 조회합니다.
    ex) getTwoMinutesEtfPriceVolumeHistory("0000D0")
- */
+ - getAllSortedProductCodes(measurement, sort): NAV 기준으로 정렬된 상품 코드 리스트를 조회합니다.
+   ex) getAllSortedProductCodes("etf_nav", "desc") - ETF NAV 기준 내림차순 정렬
+*/
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -39,6 +43,14 @@ public class EtfPriceService {
 
     private static final ZoneId SEOUL_ZONE_ID = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    
+    // 정렬 클래스
+    @Data
+    @AllArgsConstructor
+    private static class RecordData {
+        private final String productCode;
+        private final double value;
+    }
 
     public double getCurrent(String measurement, String productCode) {
         Instant yesterday = LocalDate.now(SEOUL_ZONE_ID).minusDays(1).atStartOfDay(SEOUL_ZONE_ID).toInstant();
@@ -245,5 +257,140 @@ public class EtfPriceService {
 
     private String formatInstant(Instant instant) {
         return LocalDateTime.ofInstant(instant, SEOUL_ZONE_ID).format(DATE_FORMATTER);
+    }
+
+    public List<String> getAllSortedProductCodes(String measurement, String sort) {
+        QueryApi queryApi = influxDBClient.getQueryApi();
+        Instant yesterday = LocalDate.now(SEOUL_ZONE_ID).minusDays(1).atStartOfDay(SEOUL_ZONE_ID).toInstant();
+        Instant stopTime = yesterday.plus(1, ChronoUnit.DAYS);
+        
+        String productCodeTag = measurement.contains("etf") ? "etf_code" : "fund_code";
+        
+        // 펀드 NAV인 경우 수익률 계산
+        if ("fund_nav".equals(measurement)) {
+            return getFundNavSortedProductCodes(sort);
+        }
+        
+        String flux = String.format(
+                "from(bucket: \"%s\") " +
+                "|> range(start: %s, stop: %s) " +
+                "|> filter(fn: (r) => r._measurement == \"%s\" and r._field == \"%s\") " +
+                "|> group(columns: [\"%s\"]) " +
+                "|> last() " +
+                "|> keep(columns: [\"%s\", \"_value\"])",
+                influxDBConfig.getInfluxBucket(),
+                yesterday.toString(),
+                stopTime.toString(),
+                measurement,
+                measurement,
+                productCodeTag,
+                productCodeTag
+        );
+        
+        List<FluxTable> tables = queryApi.query(flux);
+        
+        List<RecordData> recordDataList = new ArrayList<>();
+        
+        for (FluxTable table : tables) {
+            table.getRecords().forEach(record -> {
+                String productCode = (String) record.getValueByKey(productCodeTag);
+                Object navValue = record.getValueByKey("_value");
+                
+                if (productCode != null && navValue instanceof Number) {
+                    double value = ((Number) navValue).doubleValue();
+                    recordDataList.add(new RecordData(productCode, value));
+                }
+            });
+        }
+
+        if ("desc".equals(sort)) {
+            recordDataList.sort((a, b) -> Double.compare(b.getValue(), a.getValue())); // 내림차순
+        } else {
+            recordDataList.sort((a, b) -> Double.compare(a.getValue(), b.getValue())); // 오름차순
+        }
+
+        log.info("=== {} 정렬 결과 ({} 기준) ===", measurement, sort.equals("desc") ? "내림차순" : "오름차순");
+        log.info("조회 기간: {} ~ {}", formatInstant(yesterday), formatInstant(stopTime));
+        log.info("총 {}개 상품 정렬 완료", recordDataList.size());
+
+        int logCount = Math.min(10, recordDataList.size());
+        for (int i = 0; i < logCount; i++) {
+            RecordData data = recordDataList.get(i);
+            log.info("순위: {}, 상품코드: {}, {}: {}", 
+                i + 1, 
+                data.getProductCode(), 
+                measurement, 
+                String.format("%.2f", data.getValue()));
+        }
+        
+        List<String> result = new ArrayList<>();
+        for (RecordData data : recordDataList) {
+            result.add(data.getProductCode());
+        }
+        
+        return result;
+    }
+    
+    // 펀드 NAV 정렬
+    private List<String> getFundNavSortedProductCodes(String sort) {
+        QueryApi queryApi = influxDBClient.getQueryApi();
+        Instant yesterday = LocalDate.now(SEOUL_ZONE_ID).minusDays(1).atStartOfDay(SEOUL_ZONE_ID).toInstant();
+        Instant stopTime = yesterday.plus(1, ChronoUnit.DAYS);
+        
+        String flux = String.format(
+                "from(bucket: \"%s\") " +
+                "|> range(start: %s, stop: %s) " +
+                "|> filter(fn: (r) => r._measurement == \"fund_nav\" and r._field == \"fund_nav\") " +
+                "|> group(columns: [\"fund_code\"]) " +
+                "|> last() " +
+                "|> keep(columns: [\"fund_code\", \"_value\"])",
+                influxDBConfig.getInfluxBucket(),
+                yesterday.toString(),
+                stopTime.toString()
+        );
+        
+        List<FluxTable> tables = queryApi.query(flux);
+        
+        List<RecordData> recordDataList = new ArrayList<>();
+        
+        for (FluxTable table : tables) {
+            table.getRecords().forEach(record -> {
+                String productCode = (String) record.getValueByKey("fund_code");
+                Object navValue = record.getValueByKey("_value");
+                
+                if (productCode != null && navValue instanceof Number) {
+                    double nav = ((Number) navValue).doubleValue();
+                    // 3개월 전 대비 수익률 계산
+                    double percentChange = getPercentChangeFrom3MonthsAgo("fund_nav", productCode);
+                    recordDataList.add(new RecordData(productCode, percentChange));
+                }
+            });
+        }
+
+        if ("desc".equals(sort)) {
+            recordDataList.sort((a, b) -> Double.compare(b.getValue(), a.getValue())); // 내림차순
+        } else {
+            recordDataList.sort((a, b) -> Double.compare(a.getValue(), b.getValue())); // 오름차순
+        }
+
+        log.info("=== fund_nav 정렬 결과 (3개월 수익률 기준, {} 기준) ===", sort.equals("desc") ? "내림차순" : "오름차순");
+        log.info("조회 기간: {} ~ {}", formatInstant(yesterday), formatInstant(stopTime));
+        log.info("총 {}개 상품 정렬 완료", recordDataList.size());
+
+        int logCount = Math.min(10, recordDataList.size());
+        for (int i = 0; i < logCount; i++) {
+            RecordData data = recordDataList.get(i);
+            log.info("순위: {}, 상품코드: {}, 3개월 수익률: {}%", 
+                i + 1, 
+                data.getProductCode(), 
+                String.format("%.2f", data.getValue()));
+        }
+        
+        List<String> result = new ArrayList<>();
+        for (RecordData data : recordDataList) {
+            result.add(data.getProductCode());
+        }
+        
+        return result;
     }
 }

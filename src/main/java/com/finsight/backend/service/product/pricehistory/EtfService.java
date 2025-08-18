@@ -2,12 +2,10 @@ package com.finsight.backend.service.product.pricehistory;
 
 import com.finsight.backend.dto.response.EtfPriceHistoryDto;
 import com.finsight.backend.tmptradeserverwebsocket.service.EtfPriceService;
-import com.finsight.backend.domain.vo.product.PricePointVO;
 import com.finsight.backend.domain.vo.product.PriceVolumePointVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 

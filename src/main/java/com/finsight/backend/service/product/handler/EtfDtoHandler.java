@@ -12,11 +12,9 @@ import com.finsight.backend.tmptradeserverwebsocket.service.EtfPriceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Component
@@ -27,8 +25,7 @@ public class EtfDtoHandler implements ProductDtoHandler<EtfVO>{
     private final DetailHoldingsMapper detailHoldingsMapper;
     private final EtfPriceService etfPriceService;
 
-    private static Map<String, Supplier<List<EtfByFilterDto>>> SORT_HANDLERS;
-
+//     private static Map<String, Supplier<List<EtfByFilterDto>>> SORT_HANDLERS;
     @Override
     public Class<EtfVO> getProductType() {
         return EtfVO.class;
@@ -59,15 +56,16 @@ public class EtfDtoHandler implements ProductDtoHandler<EtfVO>{
                             );
                         }
                 ).toList();
-        SORT_HANDLERS = Map.of(
-                "asc", () -> etfByFilterDtoList.stream()
-                        .sorted(Comparator.comparing(EtfByFilterDto::getEtfNav).reversed())
-                        .toList(),
-                "desc", () -> etfByFilterDtoList.stream()
-                        .sorted(Comparator.comparing(EtfByFilterDto::getEtfNav))
-                        .toList()
-        );
-        return SORT_HANDLERS.get(sort).get().stream()
+        // SORT_HANDLERS = Map.of(
+        //         "asc", () -> etfByFilterDtoList.stream()
+        //                 .sorted(Comparator.comparing(EtfByFilterDto::getEtfNav).reversed())
+        //                 .toList(),
+        //         "desc", () -> etfByFilterDtoList.stream()
+        //                 .sorted(Comparator.comparing(EtfByFilterDto::getEtfNav))
+        //                 .toList()
+        // );
+        // return SORT_HANDLERS.get(sort).get().stream()
+        return etfByFilterDtoList.stream()
                 .map(etf -> (ProductByFilterDto) etf)
                 .toList();
     }

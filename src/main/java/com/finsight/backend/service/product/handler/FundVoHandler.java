@@ -6,6 +6,7 @@ import com.finsight.backend.repository.mapper.FundMapper;
 import com.finsight.backend.repository.mapper.InvTestMapper;
 import com.finsight.backend.common.util.InvUtil;
 import com.finsight.backend.domain.vo.product.FundVO;
+import com.finsight.backend.tmptradeserverwebsocket.service.EtfPriceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,7 @@ public class FundVoHandler implements ProductVoHandler<FundVO> {
     private final FundMapper fundMapper;
     private final InvTestMapper invTestMapper;
     private final InvUtil invUtil;
+    private final EtfPriceService etfPriceService;
 
     @Override
     public FundVO findProduct(String productCode) {
@@ -49,15 +51,25 @@ public class FundVoHandler implements ProductVoHandler<FundVO> {
 
         if(sort.equals("fund_scale")){
             // 펀드 규모 정렬해서 리턴
+            List<String> allSortedProductCodes = etfPriceService.getAllSortedProductCodes("fund_aum", "desc");
+            
+            if (allSortedProductCodes.isEmpty()) {
+                return List.of();
+            }
             return isMatched ?
-                    fundMapper.findFundListByFilter(productCountry, productType, riskGradeRange, limit, offset) :
-                    fundMapper.findFundListByFilter(productCountry, productType, all, limit, offset);
+                    fundMapper.findFundListByInfluxFilter(allSortedProductCodes, productCountry, productType, riskGradeRange, limit, offset) :
+                    fundMapper.findFundListByInfluxFilter(allSortedProductCodes, productCountry, productType, all, limit, offset);
         }
         if(sort.equals("rate_of_return")){
             // 수익률 정렬해서 리턴
+            List<String> allSortedProductCodes = etfPriceService.getAllSortedProductCodes("fund_nav", "desc");
+            
+            if (allSortedProductCodes.isEmpty()) {
+                return List.of();
+            }
             return isMatched ?
-                    fundMapper.findFundListByFilter(productCountry, productType, riskGradeRange, limit, offset) :
-                    fundMapper.findFundListByFilter(productCountry, productType, all, limit, offset);
+                    fundMapper.findFundListByInfluxFilter(allSortedProductCodes, productCountry, productType, riskGradeRange, limit, offset) :
+                    fundMapper.findFundListByInfluxFilter(allSortedProductCodes, productCountry, productType, all, limit, offset);
         }
         if(sort.equals("view_count")){
             // 조회수 정렬해서 리턴
