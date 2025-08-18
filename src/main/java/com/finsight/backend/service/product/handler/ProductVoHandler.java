@@ -7,5 +7,5 @@ import java.util.List;
 public interface ProductVoHandler<T extends ProductVO>{
     T findProduct(String productCode);
     Class<T> getProductType();
-    List<T> findProductListByFilter(String sort, String country, String type, Boolean isMatched, String userId);
+    List<T> findProductListByFilter(String sort, String country, String type, Boolean isMatched, String userId, Integer limit, Integer offset);
 }

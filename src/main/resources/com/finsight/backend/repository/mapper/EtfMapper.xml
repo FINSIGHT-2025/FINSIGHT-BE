@@ -73,6 +73,9 @@
             </trim>
         </where>
         ORDER BY product_code
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
     </select>
 
     <!-- 임시 : 뉴스에서 사용할 mapper -->

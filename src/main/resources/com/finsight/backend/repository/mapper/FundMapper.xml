@@ -64,6 +64,9 @@
                 </if>
             </trim>
         </where>
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
     </select>
     <select id="selectAllFundStock" resultMap="fundResultMap">
         SELECT f.product_code,

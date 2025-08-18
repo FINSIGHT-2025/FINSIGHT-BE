@@ -35,7 +35,9 @@ public class EtfVoHandler implements ProductVoHandler<EtfVO> {
                                                String country,
                                                String type,
                                                Boolean isMatched,
-                                               String userId) {
+                                               String userId,
+                                               Integer limit,
+                                               Integer offset) {
         ProductCountry productCountry = (country == null || country.isBlank())
                 ? null
                 : ProductCountry.fromDbValue(country);
@@ -49,7 +51,7 @@ public class EtfVoHandler implements ProductVoHandler<EtfVO> {
         Integer[] all = new Integer[]{1, 2, 3, 4, 5, 6};
 
         return isMatched ?
-                etfMapper.findEtfListByFilter(productCountry, productType, riskGradeRange) :
-                etfMapper.findEtfListByFilter(productCountry, productType, all);
+                etfMapper.findEtfListByFilter(productCountry, productType, riskGradeRange, limit, offset) :
+                etfMapper.findEtfListByFilter(productCountry, productType, all, limit, offset);
     }
 }
