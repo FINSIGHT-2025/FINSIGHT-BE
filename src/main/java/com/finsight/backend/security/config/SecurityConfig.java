@@ -52,7 +52,20 @@ public class SecurityConfig {
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // 세션 비활성화
                 .authorizeHttpRequests(requestMatcherRegistry ->
                         requestMatcherRegistry
-                                .requestMatchers("/users", "/users/email", "/users/login", "/users/authcode", "/css/**", "/ws-etf/**", "/ws-etf").permitAll()
+                                .requestMatchers(
+                                        "/users",
+                                        "/users/email",
+                                        "/users/login",
+                                        "/users/authcode",
+                                        "/css/**",
+                                        "/ws-etf/**",
+                                        "/ws-etf",
+                                        // ✅ Springdoc 경로
+                                        "/swagger-ui.html", "/swagger-ui/**",
+                                        "/v3/api-docs", "/v3/api-docs/**", "/v3/api-docs/swagger-config",
+                                        "/webjars/**",
+                                        "/favicon.ico"
+                                ).permitAll()
                                 .anyRequest().authenticated())
                 .logout(configurer ->
                         configurer

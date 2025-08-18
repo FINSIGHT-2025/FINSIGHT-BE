@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 @Component
@@ -33,19 +34,18 @@ public class DepositVoHandler implements ProductVoHandler<DepositVO> {
                                                    String country,
                                                    String type,
                                                    Boolean isMatched,
-                                                   String userId) {
+                                                   String userId,
+                                                   Integer limit,
+                                                   Integer offset) {
 
-        Supplier<List<DepositVO>> handler = depositSortHandler().get(sort);
-        if(handler == null){
-            throw new CustomNotValidPathException();
-        }
-        return handler.get();
+        return depositSortHandler().get(sort).apply(limit, offset);
     }
 
-    private Map<String, Supplier<List<DepositVO>>> depositSortHandler() {
+    private Map<String, BiFunction<Integer, Integer, List<DepositVO>>> depositSortHandler() {
         return Map.of(
                 "intr_rate", depositMapper::findDepositListOrderByIntrRate,
                 "intr_rate2", depositMapper::findDepositListOrderByIntrRate2
         );
     }
+
 }

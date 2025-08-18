@@ -26,6 +26,11 @@ public enum ErrorCode {
     TOKEN_UNKNOWN_ERROR(2005, HttpStatus.UNAUTHORIZED, "알수 없는 토큰입니다."),
 
     TOKEN_GENERATE_ERROR(4006, HttpStatus.INTERNAL_SERVER_ERROR, "토큰 생성에 실패했습니다."),
+
+    DUPLICATE_WATCH(1400, HttpStatus.BAD_REQUEST, "이미 찜한 상품입니다."),
+    WATCH_INSERT_FAIL(1401, HttpStatus.INTERNAL_SERVER_ERROR, "찜 목록 등록에 실패했습니다."),
+    WATCH_DELETE_FAIL(1402, HttpStatus.INTERNAL_SERVER_ERROR, "찜 목록 삭제에 실패했습니다."),
+    WATCH_NOT_FOUND(1403, HttpStatus.BAD_REQUEST, "찜하지 않은 상품입니다.")
     ;
 
 //    ACCESS_DENIED_ERROR(4001, HttpStatus.FORBIDDEN, "접근 권한이 없습니다.");  권한 존재가 없기 때문에 노필요

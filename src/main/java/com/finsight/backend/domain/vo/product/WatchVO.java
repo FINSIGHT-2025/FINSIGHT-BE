@@ -1,17 +1,17 @@
-package com.finsight.backend.dto;
+package com.finsight.backend.domain.vo.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class WatchListDTO {
+public class WatchVO {
     private Long watchlistId;
-    private String productCode;
     private String userId;
+    private String productCode;
     private String productCategory;
 }

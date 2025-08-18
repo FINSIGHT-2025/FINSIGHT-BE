@@ -2,6 +2,7 @@ package com.finsight.backend.tmptradeserverwebsocket.service;
 
 import com.finsight.backend.config.InfluxDBConfig;
 import com.finsight.backend.domain.vo.product.PricePointVO;
+import com.finsight.backend.domain.vo.product.PriceVolumePointVO;
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.QueryApi;
 import com.influxdb.query.FluxTable;
@@ -9,10 +10,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,8 @@ import java.util.List;
  - getPercentChangeFromYesterday(measurement, productCode): 전일 대비 가격 변동률(%)을 조회합니다.
  - getPercentChangeFrom3MonthsAgo(measurement, productCode): 3개월 전 대비 수익률(%)을 조회합니다.
  - getThreeMonthsPriceHistory(measurement, productCode, tagName): 최근 3개월간의 일별 가격 내역을 조회합니다.
+ - getTwoMinutesEtfPriceVolumeHistory(productCode): 최근 2분간의 ETF 가격과 거래량 데이터를 조회합니다.
+   ex) getTwoMinutesEtfPriceVolumeHistory("0000D0")
  */
 @Slf4j
 @Service
@@ -33,8 +37,8 @@ public class EtfPriceService {
     private final InfluxDBClient influxDBClient;
     private final InfluxDBConfig influxDBConfig;
 
-    // 기준이 되는 시간대
     private static final ZoneId SEOUL_ZONE_ID = ZoneId.of("Asia/Seoul");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public double getCurrent(String measurement, String productCode) {
         Instant yesterday = LocalDate.now(SEOUL_ZONE_ID).minusDays(1).atStartOfDay(SEOUL_ZONE_ID).toInstant();
@@ -51,6 +55,7 @@ public class EtfPriceService {
         if (todayValue == 0.0 || yesterdayValue == 0.0) {
             return 0.0;
         }
+
         return Math.round((todayValue - yesterdayValue) * 100.0) / 100.0;
     }
 
@@ -75,13 +80,34 @@ public class EtfPriceService {
     }
 
     public List<PricePointVO> getThreeMonthsPriceHistory(String measurementAndField, String productCode) {
-        QueryApi queryApi = influxDBClient.getQueryApi();
-
-        // measurement에 따라 tag key 자동 선택
         String productCodeTag = measurementAndField.contains("etf") ? "etf_code" : "fund_code";
 
-        Instant now = LocalDate.now(SEOUL_ZONE_ID).minusDays(1).atStartOfDay(SEOUL_ZONE_ID).toInstant();
+        Instant now = LocalDate.now(SEOUL_ZONE_ID).minusDays(1).atTime(23, 59, 59).atZone(SEOUL_ZONE_ID).toInstant();
         Instant start = now.minus(90, ChronoUnit.DAYS);
+
+        List<PricePointVO> result = executeThreeMonthsQuery(measurementAndField, productCode, productCodeTag, start, now);
+        
+        if (result.isEmpty()) {
+            log.warn("[{}] {} 3개월 검색 범위 확장", measurementAndField, productCode);
+            Instant wideStart = start.minus(7, ChronoUnit.DAYS);
+            Instant wideStop = now.plus(7, ChronoUnit.DAYS);
+            result = executeThreeMonthsQuery(measurementAndField, productCode, productCodeTag, wideStart, wideStop);
+        }
+
+        return result;
+    }
+
+    public List<PriceVolumePointVO> getTwoMinutesEtfPriceVolumeHistory(String productCode) {
+        Instant now = Instant.now();
+        Instant start = now.minus(2, ChronoUnit.MINUTES);
+
+        List<PriceVolumePointVO> result = executeEtfPriceVolumeQuery(productCode, start, now);
+        
+        return result;
+    }
+
+    private List<PricePointVO> executeThreeMonthsQuery(String measurementAndField, String productCode, String productCodeTag, Instant start, Instant stop) {
+        QueryApi queryApi = influxDBClient.getQueryApi();
 
         String flux = String.format(
                 "from(bucket: \"%s\") " +
@@ -90,7 +116,7 @@ public class EtfPriceService {
                         "|> sort(columns: [\"_time\"], desc: false)",
                 influxDBConfig.getInfluxBucket(),
                 start.toString(),
-                now.toString(),
+                stop.toString(),
                 measurementAndField,
                 productCodeTag,
                 productCode,
@@ -112,28 +138,62 @@ public class EtfPriceService {
         return result;
     }
 
+    private List<PriceVolumePointVO> executeEtfPriceVolumeQuery(String productCode, Instant start, Instant stop) {
+        QueryApi queryApi = influxDBClient.getQueryApi();
 
-    private double findLatestValueWithFallback(String measurement, String field, String productCode, Instant targetTime) {
-        // 1단계: 먼저 정확히 그날 하루(24시간) 범위 내에서만 조회를 시도합니다.
-        Instant narrowStartTime = targetTime;
-        Instant narrowStopTime = targetTime.plus(1, ChronoUnit.DAYS);
-        double value = executeFluxQuery(measurement, field, productCode, narrowStartTime, narrowStopTime);
+        String priceFlux = String.format(
+                "from(bucket: \"%s\") " +
+                        "|> range(start: %s, stop: %s) " +
+                        "|> filter(fn: (r) => r._measurement == \"etf_price\" and r.etf_code == \"%s\" and r._field == \"price\") " +
+                        "|> sort(columns: [\"_time\"], desc: false)",
+                influxDBConfig.getInfluxBucket(),
+                start.toString(),
+                stop.toString(),
+                productCode
+        );
 
-        // 2단계: 1단계에서 데이터를 찾지 못했다면(결과가 0.0이면) 범위를 넓혀서 다시 조회합니다.
-        if (value == 0.0) {
-            log.warn("[Fallback] ProductCode: '{}', TargetDate: '{}'의 데이터를 찾지 못해 검색 범위를 확장합니다.", productCode, targetTime.toString());
-            Instant wideStartTime = targetTime.minus(7, ChronoUnit.DAYS);
-            Instant wideStopTime = targetTime.plus(7, ChronoUnit.DAYS);
-            value = executeFluxQuery(measurement, field, productCode, wideStartTime, wideStopTime);
+        String volumeFlux = String.format(
+                "from(bucket: \"%s\") " +
+                        "|> range(start: %s, stop: %s) " +
+                        "|> filter(fn: (r) => r._measurement == \"etf_volume\" and r.etf_code == \"%s\" and r._field == \"volume\") " +
+                        "|> sort(columns: [\"_time\"], desc: false)",
+                influxDBConfig.getInfluxBucket(),
+                start.toString(),
+                stop.toString(),
+                productCode
+        );
+
+        List<FluxTable> priceTables = queryApi.query(priceFlux);
+        List<FluxTable> volumeTables = queryApi.query(volumeFlux);
+
+        List<PriceVolumePointVO> result = new ArrayList<>();
+
+        for (FluxTable priceTable : priceTables) {
+            for (FluxTable volumeTable : volumeTables) {
+                priceTable.getRecords().forEach(priceRecord -> {
+                    volumeTable.getRecords().forEach(volumeRecord -> {
+                        if (priceRecord.getTime().equals(volumeRecord.getTime())) {
+                            Object priceValue = priceRecord.getValue();
+                            Object volumeValue = volumeRecord.getValue();
+                            
+                            if (priceValue instanceof Number && volumeValue instanceof Number) {
+                                double price = Math.round((((Number) priceValue).doubleValue() * 100.0) / 100.0);
+                                long volume = ((Number) volumeValue).longValue();
+                                
+                                result.add(new PriceVolumePointVO(priceRecord.getTime(), price, volume));
+                            }
+                        }
+                    });
+                });
+            }
         }
 
-        return value;
+        return result;
     }
 
     private double executeFluxQuery(String measurement, String field, String productCode, Instant startTime, Instant stopTime) {
         QueryApi queryApi = influxDBClient.getQueryApi();
 
-        // measurement에 따라 tag key 결정
         String productCodeTag = measurement.contains("etf") ? "etf_code" : "fund_code";
 
         String flux = String.format(
@@ -162,11 +222,28 @@ public class EtfPriceService {
                 .orElse(0.0);
     }
 
+    private double findLatestValueWithFallback(String measurement, String field, String productCode, Instant targetTime) {
+        Instant narrowStopTime = targetTime.plus(1, ChronoUnit.DAYS);
+        double value = executeFluxQuery(measurement, field, productCode, targetTime, narrowStopTime);
+
+        if (value == 0.0) {
+            log.warn("[{}] {} TargetDate: {}의 검색 범위 확장", measurement, productCode, formatInstant(targetTime));
+            Instant wideStartTime = targetTime.minus(7, ChronoUnit.DAYS);
+            Instant wideStopTime = targetTime.plus(7, ChronoUnit.DAYS);
+            value = executeFluxQuery(measurement, field, productCode, wideStartTime, wideStopTime);
+        }
+
+        return value;
+    }
 
     private double calculatePercentChange(double currentValue, double pastValue) {
         if (pastValue != 0) {
             return Math.round(((currentValue - pastValue) / pastValue * 100) * 100.0) / 100.0;
         }
         return 0.0;
+    }
+
+    private String formatInstant(Instant instant) {
+        return LocalDateTime.ofInstant(instant, SEOUL_ZONE_ID).format(DATE_FORMATTER);
     }
 }

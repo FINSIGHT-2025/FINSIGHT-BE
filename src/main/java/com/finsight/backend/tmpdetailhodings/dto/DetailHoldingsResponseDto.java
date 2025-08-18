@@ -25,5 +25,4 @@ public class DetailHoldingsResponseDto {
 
     private List<DetailHistoryVO> history;
 
-    private boolean isWatched;
 }

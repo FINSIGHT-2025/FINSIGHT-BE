@@ -32,7 +32,8 @@ class HoldingsMapperTest {
                 "K55105BV6755",
                 "fund",
                 10000,
-                12
+                12.0,
+                6
         );
         HoldingsVO holdings = new HoldingsVO(
             tradeRequest

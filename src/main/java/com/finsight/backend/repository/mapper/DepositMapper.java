@@ -1,6 +1,7 @@
 package com.finsight.backend.repository.mapper;
 
 import com.finsight.backend.domain.vo.product.DepositVO;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -16,12 +17,12 @@ public interface DepositMapper {
      *
      * @return List<DepositVO> -> OrderByIntrRate(기본 금리)
      */
-    List<DepositVO> findDepositListOrderByIntrRate();
+    List<DepositVO> findDepositListOrderByIntrRate(@Param("limit") Integer limit, @Param("offset") Integer offset);
 
     /**
      *
      * @return List<DepositVO> -> OrderByIntrRate2(최고 금리)
      */
-    List<DepositVO> findDepositListOrderByIntrRate2();
+    List<DepositVO> findDepositListOrderByIntrRate2(@Param("limit") Integer limit, @Param("offset") Integer offset);
 
 }

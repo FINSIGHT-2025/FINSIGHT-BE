@@ -1,14 +1,14 @@
 package com.finsight.backend.tmptradeserverwebsocket.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j; // Slf4j import 추가
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
-@Slf4j // Slf4j 어노테이션 추가
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EtfCacheUpdateService {
@@ -26,17 +26,9 @@ public class EtfCacheUpdateService {
 
         // 3개월 전 가격 조회
         Instant threeMonthsAgo = LocalDate.now(KST).minusMonths(3).atStartOfDay(KST).toInstant();
-        Instant threeMonthsAgoRangeEnd = threeMonthsAgo.plusSeconds(86400 * 15); // 3일 후 <- 15일로 잠시 고정
-        Instant threeMonthsAgoRangeStart = threeMonthsAgo.minusSeconds(86400 * 15); // 3일 전
+        Instant threeMonthsAgoRangeEnd = threeMonthsAgo.plusSeconds(86400 * 15);
+        Instant threeMonthsAgoRangeStart = threeMonthsAgo.minusSeconds(86400 * 15);
         double price3M = historicalPriceService.queryLatestNavInRange(etfCode, threeMonthsAgoRangeStart, threeMonthsAgoRangeEnd, "etf_nav", "etf_nav");
-
-        // 과거 데이터 업데이트 로깅
-        if (pricePrevDay > 0.0) {
-            log.info("[과거 데이터 업데이트] etfCode: '{}'의 전일 종가: {}", etfCode, pricePrevDay);
-        }
-        if (price3M > 0.0) {
-            log.info("[과거 데이터 업데이트] etfCode: '{}'의 3개월 전 가격: {}", etfCode, price3M);
-        }
 
         EtfCache.EtfSnapshot snapshot = etfCache.get(etfCode);
 

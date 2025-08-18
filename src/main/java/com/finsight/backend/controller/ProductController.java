@@ -48,7 +48,9 @@ public class ProductController {
                                                  @RequestParam("sort") String sort,
                                                  @RequestParam(name = "country", required = false) String country,
                                                  @RequestParam(name = "type", required = false) String type,
-                                                 @RequestParam(name = "is_matched") Boolean isMatched){
+                                                 @RequestParam(name = "is_matched") Boolean isMatched,
+                                                 @RequestParam(name = "limit") Integer limit,
+                                                 @RequestParam(name = "offset") Integer offset){
         Class<? extends ProductVO> productCategory = productAdapter.category(category);
         String userId = jwtUtil.extractUserIdFromRequest(request);
         if(productCategory == null){
@@ -56,7 +58,7 @@ public class ProductController {
                     .body(ErrorCode.NOT_PATH_INVALID.getMessage());
         }
 
-        List<? extends ProductByFilterDto> productByFilter = productService.findProductByFilter(productCategory, sort, country, type, userId, isMatched);
+        List<? extends ProductByFilterDto> productByFilter = productService.findProductByFilter(productCategory, sort, country, type, userId, isMatched, limit, offset);
         return ResponseEntity.ok(productByFilter);
     }
 }

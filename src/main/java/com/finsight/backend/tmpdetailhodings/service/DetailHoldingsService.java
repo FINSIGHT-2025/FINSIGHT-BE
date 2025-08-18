@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -19,11 +20,11 @@ public class DetailHoldingsService {
         if (holdings == null) return null;
 
         Long holdingsId = holdings.getHoldingsId();
-        List<DetailHistoryVO> histories = detailHoldingsMapper.selectHistoriesByHoldingsId(holdingsId);
+        
+        // buy 타입이면서 가장 최근인 history만 가져오기
+        List<DetailHistoryVO> histories = detailHoldingsMapper.selectLatestBuyHistoryByHoldingsId(holdingsId);
+        
         holdings.setHistory(histories);
-
-        Boolean isWatched = detailHoldingsMapper.isProductWatched(userId, productCode);
-        holdings.setWatched(isWatched);
 
         return holdings;
     }

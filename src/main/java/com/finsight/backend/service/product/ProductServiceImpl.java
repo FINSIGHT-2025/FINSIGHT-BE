@@ -9,6 +9,7 @@ import com.finsight.backend.repository.mapper.DetailHoldingsMapper;
 import com.finsight.backend.service.product.handler.ProductDtoHandler;
 import com.finsight.backend.service.product.handler.ProductVoHandler;
 import com.finsight.backend.domain.vo.product.ProductVO;
+import com.finsight.backend.domain.vo.product.DepositVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -47,17 +48,26 @@ public class ProductServiceImpl implements ProductService{
 
         ProductDetailDto dto = dtoHandler.toDetailDto(productVo);
 
-        // holdings 정보
+        // 보유 내역 정보 조회
         DetailHoldingsResponseDto holdings = detailHoldingsMapper.selectHoldingsByUserIdAndProductCode(userId, productCode);
         if (holdings != null) {
             Long holdingsId = holdings.getHoldingsId();
 
-            List<DetailHistoryVO> histories = detailHoldingsMapper.selectHistoriesByHoldingsId(holdingsId);
+            List<DetailHistoryVO> histories;
+            
+            // 예금은 구매 내역 1개만, 다른 상품은 전체 내역
+            if (expectedType.equals(DepositVO.class)) {
+                histories = detailHoldingsMapper.selectLatestBuyHistoryByHoldingsId(holdingsId);
+            } else {
+                histories = detailHoldingsMapper.selectHistoriesByHoldingsId(holdingsId);
+            }
+            
             holdings.setHistory(histories);
-
-            Boolean isWatched = detailHoldingsMapper.isProductWatched(userId, productCode);
-            holdings.setWatched(isWatched);
         }
+
+        // 사용자 관심 상품 여부 설정
+        Boolean userWatches = detailHoldingsMapper.isProductWatched(userId, productCode);
+        dto.setUserWatches(userWatches);
 
         dto.setHoldings(holdings);
 
@@ -70,7 +80,9 @@ public class ProductServiceImpl implements ProductService{
                                                                               String country,
                                                                               String type,
                                                                               String userId,
-                                                                              Boolean isMatched) {
+                                                                              Boolean isMatched,
+                                                                              Integer limit,
+                                                                              Integer offset) {
 
         @SuppressWarnings("unchecked")
         ProductVoHandler<T> matchedVoHandler = (ProductVoHandler<T>) voHandlers.stream()
@@ -78,7 +90,7 @@ public class ProductServiceImpl implements ProductService{
                 .findFirst()
                 .orElseThrow(CustomNotFoundProduct::new);
 
-        List<T> productList = matchedVoHandler.findProductListByFilter(sort, country, type, isMatched, userId);
+        List<T> productList = matchedVoHandler.findProductListByFilter(sort, country, type, isMatched, userId, limit, offset);
 
 
         @SuppressWarnings("unchecked")

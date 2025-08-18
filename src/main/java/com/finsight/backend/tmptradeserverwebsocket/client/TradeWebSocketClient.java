@@ -25,7 +25,6 @@ public class TradeWebSocketClient {
     private final InfluxDBService influxDBService;
     private final TradeServerService tradeServerService;
     private final WebSocketClient webSocketClient;
-    private final EtfCacheScheduler etfCacheScheduler;
 
     @Value("${tradedata.url}")
     private String webSocketUrl;
@@ -51,7 +50,7 @@ public class TradeWebSocketClient {
 
                         log.info("[시세 서버] WebSocket 연결 성공");
 
-                        // 연결 성공 후 딱 한 번 실행
+                        // 과거 ETF 데이터는 한 번만 저장
                         if (!historicalDataFetched) {
                             log.info("[시세 서버] 과거 ETF 데이터 비동기 저장 시작");
                             tradeServerService.fetchAndSaveHistoricalData();
@@ -68,7 +67,7 @@ public class TradeWebSocketClient {
                         log.error("[시세 서버] WebSocket 연결 중 예외 발생: {} - {}", e.getClass().getSimpleName(), e.getMessage());
                     }
 
-                    Thread.sleep(60000); // 재연결까지 대기 시간
+                    Thread.sleep(60000);
                 }
             } catch (InterruptedException e) {
                 log.error("[시세 서버] WebSocket 클라이언트 스레드 중단", e);

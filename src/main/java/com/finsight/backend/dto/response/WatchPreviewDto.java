@@ -2,15 +2,16 @@ package com.finsight.backend.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+import java.util.List;
+
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EtfPriceHistoryDto {
-    private Long timestamp;
-    private Double currentPrice;
-    private Long currentVolume;
+public class WatchPreviewDto {
+    private List<WatchPreviewItemDto> watchItems;
+    private int totalCount;
 }
