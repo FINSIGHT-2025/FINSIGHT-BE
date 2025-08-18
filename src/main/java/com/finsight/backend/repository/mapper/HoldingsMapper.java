@@ -36,5 +36,7 @@ public interface HoldingsMapper {
     List<HoldingDetailDto> selectFundHoldingsByUserId(String userId);
     List<HoldingDetailDto> selectEtfHoldingsByUserId(String userId);
     List<HoldingDetailDto> selectDepositHoldingsByUserId(String userId);
+
+    Double selectTotalHoldingsAmountByUserId(String userId);
 }
 
