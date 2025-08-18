@@ -17,7 +17,9 @@ public class NewsScheduler {
     /**
      * 뉴스 수집 배치 작업
      */
-//    @Scheduled(cron = "0 0 3 * * *")
+
+    // 새벽 4시, 오전 8시, 오후 12시, 오후 4시, 저녁 7시에 실행 (월~금)
+//    @Scheduled(cron = "0 0 4,8,12,16,19 * * MON-FRI")
     public void runNewsBatch() {
         log.info(">>>> News Batch job started.");
 

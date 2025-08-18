@@ -42,7 +42,7 @@ public class HoldingsControllerTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     }
 
-    private TradeRequest createRequest(String type, int quantity, long amount) {
+    private TradeRequest createRequest(String type, int quantity, double amount) {
         TradeRequest request = new TradeRequest();
         request.setUserId("user123");
         request.setProductCode("KR5301A74911");

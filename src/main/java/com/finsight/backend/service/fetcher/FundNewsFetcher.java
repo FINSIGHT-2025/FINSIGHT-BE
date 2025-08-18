@@ -42,7 +42,9 @@ public class FundNewsFetcher implements NewsFetcher {
         }
 
         LocalDate to = LocalDate.now();
-        LocalDate from = to.minusDays(7);
+        // 임시 수집 뉴스 ( 7일 뉴스 수집 )
+        // LocalDate from = to.minusDays(7);
+        LocalDate from = to.minusDays(0);
 
         NewsApiRequestDTO requestDTO = NewsApiRequestDTO.builder()
                 .keywords(keywords)
