@@ -8,12 +8,14 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
+/*@DependsOn("influxDBClient")*/
 public class InitJobRunner implements ApplicationListener<ContextRefreshedEvent> {
 
     private final JobLauncher jobLauncher;
