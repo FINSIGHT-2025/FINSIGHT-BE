@@ -22,7 +22,7 @@ public class NewsApiRequestDTO {
     private String order = "score";  // 기본값 고정
 
     @Builder.Default
-    private Integer pageSize = 10;   // 기본값 100
+    private Integer pageSize = 10;   // 기본값 10
 
 
 }
