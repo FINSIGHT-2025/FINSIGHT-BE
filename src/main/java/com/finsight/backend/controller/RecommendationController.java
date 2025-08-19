@@ -3,6 +3,7 @@ package com.finsight.backend.controller;
 import com.finsight.backend.common.adapter.ProductAdapter;
 import com.finsight.backend.common.exception.ErrorCode;
 import com.finsight.backend.domain.vo.product.ProductVO;
+import com.finsight.backend.dto.response.ProductByFilterDto;
 import com.finsight.backend.dto.response.ProductDetailDto;
 import com.finsight.backend.service.AuthService;
 import com.finsight.backend.service.product.ProductService;
@@ -50,7 +51,7 @@ public class RecommendationController {
                     .body(ErrorCode.NOT_PATH_INVALID.getMessage());
         }
 
-        ProductDetailDto productDetailDto = productService.findProduct(productCode, productType, userId);
-        return ResponseEntity.ok(productDetailDto);
+        ProductByFilterDto recommendProductDto = productService.recommendProduct(productCode, productType, userId);
+        return ResponseEntity.ok(recommendProductDto);
     }
 }

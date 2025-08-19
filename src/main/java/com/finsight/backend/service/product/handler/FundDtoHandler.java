@@ -26,7 +26,6 @@ public class FundDtoHandler implements ProductDtoHandler<FundVO> {
     private final DetailHoldingsMapper detailHoldingsMapper;
     private final EtfPriceService etfPriceService;
 
-//     private static Map<String, Supplier<List<FundByFilterDto>>> SORT_HANDLERS;
     @Override
     public Class<FundVO> getProductType() {
         return FundVO.class;
@@ -62,20 +61,24 @@ public class FundDtoHandler implements ProductDtoHandler<FundVO> {
                                     etfPriceService.getPercentChangeFrom3MonthsAgo("fund_nav", fund.getProductCode()),
                                     etfPriceService.getCurrent("fund_aum", fund.getProductCode()));
                 }).toList();
-                // SORT_HANDLERS = Map.of(
-                //         "rate_of_return", () -> fundByFilterDtoList.stream()
-                //                 .sorted(Comparator.comparing(FundByFilterDto::getProductRateOfReturn).reversed())
-                //                 .toList(),
-                //         "fund_scale", () -> fundByFilterDtoList.stream()
-                //                 .sorted(Comparator.comparing(FundByFilterDto::getFundScale).reversed())
-                //                 .toList()
-                // );
-                // return SORT_HANDLERS.get(sort).get().stream()
-        
         return fundByFilterDtoList.stream()
                 .map(fund -> (ProductByFilterDto) fund)
                 .toList();
     }
+
+    @Override
+    public ProductByFilterDto recommendProductDto(FundVO product, String userId) {
+        HoldingsVO holdingDeposit = holdingsMapper.findByUserAndProduct(userId, product.getProductCode());
+
+        Boolean userOwn = holdingDeposit == null || holdingDeposit.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
+        return FundByFilterDto.fundVoToFundByFilterDto(product,
+                newsSentimentPer(newsMapper.findNewsSentimentByProductCode(product.getProductCode())),
+                userOwn,
+                detailHoldingsMapper.isProductWatched(userId, product.getProductCode()),
+                etfPriceService.getPercentChangeFrom3MonthsAgo("fund_nav", product.getProductCode()),
+                etfPriceService.getCurrent("fund_aum", product.getProductCode()));
+    }
+
     public NewsSentimentTotalDto newsSentimentPer(List<String> newsSentimentList){
         Map<String, Long> sentimentCnt = newsSentimentList.stream()
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));

@@ -66,4 +66,20 @@ public class DepositDtoHandler implements ProductDtoHandler<DepositVO>{
                 })
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public ProductByFilterDto recommendProductDto(DepositVO product, String userId) {
+        DOptionVO dOptionVO = product.getDOption().stream()
+                .findFirst()
+                .orElseThrow(null);
+        HoldingsVO holdingDeposit = holdingsMapper.findByUserAndProduct(userId, product.getProductCode());
+        Boolean userOwn = holdingDeposit == null || holdingDeposit.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
+        return DepositByFilterDto.depositVoToDepositByFilterDto(
+                product,
+                dOptionVO.getDOptionIntrRate(),
+                dOptionVO.getDOptionIntrRate2(),
+                userOwn,
+                detailHoldingsMapper.isProductWatched(userId, product.getProductCode())
+        );
+    }
 }
