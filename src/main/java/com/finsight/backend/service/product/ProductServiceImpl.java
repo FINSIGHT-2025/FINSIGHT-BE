@@ -101,4 +101,21 @@ public class ProductServiceImpl implements ProductService{
 
         return productDtoHandler.toFilterDto(productList, userId, sort);
     }
+
+    @Override
+    public <T extends ProductVO> ProductByFilterDto recommendProduct(String productCode, Class<T> expectedType, String userId) {
+        T productVo =  voHandlers.stream()
+                .filter(handler -> handler.getProductType().equals(expectedType))
+                .findFirst()
+                .map(handler -> expectedType.cast(handler.findProduct(productCode)))
+                .orElseThrow(CustomNotFoundProduct::new);
+
+        @SuppressWarnings("unchecked")
+        ProductDtoHandler<T> productDtoHandler =  (ProductDtoHandler<T>) dtoHandlers.stream()
+                .filter(handler -> handler.getProductType().equals(expectedType))
+                .findFirst()
+                .orElseThrow(CustomNotFoundProduct::new);
+
+        return productDtoHandler.recommendProductDto(productVo, userId);
+    }
 }

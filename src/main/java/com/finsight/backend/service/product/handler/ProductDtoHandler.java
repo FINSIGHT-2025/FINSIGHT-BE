@@ -10,4 +10,6 @@ public interface ProductDtoHandler<T extends ProductVO> {
     Class<T> getProductType();
     ProductDetailDto toDetailDto(T product);
     List<ProductByFilterDto> toFilterDto(List<T> product, String userId, String sort);
+
+    ProductByFilterDto recommendProductDto(T product, String userId);
 }
