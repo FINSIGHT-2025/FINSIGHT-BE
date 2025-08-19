@@ -17,4 +17,5 @@ public interface ProductService {
                                                                        Boolean isMatched,
                                                                        Integer limit,
                                                                        Integer offset);
+    <T extends ProductVO> ProductByFilterDto recommendProduct(String productCode, Class<T> expectedType, String userId);
 }

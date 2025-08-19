@@ -25,7 +25,6 @@ public class EtfDtoHandler implements ProductDtoHandler<EtfVO>{
     private final DetailHoldingsMapper detailHoldingsMapper;
     private final EtfPriceService etfPriceService;
 
-//     private static Map<String, Supplier<List<EtfByFilterDto>>> SORT_HANDLERS;
     @Override
     public Class<EtfVO> getProductType() {
         return EtfVO.class;
@@ -44,9 +43,9 @@ public class EtfDtoHandler implements ProductDtoHandler<EtfVO>{
     public List<ProductByFilterDto> toFilterDto(List<EtfVO> product, String userId, String sort) {
         List<EtfByFilterDto> etfByFilterDtoList = product.stream()
                 .map((EtfVO etf) -> {
-                    HoldingsVO holdingDeposit = holdingsMapper.findByUserAndProduct(userId, etf.getProductCode());
+                    HoldingsVO holdingEtf = holdingsMapper.findByUserAndProduct(userId, etf.getProductCode());
 
-                    Boolean userOwn = holdingDeposit == null || holdingDeposit.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
+                    Boolean userOwn = holdingEtf == null || holdingEtf.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
 
                     return EtfByFilterDto.etfVoToEtfByFilterDto(etf,
                                     newsSentimentPer(newsMapper.findNewsSentimentByProductCode(etf.getProductCode())),
@@ -56,18 +55,21 @@ public class EtfDtoHandler implements ProductDtoHandler<EtfVO>{
                             );
                         }
                 ).toList();
-        // SORT_HANDLERS = Map.of(
-        //         "asc", () -> etfByFilterDtoList.stream()
-        //                 .sorted(Comparator.comparing(EtfByFilterDto::getEtfNav).reversed())
-        //                 .toList(),
-        //         "desc", () -> etfByFilterDtoList.stream()
-        //                 .sorted(Comparator.comparing(EtfByFilterDto::getEtfNav))
-        //                 .toList()
-        // );
-        // return SORT_HANDLERS.get(sort).get().stream()
         return etfByFilterDtoList.stream()
                 .map(etf -> (ProductByFilterDto) etf)
                 .toList();
+    }
+
+    @Override
+    public ProductByFilterDto recommendProductDto(EtfVO product, String userId) {
+        HoldingsVO holdingsEtf = holdingsMapper.findByUserAndProduct(userId, product.getProductCode());
+        Boolean userOwn = holdingsEtf == null || holdingsEtf.getHoldingsStatus().equals("zero") ? Boolean.FALSE : Boolean.TRUE;
+        return EtfByFilterDto.etfVoToEtfByFilterDto(product,
+                newsSentimentPer(newsMapper.findNewsSentimentByProductCode(product.getProductCode())),
+                userOwn,
+                detailHoldingsMapper.isProductWatched(userId, product.getProductCode()),
+                etfPriceService.getCurrent("etf_nav", product.getProductCode())
+        );
     }
 
     public NewsSentimentTotalDto newsSentimentPer(List<String> newsSentimentList){
