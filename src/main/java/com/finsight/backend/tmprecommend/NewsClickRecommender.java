@@ -7,6 +7,7 @@ import com.finsight.backend.dto.response.ProductScore;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -14,6 +15,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Component
 public class NewsClickRecommender {
 
     private final MongoTemplate mongoTemplate;
