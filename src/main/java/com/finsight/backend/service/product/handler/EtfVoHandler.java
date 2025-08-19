@@ -10,15 +10,18 @@ import com.finsight.backend.domain.vo.product.EtfVO;
 import com.finsight.backend.tmptradeserverwebsocket.service.EtfPriceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class EtfVoHandler implements ProductVoHandler<EtfVO> {
     private final EtfMapper etfMapper;
     private final InvTestMapper invTestMapper;
     private final InvUtil invUtil;
+    private final EtfPriceService etfPriceService;
 
     @Override
     public EtfVO findProduct(String productCode) {
@@ -50,6 +53,17 @@ public class EtfVoHandler implements ProductVoHandler<EtfVO> {
         Integer[] riskGradeRange = invUtil.riskGradeRange(invType);
         Integer[] all = new Integer[]{1, 2, 3, 4, 5, 6};
 
+        if(sort.equals("asc") || sort.equals("desc")){
+            // etf_nav 기준 asc/desc 정렬
+            List<String> allSortedProductCodes = etfPriceService.getAllSortedProductCodes("etf_nav", sort);
+            if (allSortedProductCodes.isEmpty()) {
+                return List.of();
+            }
+            return isMatched ?
+                    etfMapper.findEtfListByInfluxFilter(allSortedProductCodes, productCountry, productType, riskGradeRange, limit, offset) :
+                    etfMapper.findEtfListByInfluxFilter(allSortedProductCodes, productCountry, productType, all, limit, offset);
+        }
+        // 기존 처리 방식
         return isMatched ?
                 etfMapper.findEtfListByFilter(productCountry, productType, riskGradeRange, limit, offset) :
                 etfMapper.findEtfListByFilter(productCountry, productType, all, limit, offset);

@@ -45,7 +45,7 @@
             left join F_Stock_Holdings FSH on Fund.product_code = FSH.product_code
         where Fund.product_code = #{productCode};
     </select>
-    <select id="findFundListByFilter" resultMap="fundResultMap">
+    <select id="findFundListByFilter" resultMap="fundResultMap" parameterType="map">
         SELECT *
         FROM Fund
         <where>
@@ -64,6 +64,41 @@
                 </if>
             </trim>
         </where>
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    
+    <select id="findFundListByInfluxFilter" resultMap="fundResultMap">
+        SELECT *
+        FROM Fund
+        <where>
+            <trim prefixOverrides="and ">
+                <if test="sortedProductCodes != null and sortedProductCodes.size() > 0">
+                    AND product_code IN
+                    <foreach item="code" collection="sortedProductCodes" open="(" separator="," close=")">
+                        #{code}
+                    </foreach>
+                </if>
+                <if test="productCountry != null">
+                    and fund_country = #{productCountry}
+                </if>
+                <if test="productType != null">
+                    and fund_type = #{productType}
+                </if>
+                <if test="productRiskGrade != null and productRiskGrade.length > 0">
+                    AND product_risk_grade IN
+                    <foreach item="grade" collection="productRiskGrade" open="(" separator="," close=")">
+                        #{grade}
+                    </foreach>
+                </if>
+            </trim>
+        </where>
+        ORDER BY FIELD(product_code, 
+            <foreach item="code" collection="sortedProductCodes" separator=",">
+                #{code}
+            </foreach>
+        )
         <if test="limit != null and offset != null">
             LIMIT #{limit} OFFSET #{offset}
         </if>

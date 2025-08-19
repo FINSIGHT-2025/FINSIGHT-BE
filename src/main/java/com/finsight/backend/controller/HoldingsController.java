@@ -2,6 +2,7 @@ package com.finsight.backend.controller;
 
 import com.finsight.backend.dto.request.TradeRequest;
 import com.finsight.backend.common.exception.InvTestException;
+import com.finsight.backend.dto.response.PortfolioDto;
 import com.finsight.backend.service.HoldingsService;
 import com.finsight.backend.service.TradeService;
 import com.finsight.backend.common.util.HeaderUtil;
@@ -237,6 +238,33 @@ public class HoldingsController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
     }
-    
 
+    @GetMapping("/portfolio") // 새로운 통합 엔드포인트
+    public ResponseEntity<?> getPortfolio(HttpServletRequest request) {
+        try {
+            // JWT 토큰 검증 및 userId 추출 로직 (기존과 동일, 하나로 합침)
+            String accessToken = HeaderUtil.refineHeader(request, "Authorization", "Bearer ")
+                    .orElseThrow(() -> new InvTestException("인증 토큰이 필요합니다.", HttpStatus.UNAUTHORIZED));
+
+            Claims claims = jwtUtil.validateToken(accessToken);
+            String userId = claims.get("userId", String.class);
+            if (userId == null) {
+                throw new InvTestException("토큰에 사용자 ID 정보가 없습니다.", HttpStatus.FORBIDDEN);
+            }
+
+            // 새로운 서비스 메소드 호출
+            PortfolioDto portfolio = holdingsService.getPortfolioDetails(userId);
+
+            return ResponseEntity.ok(portfolio); // 성공 응답
+
+        } catch (JwtException e) {
+            // JWT 관련 예외 처리
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "유효하지 않은 토큰입니다."));
+        } catch (Exception e) {
+            // 그 외 모든 예외 처리
+            System.err.println("[에러] 포트폴리오 조회 중 예외 발생: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "서버 내부 오류가 발생했습니다."));
+        }
+
+    }
 }

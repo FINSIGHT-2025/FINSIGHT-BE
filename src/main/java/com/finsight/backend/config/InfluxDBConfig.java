@@ -31,7 +31,7 @@ public class InfluxDBConfig {
     public InfluxDBClient influxDBClient() {
         OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder()
                 .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(180, TimeUnit.SECONDS)
                 .writeTimeout(60, TimeUnit.SECONDS);
 
         InfluxDBClientOptions options = InfluxDBClientOptions.builder()

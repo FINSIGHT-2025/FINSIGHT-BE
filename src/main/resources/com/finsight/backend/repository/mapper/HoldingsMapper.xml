@@ -397,5 +397,11 @@
             AND Holdings.holdings_status NOT IN ('terminated', 'zero')
         ORDER BY Holdings.holdings_id
     </select>
-    
+
+    <select id="selectTotalHoldingsAmountByUserId" parameterType="string" resultType="double">
+        SELECT SUM(holdings_total_price)
+        FROM Holdings
+        WHERE user_id = #{userId}
+    </select>
+
 </mapper>
