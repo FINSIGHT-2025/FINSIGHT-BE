@@ -31,85 +31,47 @@
             d.product_name         AS productName,
             d.product_company_name AS productCompanyName,
             d.product_risk_grade   AS productRiskGrade,
-            do.d_option_intr_rate  AS depositIntrRate,
-            do.d_option_intr_rate2 AS depositIntrRate2,
             FALSE                  AS userOwns,     -- TODO
             FALSE                  AS userWatches,  -- TODO
             FALSE                  AS isPopularInUserGroup -- TODO
         FROM deposit d
-            LEFT JOIN d_option do
-                ON d.product_code = do.product_code
-                    AND do.d_option_save_trm = 12
         WHERE d.product_name LIKE CONCAT('%', #{word}, '%')
+            OR d.product_code LIKE CONCAT('%', #{word}, '%')
         ORDER BY d.product_name ASC
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
 
     <select id="findFundsByWordPaged" parameterType="map" resultType="com.finsight.backend.dto.response.search.SearchFundResponseDTO">
-        WITH sentiments AS (
-            SELECT
-                np.product_code,
-                SUM(CASE WHEN n.news_sentiment='positive' THEN 1 ELSE 0 END) AS posCnt,
-                SUM(CASE WHEN n.news_sentiment='neutral'  THEN 1 ELSE 0 END) AS neuCnt,
-                SUM(CASE WHEN n.news_sentiment='negative' THEN 1 ELSE 0 END) AS negCnt,
-                COUNT(*) AS totalCnt
-            FROM news_product np
-                     JOIN news n ON n.news_id = np.news_id
-            WHERE np.news_product_category = 'fund'
-              AND n.news_published_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-            GROUP BY np.product_code
-        )
         SELECT
             f.product_code       AS productCode,
             f.fund_country       AS productCountry,
             f.fund_type          AS productType,
             f.product_name       AS productName,
-            0                    AS productRateOfReturn, -- TODO
-            20                   AS fundScale,           -- TODO
             f.product_risk_grade AS productRiskGrade,
-            CASE WHEN s.totalCnt>0 THEN ROUND(s.posCnt*100.0/s.totalCnt,1) ELSE 0 END AS newsPositive,
-            CASE WHEN s.totalCnt>0 THEN ROUND(s.neuCnt*100.0/s.totalCnt,1) ELSE 0 END AS newsNeutral,
-            CASE WHEN s.totalCnt>0 THEN ROUND(s.negCnt*100.0/s.totalCnt,1) ELSE 0 END AS newsNegative,
             FALSE                AS userOwns,            -- TODO
             FALSE                AS userWatches,         -- TODO
             FALSE                AS isPopularInUserGroup -- TODO
         FROM fund f
-            LEFT JOIN sentiments s ON s.product_code = f.product_code
         WHERE f.product_name LIKE CONCAT('%', #{word}, '%')
+           OR f.product_code LIKE CONCAT('%', #{word}, '%')
         ORDER BY f.product_name ASC
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <select id="findEtfsByWordPaged" parameterType="map" resultType="com.finsight.backend.dto.response.search.SearchEtfResponseDTO">
-        WITH sentiments AS (
-            SELECT
-                np.product_code,
-                SUM(CASE WHEN n.news_sentiment='positive' THEN 1 ELSE 0 END) AS posCnt,
-                SUM(CASE WHEN n.news_sentiment='neutral'  THEN 1 ELSE 0 END) AS neuCnt,
-                SUM(CASE WHEN n.news_sentiment='negative' THEN 1 ELSE 0 END) AS negCnt,
-                COUNT(*) AS totalCnt
-            FROM news_product np
-                     JOIN news n ON n.news_id = np.news_id
-            WHERE np.news_product_category = 'etf'
-              AND n.news_published_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-            GROUP BY np.product_code
-        )
         SELECT
             e.product_code       AS productCode,
             e.etf_country        AS productCountry,
             e.etf_type           AS productType,
             e.product_name       AS productName,
             e.product_risk_grade AS productRiskGrade,
-            CASE WHEN s.totalCnt>0 THEN ROUND(s.posCnt*100.0/s.totalCnt,1) ELSE 0 END AS newsPositive,
-            CASE WHEN s.totalCnt>0 THEN ROUND(s.neuCnt*100.0/s.totalCnt,1) ELSE 0 END AS newsNeutral,
-            CASE WHEN s.totalCnt>0 THEN ROUND(s.negCnt*100.0/s.totalCnt,1) ELSE 0 END AS newsNegative,
             FALSE                AS userOwns,               -- TODO
             FALSE                AS userWatches,            -- TODO
             FALSE                AS isPopularInUserGroup    -- TODO
         FROM etf e
-            LEFT JOIN sentiments s ON s.product_code = e.product_code
         WHERE e.product_name LIKE CONCAT('%', #{word}, '%')
+           OR e.product_code LIKE CONCAT('%', #{word}, '%')
         ORDER BY e.product_name ASC
         LIMIT #{limit} OFFSET #{offset}
     </select>

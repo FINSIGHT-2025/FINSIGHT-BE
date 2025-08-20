@@ -11,9 +11,7 @@ public class SearchDepositResponseDTO {
     private String productCode;
     private String productName;
     private String productCompanyName;
-    private String productRiskGrade;
-    private Double depositIntrRate;
-    private Double depositIntrRate2;
+    private Integer productRiskGrade;
     private boolean userOwns;
     private boolean userWatches;
     private boolean isPopularInUserGroup;

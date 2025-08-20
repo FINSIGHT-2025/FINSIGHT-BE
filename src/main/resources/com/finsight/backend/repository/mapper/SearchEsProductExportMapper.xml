@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finsight.backend.repository.mapper.SearchEsProductExportMapper">
+
+    <!-- 예금 -->
+    <select id="selectDepositsForEs" resultType="map">
+        SELECT
+            d.product_code         AS productCode,
+            d.product_name         AS productName,
+            d.product_company_name AS productCompanyName,
+            CAST(d.product_risk_grade AS SIGNED) AS productRiskGrade,
+            'deposit'              AS domain
+        FROM Deposit d
+    </select>
+
+    <!-- 펀드 -->
+    <select id="selectFundsForEs" resultType="map">
+        SELECT
+            f.product_code         AS productCode,
+            f.product_name         AS productName,
+            f.product_company_name AS productCompanyName,
+            CAST(f.product_risk_grade AS SIGNED) AS productRiskGrade,
+            CASE f.fund_country
+                WHEN 'domestic' THEN 'domestic' ELSE 'foreign' END AS productCountry,
+            CASE f.fund_type
+                WHEN 'equity' THEN 'equity'
+                WHEN 'mixed'  THEN 'mixed'
+                ELSE 'bond' END AS productType,
+            'fund'                AS domain
+        FROM Fund f
+    </select>
+
+    <!-- ETF -->
+    <select id="selectEtfsForEs" resultType="map">
+        SELECT
+            e.product_code         AS productCode,
+            e.product_name         AS productName,
+            e.product_company_name AS productCompanyName,
+            CAST(e.product_risk_grade AS SIGNED) AS productRiskGrade,
+            CASE e.etf_country
+                WHEN 'domestic' THEN 'domestic' ELSE 'foreign' END AS productCountry,
+            CASE e.etf_type
+                WHEN 'equity' THEN 'equity'
+                WHEN 'mixed'  THEN 'mixed'
+                ELSE 'bond' END AS productType,
+            'etf'                 AS domain
+        FROM Etf e
+    </select>
+
+</mapper>
